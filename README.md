@@ -17,7 +17,7 @@ TODO:
 
 7. 全局配置
 ``` javascript
-SMValidator.config({
+SMValidator.rules({
   rule1: [/abc/, 'message'],
   rule2: function(val, param2, param3, ...) {
       return /abc/.test(val) || 'message'
@@ -27,7 +27,9 @@ SMValidator.config({
 
 8. js局部配置
 ``` javascript
-new SMValidator('querySelector', {
+var smv = new SMValidator('querySelector', {
+  blur: false, //如果为true，则onBlur事件时验证，默认是input事件验证
+  manul: false, //如果为true，则所有fields都手动验证，blur设置失效
   rules: { /*和全局配置一样*/},
   fields: {
     field1Name: String|Function|Array,
@@ -36,15 +38,20 @@ new SMValidator('querySelector', {
       rule: RegExp|Function,
       errSelector: '',
       errClass: '',
-      message: ''
+      message: '',
+      manul: false //是否手动验证，默认值为false
     }
   }
 })
+//设置了manul:true则需要手动验证
+smv.test() //验证全部manual为false的表单
+smv.test(fieldName) //单独验证一个表单
+smv.test([field1Name, field2Name]) //验证数组里的表单
 ```
 
 9. html配置
 ```
-<input data-rule="/abc/;rule1;rule2(0,10);rule3:不能为空;<errSelector>;{errClass}">
+<input data-rule="/abc/;rule1;rule2(0,10);rule3:不能为空;$errSelector;*errClass;@blur;@manul">
 ```
 
 # 参考
