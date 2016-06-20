@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SMValidator Demo</title>
+    <script src="SMValidator.js"></script>
+</head>
+<body>
+    <form action="">
+        <input type="text" data-rule="/abc/i/请输入ABC;#errorSelecor;@blur">
+        <input type="text" data-rule="pass(错误提示);#errorSelecor">
+        <input type="text" name="email">
+        <input type="text" name="mobile">
+    </form>
+    <script>
+        var smv = new SMValidator('form', {
+            rules: {
+                pass: function(val, msg) {
+                    return (val === 'abc') || msg;
+                }
+            },
+            fields: {
+                email: [/abcdefg/, '你输入的不是abcdefg'],
+                mobile: function(val) {
+                    return (val === '123') || '请输入123';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
