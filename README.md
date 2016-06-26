@@ -1,9 +1,7 @@
 # sm-validator
 一个简单的表单验证库，不依赖任何第三方库
 
-TODO:
-
-- 可手动或及时验证，手动验证可实现异步，传入true或false强制处理表单验证结果
+- 可手动或及时验证，手动验证可实现异步
 
 - 传入form或input绑定，如果是input的话有些配置失效
 
@@ -73,6 +71,13 @@ smv.test([field1Name, field2Name]) //验证数组里的表单
 
 - 优先级
 html规则优先于js规则，局部规则优先于全局规则，fields里的属性优先于外部属性
+
+# TODO
+1. 手动验证和服务器验证，submit方法
+
+2. 添加required,length等内置规则
+
+3. 完美demo和文档、注释
 
 # 参考
 nice-validator
