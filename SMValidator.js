@@ -10,10 +10,23 @@
 } (this, function () {
     'use strict';
 
+    var document = window.document;
+    /**全局配置 */
+    var config = {
+        failHtml: '<span style="color:#c33;"></span>',
+        failStyle: {
+            color: '#c33',
+            border: '1px solid #c33'
+        },
+        rules: {}
+    };
+
     function SMValidator(selectors, options) {
         this.blur = options.blur;
         this.manul = options.manul;
         this.rules = options.rules || {};
+        this.failHtml = options.failHtml || config.failHtml;
+        this.failStyle = options.failStyle || config.failStyle;
         this.fields = {};
         for(var k in options.fields) {
             this.fields[k] = this.parseRule(options.fields[k]);
@@ -31,30 +44,18 @@
         }
     }
 
-    /**全局公共验证规则 */
-    var globalRules = {};
-    /**公共显示错误的html */
-    var globalErrorHtml = '<span></span>';
-
     /**设置全局公共验证规则 */
-    SMValidator.rules = function (options) {
-        for(var k in options) {
-            globalRules[k] = parseRule(options[k]);
+    SMValidator.config = function (options) {
+        if(options.failHtml) config.failHtml = options.failHtml;
+        if(options.rules) {
+            for(var k in options.rules) {
+                config.rules[k] = parseRule(options.rules[k]);
+            }
         }
     }
     /**手动验证表单 */
     SMValidator.test = function () {
         
-    }
-
-    function toggleClass(input, className, isAdd) {
-        if(isAdd) console.log('添加样式：' + className);
-        else console.log('去掉样式：' + className);
-    }
-
-    function toggleMessage(input, selector, isShow, message) {
-        if(isShow) console.log('显示错误：' + message);
-        else console.log('隐藏：' + message);
     }
 
     var _proto = SMValidator.prototype;
@@ -66,6 +67,38 @@
             input.__SMRule__ = item;
             if(!item.blur) item.blur = this.blur;
             if(!item.manul) item.manul = this.manul;
+
+            if(item.failStyle !== false) {
+                //设置验证失败后input的样式及记录原始样式
+                if(!item.failStyle) {
+                    item.failStyle = this.failStyle || config.failStyle;
+                }
+                item.oldStyle = {};
+                for(var k in item.failStyle) {
+                    item.oldStyle[k] = input.style[k];
+                }
+            }
+            //如果规则里带有failSelector且可以查询出对应的Element
+            //则使用该Element作为显示消息的容器
+            //否则使用fialHtml生成Element作为容器
+            if(item.failSelector) {
+                var es = document.querySelectorAll(item.failSelector);
+                if(es.length) {
+                    item.failSelector = es;
+                    //跳出函数，不执行下面创建failHtml对象的代码
+                    return;
+                }else {
+                    item.failSelector = null;
+                }
+            }
+            //如果failSelector不存在或查询失败则执行下面代码自动生成显示失败信息的容器
+            if(!item.failHtml) {
+                item.failHtml = this.failHtml || config.failHtml;
+            }
+            var div = document.createElement('div');
+            div.innerHTML = item.failHtml;
+            item.failHtml = div.childNodes[0];
+            input.parentNode.insertBefore(item.failHtml, input.nextElementSibling);
         }
     }
 
@@ -78,7 +111,7 @@
             item.params = str.substring(begin + 1, end).split(',');
             str = str.substring(0, begin);
         }
-        item.rule = this.rules[str] || globalRules[str];
+        item.rule = this.rules[str] || config[str];
         return item;
     }
 
@@ -100,11 +133,11 @@
                     validator.rules.push({rule: new RegExp(a[0], 'i'), message: a[2]});
                 }
             }else if(head === '#') {
-                //显示错误消息的标签选择器
-                validator.errSelector = body;
+                //显示失败消息的标签选择器
+                validator.failSelector = body;
             }else if(head === '!') {
-                //表示错误的样式名
-                validator.errClass = body;
+                //表示失败的样式名
+                validator.failClass = body;
             }else if(head === '@') {
                 //内建属性
                 validator[body] = true;
@@ -120,11 +153,11 @@
      * 解析验证规则，有四种类型
      * 1、Array [/abc/, 'message']
      * 2、Function function(val){ return /abc/.test(val) || 'message';}
-     * 3、String '/abc/i/message;rule1;rule2(0,10);#errSelector;!errClass;@blur;@manul'
+     * 3、String '/abc/i/message;rule1;rule2(0,10);#failSelector;!failClass;@blur;@manul'
      * 4、Object {
      *               rule: 'rule1;rule2(0,10)'|Array|Function,
-     *               errSelector: '',
-     *               errClass: '',
+     *               failSelector: '',
+     *               failClass: '',
      *               blur: false,
      *               manul: false //是否手动验证，默认值为false
      *           }
@@ -153,6 +186,35 @@
         }
     }
 
+    /**
+     * 验证通过时去掉样式，验证失败时添加样式
+     * @param input
+     * @param failClassName 设置的样式名
+     * @param isPass 是否验证通过
+     */
+    function toggleClass(input, failClassName, isPass) {
+        var cns = input.className.split(' ');
+        var i = cns.indexOf(failClassName);
+        if(isPass && i > -1) {
+            cns.split(i, 1);
+            input.className = cns.join(' ');
+        }else if(!isPass && i === -1){
+            input.className += ' ' + failClassName;
+        }
+    }
+
+    function toggleSelector(input, selectors, isPass) {
+        for(var selector in selectors) {
+            selector.style.display = isPass ? '' : 'none';
+        }
+    }
+
+    function applyStyle(input, style) {
+        for(var k in style) {
+            input.style[k] = style[k];
+        }
+    }
+
     function validate(input) {
         //暂时只支持text的验证
         if(input.type === 'text') {
@@ -176,22 +238,24 @@
                 }
             }
             
-            if(msg === true) {//验证成功
-                //去掉错误样式，隐藏错误提示
-                if(item.errClass) toggleClass(input, item.errClass, false);
-                if(item.errSelector){
-                    toggleMessage(input, item.errSelector, false);
+            if(msg === true) {
+                //验证成功，去掉失败样式，隐藏失败提示
+                if(item.failClass) toggleClass(input, item.failClass, true);
+                if(item.failStyle) applyStyle(input, item.oldStyle);
+                if(item.failSelector){
+                    toggleSelector(input, item.failSelector, true);
                 }else {
-                    
+                    item.failHtml.style.display = 'none';
                 }
-            }else {//验证失败
-                //添加错误样式，显示错误提示
-                if(item.errClass) toggleClass(input, item.errClass, true);
-                if(item.errSelector) {
-                    toggleMessage(input, item.errSelector, true, msg);
+            }else {
+                //验证失败，添加失败样式，显示失败提示
+                if(item.failClass) toggleClass(input, item.failClass, false);
+                if(item.failStyle) applyStyle(input, item.failStyle);
+                if(item.failSelector) {
+                    toggleSelector(input, item.failSelector, false);
                 }else {
-                    //TODO 如果没有指定显示错误的位置，则手动创建
-                    //TODO 考虑是否提供用户自定义插入的标签的功能
+                    item.failHtml.innerText = msg;
+                    item.failHtml.style.display = '';
                 }
             }
         }

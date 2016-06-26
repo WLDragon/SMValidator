@@ -11,16 +11,23 @@ TODO:
 
 - 规则可以通过js或html来配置
 
-- errClass验证失败时添加的类，局部配置中与input对应
+- failClass验证失败时添加的类，局部配置中与input对应
 
-- errSelector验证失败时显示的element，忽略时则在input后面添加span
+- failSelector验证失败时显示的element，忽略时则在input后面添加span
 
 - 全局配置
 ``` javascript
-SMValidator.rules({
-  rule1: [/abc/, 'message'],
-  rule2: function(val, param2, param3, ...) {
-      return /abc/.test(val) || 'message';
+SMValidator.config({
+  failHtml: '<span style="color:#c33;"></span>',
+  failStyle: {
+    color: '#c33',
+    border: '1px solid #c33'
+  },
+  rules: {
+    rule1: [/abc/, 'message'],
+    rule2: function(val, param2, param3, ...) {
+        return /abc/.test(val) || 'message';
+    }
   }
 })
 ```
@@ -31,14 +38,18 @@ var smv = new SMValidator('querySelector', {
   blur: false, //如果为true，则change事件验证，默认是input/propertychange事件验证
   manul: false, //如果为true，则所有fields都手动验证，blur设置失效
   rules: { /*和全局配置一样*/},
+  failHtml: '<span></span>',
+  failStyle: null,
   fields: {
     field1Name: [/abc/, 'message'],
     field2Name: function(val){ return /abc/.test(val) || 'message';},
-    field3Name: '/abc/i/message;rule1;rule2(0,10);#errSelector;!errClass;@blur;@manul',
+    field3Name: '/abc/i/message;rule1;rule2(0,10);#failSelector;!failClass;@blur;@manul',
     field4Name: {
       rule: 'rule1;rule2(0,10)'|Array|Function,
-      errSelector: '',
-      errClass: '',
+      failSelector: '',
+      failHtml: '',
+      failStyle: null, //如果设置为false则不使用任何样式
+      failClass: '',
       blur: false,
       manul: false //是否手动验证，默认值为false
     }
@@ -57,7 +68,7 @@ smv.test([field1Name, field2Name]) //验证数组里的表单
 
 - html配置
 ```
-<input data-rule="/abc/i/message;rule1;rule2(0,10);#errSelector;!errClass;@blur;@manul">
+<input data-rule="/abc/i/message;rule1;rule2(0,10);#failSelector;!failClass;@blur;@manul">
 ```
 
 - 优先级

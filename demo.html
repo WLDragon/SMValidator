@@ -20,7 +20,10 @@
                 }
             },
             fields: {
-                email: [/abcdefg/, '你输入的不是abcdefg'],
+                email: {
+                    rule: [/abcdefg/, '你输入的不是abcdefg'],
+                    failStyle: false
+                },
                 mobile: function(val) {
                     return (val === '123') || '请输入123';
                 }
