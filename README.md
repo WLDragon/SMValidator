@@ -59,9 +59,7 @@ var smv = new SMValidator('querySelector', {
   }
 })
 //设置了manul:true则需要手动验证
-smv.test() //验证全部manual为false的表单，return true/false
-smv.test(fieldName) //单独验证一个表单
-smv.test([field1Name, field2Name]) //验证数组里的表单
+SMValidator.validate([input]/selector);
 ```
 
 - html配置
@@ -73,11 +71,13 @@ smv.test([field1Name, field2Name]) //验证数组里的表单
 html规则优先于js规则，局部规则优先于全局规则，fields里的属性优先于外部属性
 
 # TODO
-1. 手动验证和服务器验证，submit方法
+1. 服务器验证
 
 2. 添加required,length等内置规则
 
-3. 完美demo和文档、注释
+3. 完善demo和文档、注释
+
+4. 考虑添加其他表单的验证
 
 # 参考
 nice-validator
