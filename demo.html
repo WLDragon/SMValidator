@@ -8,7 +8,7 @@
 <body>
     <form action="">
         <input type="text" data-rule="/abc/i/请输入ABC;#errorSelecor;@blur">
-        <input type="text" data-rule="pass(错误提示);#errorSelecor">
+        <input type="text" data-rule="required;range(-7);pass(只能填123456);#errorSelecor">
         <input type="text" name="email">
         <input type="text" name="mobile">
     </form>
@@ -16,7 +16,7 @@
         var smv = new SMValidator('form', {
             rules: {
                 pass: function(val, msg) {
-                    return (val === 'abc') || msg;
+                    return (val === '123456') || msg;
                 }
             },
             fields: {

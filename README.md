@@ -79,5 +79,7 @@ html规则优先于js规则，局部规则优先于全局规则，fields里的�
 
 4. 考虑添加其他表单的验证
 
+5. 当前表单不是required且为''时不验证
+
 # 参考
-nice-validator
+部分灵感来自于：nice-validator

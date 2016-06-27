@@ -1,6 +1,6 @@
 /*!
  * SMValidator.js
- * Copyright (c) 2016 WLDragon
+ * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  * Released under the MIT License.
  */
 (function (global, factory) {
@@ -11,7 +11,7 @@
     'use strict';
 
     var document = window.document;
-    
+
     //事件代理
     var on = document.addEventListener ? document.addEventListener : document.attachEvent;
     var eventType = ('oninput' in document) ? 'input' : 'propertychange';
@@ -49,7 +49,7 @@
 
     var _proto = SMValidator.prototype;
     /**提取选择器选择的input */
-    _proto.queryInput = function(selector, resetRule) {
+    _proto.queryInput = function(selectors, resetRule) {
         var self = this;
         var inputs = [];
         var els = document.querySelectorAll(selectors);
@@ -305,7 +305,25 @@
             color: '#c33',
             border: '1px solid #c33'
         },
-        rules: {}
+        rules: {
+            required: function(val) {
+                //字段必填
+                return val !== '' || '这是必填项';
+            },
+            range: function(val, a, b) {
+                //字符长度要求，range(5,10)大于5小于10，range(+5)大于5，range(-5)小于5
+                var n = val.length;
+                if(arguments.length === 2) {
+                    if(a >= 0) {
+                        return n > a || '长度必须大于' + a;
+                    }else {
+                        return n < -a || '长度必须小于' + (-a);
+                    }
+                }else if(arguments.length === 3){
+                    return (n > a && n < b) || '长度必须大于 ' + a + ' 且小于 ' + b;
+                }
+            }
+        }
     };
     /**设置全局配置 */
     SMValidator.config = function (options) {
@@ -327,7 +345,7 @@
      * @return 如果全部通过则返回true，否则返回false
      */
     SMValidator.validate = function (inputs, ignoreManul, resetRule) {
-        var ins = typeof inputs === 'string' ? sm.queryInput(selectors, resetRule) : inputs;
+        var ins = typeof inputs === 'string' ? sm.queryInput(inputs, resetRule) : inputs;
         var len = ins.length;
         var passCount = 0;
         for(var i = 0; i < len; i++) {
