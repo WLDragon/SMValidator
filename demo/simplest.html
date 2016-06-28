@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SMValidator Simplest Demo</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="../SMValidator.js"></script>
+</head>
+<body>
+    <form action="">
+        <div>
+            <input type="text" data-rule="required">
+        </div>
+        <div>
+            <button type="submit">不填数据提交</button>
+        </div>
+    </form>
+    <script>
+        new SMValidator('form', {
+            submit: function(valid, form) {
+                if(valid) form.submit();
+            }
+        });
+    </script>
+</body>
+</html>

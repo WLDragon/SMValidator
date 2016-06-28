@@ -1,0 +1,17 @@
+p,div {
+    margin: 5px 0;
+}
+input {
+    width: 250px;
+    height: 24px;
+    padding: 1px;
+    margin: 0;
+    font-size: 14px;
+}
+input:focus {
+    outline: #000 auto 0px;
+}
+.error {
+    color: dodgerblue;
+    border: 1px solid violet;
+}

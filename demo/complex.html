@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SMValidator Complex Demo</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="../SMValidator.js"></script>
+</head>
+<body>
+    <h2>偏爱使用HTML</h2>
+    <form id="form1">
+        <div>
+            <p>oninput验证，要求长度大于5</p>
+            <input type="text" data-rule="range(+5)">
+        </div>
+        <div>
+            <p>onchange验证，必填且要求长度小于5，失去焦点时验证</p>
+            <input type="text" data-rule="required;range(-5);@blur">
+        </div>
+        <div>
+            <p>手动验证，要求长度小于5且大于3，使用自定义消息容器</p>
+            <input id="manul" type="text" data-rule="range(3,5);@manul;##messageContainer">
+            <a href="javascript:;" onclick="onManul()">点击验证</a>
+            <p id="messageContainer" style="color:red">要求长度为4</p>
+        </div>
+        <div>
+            <p>要求长度大于5，使用自定义样式</p>
+            <input type="text" data-rule="range(5);!error">
+        </div>
+    </form>
+    <script>
+        new SMValidator('#form1');
+        function onManul() {
+            SMValidator.validate('#manul');
+        }
+    </script>
+</body>
+</html>

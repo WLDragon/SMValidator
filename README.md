@@ -1,22 +1,25 @@
 # sm-validator
-一个简单的表单验证库，不依赖任何第三方库
+1. 轻量，minify小于5KB
 
-- 可手动或及时验证，手动验证可实现异步
+2. 方便，规则API简洁易用
 
-- 传入form或input绑定，如果是input的话有些配置失效
+3. 灵活，可自定义规则、样式、验证时机、消息内容
 
-- 全局或局部配置验证规则
+4. 不依赖任何第三方库
 
-- 规则可以通过js或html来配置
-
-- failClass验证失败时添加的类，局部配置中与input对应
-
-- failSelector验证失败时显示的element，忽略时则在input后面添加span
+- 简单的示例
+```
+<input type="text" data-rule="required">
+SMValidator.validate('input');
+```
 
 - 全局配置
 ``` javascript
 SMValidator.config({
+  blur: false,
+  manul: false,
   failHtml: '<span style="color:#c33;"></span>',
+  failClass: '',
   failStyle: {
     color: '#c33',
     border: '1px solid #c33'
@@ -35,9 +38,10 @@ SMValidator.config({
 var smv = new SMValidator('querySelector', {
   blur: false, //如果为true，则change事件验证，默认是input/propertychange事件验证
   manul: false, //如果为true，则所有fields都手动验证，blur设置失效
-  rules: { /*和全局配置一样*/},
   failHtml: '<span></span>',
   failStyle: null,
+  failClass: '',
+  rules: {},
   fields: {
     field1Name: [/abc/, 'message'],
     field2Name: function(val){ return /abc/.test(val) || 'message';},
@@ -47,7 +51,7 @@ var smv = new SMValidator('querySelector', {
       failSelector: '',
       failHtml: '',
       failStyle: null, //如果设置为false则不使用任何样式
-      failClass: '',
+      failClass: '', //如果failClass有值且failStyle没值，则failStyle不使用全局默认值
       blur: false,
       manul: false //是否手动验证，默认值为false
     }
@@ -57,9 +61,10 @@ var smv = new SMValidator('querySelector', {
     //则需要手动提交表单
     if(valid) form.submit();
   }
-})
+});
 //设置了manul:true则需要手动验证
-SMValidator.validate([input]/selector);
+smv.validate(ignoreManul, resetRule);
+SMValidator.validate([input]/selector, ignoreManul, resetRule);
 ```
 
 - html配置
@@ -68,18 +73,13 @@ SMValidator.validate([input]/selector);
 ```
 
 - 优先级
-html规则优先于js规则，局部规则优先于全局规则，fields里的属性优先于外部属性
+局部规则优先于全局规则，fields里的属性优先于配置属性
 
 # TODO
 1. 服务器验证
 
-2. 添加required,length等内置规则
+2. 考虑添加其他表单的验证
 
-3. 完善demo和文档、注释
-
-4. 考虑添加其他表单的验证
-
-5. 当前表单不是required且为''时不验证
 
 # 参考
 部分灵感来自于：nice-validator
