@@ -119,7 +119,11 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 
 4. 测试用例及浏览器兼容测试
 
-5. 英文文档
+5. 如果是使用submit验证，失败时定位表单
+
+6. 英文文档
+
+7. 添加npm和bower安装方式
 
 # 参考
 部分灵感来自于：[nice-validator](https://github.com/niceue/nice-validator)
