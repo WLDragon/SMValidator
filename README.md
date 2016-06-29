@@ -9,13 +9,17 @@
 
 4. 不依赖第三方库
 
-# 简单的示例
+# 示例
 ``` html
 <input type="text" data-rule="required">
 ```
 ``` javascript
 SMValidator.validate('input');
 ```
+
+[查看详细例子](https://wldragon.github.io/sm-validator/)
+
+![扫一扫](https://wldragon.github.io/sm-validator/link.png)
 
 # 选项及说明
 ## 全局选项
