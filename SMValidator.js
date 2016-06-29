@@ -69,7 +69,7 @@
                         ins.push(el[j]);
                     }
                 }
-                inputs.concat(ins);
+                inputs = inputs.concat(ins);
                 //如果设置了submit属性，则阻止Form默认的提交行为，回调submit方法
                 if(self.submit && ins.length) {
                     el._SMInputs_ = ins;
@@ -97,8 +97,8 @@
         var item = dataRule ? this.parseString(dataRule) : this.fields[name];
         if(item) {
             input._SMRule_ = item;
-            //只有当failStyle明确为false时才不使用
-            if(item.failStyle !== false) {
+            //只有当failStyle明确为true时才不使用
+            if(item.failStyle !== true) {
                 if(!item.failStyle && !item._isInit) {
                     //设置验证失败后input的样式
                     item.failStyle = this.failStyle || config.failStyle;
@@ -154,17 +154,23 @@
      * 解析表示函数的字符串
      * @param str 描述内容：funName或funName(param1,param2,...)
      */
-    _proto.parseFunctionString = function(str) {
-        var fun = {};
+    _proto.parseFunctionOrArray = function(str) {
+        var ruleItem = {};
         var begin = str.indexOf('(');
         //如果带有参数，参数不可能在0的位置
         if(begin > 0) {
             var end = str.indexOf(')');
-            fun.params = str.substring(begin + 1, end).split(',');
+            ruleItem.params = str.substring(begin + 1, end).split(',');
             str = str.substring(0, begin);
         }
-        fun.rule = this.rules[str] || config.rules[str];
-        return fun;
+        var r = this.rules[str] || config.rules[str];
+        if(r instanceof Array) {
+            ruleItem.rule = r[0];
+            ruleItem.message = r[1];
+        }else {
+            ruleItem.rule = r;
+        }
+        return ruleItem;
     }
 
     /**
@@ -174,7 +180,7 @@
      * # 开头表示失败消息显示标签的选择描述符，##myDiv或#.failDisplay或#[name="failContent"]等等
      * ! 开头表示验证失败时附加到input上的样式名，!failClass
      * @ 开头表示blur或manul属性，只有@blur和@manul两种值
-     * 其它都表示为函数，请查看parseFunctionString
+     * 其它都表示为函数，请查看parseFunctionOrArray
      */
     _proto.parseString = function(str) {
         var item = {rules: []};
@@ -204,9 +210,9 @@
                 //内建属性blur或manul
                 item[body] = true;
             }else {
-                //函数规则
-                item.rules.push(this.parseFunctionString(statement));
-                //必需要求填写
+                //函数或数组规则
+                item.rules.push(this.parseFunctionOrArray(statement));
+                //特殊函数名，“必填”标识
                 item.required = statement === 'required';
             }
         }
@@ -222,7 +228,7 @@
      *               rule: 'rule1;rule2(0,10)'|Array|Function,
      *               failSelector: '',
      *               failHtml: '',
-     *               failStyle: null, //如果设置为false则不使用任何样式
+     *               failStyle: null, //如果设置为true则不使用任何样式
      *               failClass: '',
      *               blur: false,
      *               manul: false //是否手动验证，默认值为false
@@ -244,7 +250,7 @@
                 var a = item.rule.split(';');
                 item.rules = [];
                 for(var i = a.length - 1; i >= 0; i--) {
-                    item.rules.push(this.parseFunctionString(a[i]));
+                    item.rules.push(this.parseFunctionOrArray(a[i]));
                 }
             }
             delete item.rule;
@@ -276,7 +282,7 @@
     /**显示或隐藏指定的消息标签 */
     function toggleSelector(input, selectors, isPass) {
         for(var i = selectors.length - 1; i >= 0; i--) {
-            selectors[0].style.display = isPass ? 'none' : '';
+            selectors[i].style.display = isPass ? 'none' : '';
         }
     }
 

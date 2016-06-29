@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SMValidator Complex Demo</title>
+    <title>SMValidator复杂案例</title>
     <link rel="stylesheet" href="style.css">
     <script src="../SMValidator.js"></script>
 </head>
 <body>
-    <h2>偏爱使用HTML</h2>
+    <h2>使用HTML</h2>
     <form id="form1">
         <div>
             <p>oninput验证，要求长度大于5</p>
@@ -19,19 +19,90 @@
         </div>
         <div>
             <p>手动验证，要求长度小于5且大于3，使用自定义消息容器</p>
-            <input id="manul" type="text" data-rule="range(3,5);@manul;##messageContainer">
-            <a href="javascript:;" onclick="onManul()">点击验证</a>
-            <p id="messageContainer" style="color:red">要求长度为4</p>
+            <input id="manul1" type="text" data-rule="range(3,5);@manul;##message1">
+            <a href="javascript:;" onclick="SMValidator.validate('#manul1')">点击验证</a>
+            <p id="message1" style="color:red">要求长度为4</p>
         </div>
         <div>
-            <p>要求长度大于5，使用自定义样式</p>
+            <p>要求长度大于5，使用自定义类名</p>
             <input type="text" data-rule="range(5);!error">
         </div>
+        <div>
+            <p>要求必填，正则匹配只能数字</p>
+            <input type="text" data-rule="required;/^\d*$/只能填数字">
+        </div>
+    </form>
+    <h2>使用JavaScript，功能更全面</h2>
+    <form id="form2">
+        <div>
+            <p>oninput验证，必填，只能填数字，使用自定义样式</p>
+            <div><input name="field1" type="text"></div>
+            <div><input name="field1" type="text"></div>
+        </div>
+        <div>
+            <p>onchange验证，必填，且要求长度为5，失去焦点时验证</p>
+            <input name="field2" type="text">
+        </div>
+        <div>
+            <p>正则匹配只能数字</p>
+            <input name="field3" type="text">
+        </div>
+        <div>
+            <p>正则匹配只能英文字母</p>
+            <input name="field4" type="text">
+        </div>
+        <div>
+            <p>手动验证，长度为4，自定义类名，自定义样式，自定义消息容器</p>
+            <input name="field5" id="manul2" type="text">
+            <a href="javascript:;" onclick="onManul()">点击验证</a>
+            <p name="message2" style="color:#39f">消息1：要求长度为4</p>
+            <p name="message2" style="color:#39f">消息2：要求长度为4</p>
+        </div>
+        <button style="margin-left: 5px;" type="submit">提交</button>
     </form>
     <script>
+        //偏好使用HTML
         new SMValidator('#form1');
+
+        //偏好使用JS
+        var smv = new SMValidator('#form2', {
+            failHtml: '<span style="color:#f6f"></span>',
+            failStyle: {
+                color: '#f6f',
+                border: '1px dashed #f6f'
+            },
+            rules: {
+                onlyNumber: [/^\d*$/, '只能填数字'],
+                length: function(val, len) {
+                    return val.length == len || '长度必须是' + len;
+                }
+            },
+            fields: {
+                field1: 'required;onlyNumber;!error',
+                field2: 'required;length(5);@blur',
+                field3: [/^\d*$/, '只能填数字'],
+                field4: function(val) {
+                    //在fields里的函数只能使用一个参数val
+                    return /^[A-Za-z]*$/.test(val) || '只能填英文字母';
+                },
+                field5: {
+                    failSelector: '[name="message2"]',
+                    failClass: 'error',
+                    failStyle: {
+                        color: '#39f',
+                        border: '1px solid #39f'
+                    },
+                    rule: 'range(3,5)',
+                    manul: true
+                }
+            },
+            submit: function(valid, form) {
+                if(valid) form.submit();
+            }
+        });
+
         function onManul() {
-            SMValidator.validate('#manul');
+            smv.validate();
         }
     </script>
 </body>
