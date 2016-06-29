@@ -84,7 +84,7 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 ```
 - / 正则规则，/abc/message或/abc/i/message
 
-- # failSelector，例如##myDiv或#.failDisplay或#`[name="failContent"]`等等
+- `# failSelector，例如##myDiv或#.failDisplay或#[name="failContent"]等等`
 
 - ! failClass，例如!error
 
