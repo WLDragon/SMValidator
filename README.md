@@ -60,10 +60,10 @@ var smv = new SMValidator('querySelector', {
     //字符串规则请看下面的HTML选项
     field1Name: [/abc/, 'message'],
     field2Name: function(val){ return /abc/.test(val) || 'message';},
-    field3Name: '/abc/i/message;rule1;rule2(0,10);#failSelector;!failClass;@blur;@manul',
+    field3Name: '/abc/i/message;rule1;rule2(0,10);#failSelector;!failClass;@blur;@manul', //弃用
+    field3Name: '/abc/i/message;rule1;rule2(0,10);style(failStyle);css(failClass);html(failHtml);manul;blur',
     field4Name: {
-      rule: 'rule1;rule2(0,10)'|Array|Function,  //字符串类型仅限于规则名，不支持/#!@修饰符
-      failSelector: '',  //消息选择器，代替failHtml，可以是任意位置的标签，但只能显示预设的消息，不能显示规则返回的消息
+      rules: 'rule1;rule2(0,10)'|Array|Function,  //字符串类型仅限于规则名，不支持/#!@修饰符
       failStyle: null,
       failClass: '',
       failHtml: '',
@@ -87,35 +87,37 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 
 ## HTML选项
 ``` html
-<input data-rule="/abc/i/message;rule1;rule2(0,10);#failSelector;!failClass;@blur;@manul">
+<input data-rule="/abc/i/message;rule1;rule2(0,10);style(failStyle);css(failClass);html(failHtml);blur;manul">
 ```
-- / 正则规则，/abc/message或/abc/i/message
+- `/abc/i/message`正则验证规则，eg. `/^[a-z]*$/小写字母`或`/^[a-z]*$/i/任意字母`
 
-- `# failSelector，例如##myDiv或#.failDisplay或#[name="failContent"]等等`
+- `rule1;rule2(0,10)`自定义验证规则的函数名，不带参数或带任意参数
 
-- ! failClass，例如!error
+- `style(failStyle)`自定义input样式，eg. `style({color:red})或style(true)`
 
-- @ blur或manul，只有@blur和@manul可选
+- `css(failClass)`自定义input样式类名，eg. `css(error)`
 
-- 其他都视为在局部或全局定义的规则
+- `html(failHtml)`自定义显示消息的html，可以是选择器，eg. `html(<div></div>)或html(#divId)`
+
+- `blur或manul`对应blur和manul属性
 
 ## 注意
-1. 优先级：HTML选项 > field选项 > 局部选项 > 全局选项
+1. 优先级：field选项 > 局部选项 > 全局选项
 
 2. failStyle可能会覆盖failClass的样式，可以使用failStyle=true来禁止使用默认的style
 
-3. failSelector会使failHtml失效
-
-4. manul会使blur失效
+3. manul会使blur失效
 
 # 内置规则
 1. required 必填项
 
-2. range(+n) 长度大于n
+~~2. range(n,) 数值大于n~~
 
-3. range(-n) 长度小于n
+~~3. range(,n) 数值小于n~~
 
-4. range(n,m) 长度在n和m之间，如果你想指定长度5，则range(4,6)
+~~4. range(n,m) 数值在n和m之间~~
+
+~~5. range(n) 数值等于n~~
 
 # TODO
 1. 详细的API说明
@@ -132,9 +134,9 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 
 7. 添加npm和bower安装方式
 
-8. 去掉#!@等特殊符号，使用data-*支持
+8. 去掉#!@等特殊符号，因为特殊符号不能直观表达用途，所以改成关键字形式，跟规则名类似，但有特殊用途
 
-9. 修改range规则，支持负数范围，添加email,number,password compare等规则作为范例，不内嵌到内核
+9. 修改range规则，支持负数范围，添加email,number,password compare,length等规则作为范例，不内嵌到内核
 
 10. failselector也支持显示规则提供的消息，默认不显示
 
