@@ -28,23 +28,26 @@
         }
     });
 
+    var GLOBAL_ATTRIBUTES = ['blur', 'manul', 'html', 'style', 'css'];
     function SMValidator(selectors, options) {
         if(selectors) {
+            var self = this;
             if(!options) options = {};
-            this.blur = options.blur;
-            this.manul = options.manul;
-            this.submit = options.submit;
-            this.rules = options.rules || {};
-            this.failHtml = options.failHtml || config.failHtml;
-            this.failStyle = options.failStyle || config.failStyle;
-            this.failClass = options.failClass || config.failClass;
-            //解析fields字段记录的规则
-            this.fields = {};
+            //初始化局部和全局都有的属性
+            for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
+                var attr = GLOBAL_ATTRIBUTES[i];
+                self[attr] = options[attr] || config[attr];
+            }
+
+            self.submit = options.submit;
+            self.rules = options.rules || {};
+            //解析fields字段的规则
+            self.fields = {};
             for(var k in options.fields) {
-                this.fields[k] = this.parseRule(options.fields[k]);
+                self.fields[k] = self.parseRule(options.fields[k]);
             }
             
-            this.inputs = this.queryInput(selectors);
+            self.inputs = self.queryInput(selectors);
         }
     }
 
@@ -62,6 +65,7 @@
         for (var i = els.length - 1; i >= 0; i--) {
             var el = els[i];
             if(el.tagName === 'FORM') {
+                //不使用html5的默认表单验证
                 el.novalidate = 'novalidate';
                 var ins = [];
                 for (var j = el.length - 1; j >= 0; j--) {
@@ -87,6 +91,7 @@
         }
         return inputs;
     }
+
     /**把规则绑定到input上 */
     _proto.bindInput = function(input, resetRule) {
         //如果已经绑定过规则，则不重复处理，除非指明重设规则
@@ -97,15 +102,15 @@
         var item = dataRule ? this.parseString(dataRule) : this.fields[name];
         if(item) {
             input._SMRule_ = item;
-            //只有当failStyle明确为true时才不使用
-            if(item.failStyle !== true) {
-                if(!item.failStyle && !item._isInit) {
+            //只有当style明确为true时才不使用
+            if(item.style !== true) {
+                if(!item.style && !item._isInit) {
                     //设置验证失败后input的样式
-                    item.failStyle = this.failStyle || config.failStyle;
+                    item.style = this.style || config.style;
                 }
                 //记录原始样式，验证成功后恢复
                 input._SMStyle_ = {};
-                for(var k in item.failStyle) {
+                for(var k in item.style) {
                     input._SMStyle_[k] = input.style[k];
                 }
             }
@@ -125,23 +130,23 @@
                         for(var i = es.length - 1; i >= 0; i--) {
                             es[i].style.display = 'none';
                         }
-                        //跳出函数，不执行下面创建failHtml对象的代码
+                        //跳出函数，不执行下面创建html对象的代码
                         return true;
                     }else {
                         item.failSelector = null;
                     }
                 }
-                item._useFailHtml = true;
-                if(!item.failHtml) {
-                    item.failHtml = this.failHtml || config.failHtml;
+                item._usehtml = true;
+                if(!item.html) {
+                    item.html = this.html || config.html;
                 }
             }
 
-            if(item._useFailHtml) {
+            if(item._usehtml) {
                 var div = document.createElement('div');
-                div.innerHTML = item.failHtml;
-                input._failHtml_ = div.childNodes[0];
-                input.parentNode.insertBefore(input._failHtml_, input.nextElementSibling);
+                div.innerHTML = item.html;
+                input._html_ = div.childNodes[0];
+                input.parentNode.insertBefore(input._html_, input.nextElementSibling);
             }
 
             return true;
@@ -155,30 +160,33 @@
      * @param str 描述内容：funName或funName(param1,param2,...)
      */
     _proto.parseFunctionOrArray = function(str) {
+        //TODO 这个函数在parseRule中也有用到，考虑怎么去掉，或者和parseString公用这个方法
         var ruleItem = {};
-        var begin = str.indexOf('(');
-        //如果带有参数，参数不可能在0的位置
-        if(begin > 0) {
-            var end = str.indexOf(')');
-            ruleItem.params = str.substring(begin + 1, end).split(',');
-            str = str.substring(0, begin);
-        }
         var r = this.rules[str] || config.rules[str];
-        if(r instanceof Array) {
-            ruleItem.rule = r[0];
-            ruleItem.message = r[1];
-        }else {
-            ruleItem.rule = r;
+        if(r) {
+            if(r instanceof Array) {
+                //数组正则规则
+                ruleItem.rule = r[0];
+                ruleItem.message = r[1];
+            }else {
+                //函数规则
+                var begin = str.indexOf('(');
+                if(begin > 0) {
+                    ruleItem.params = str.substring(begin + 1, str.length - 1).split(',');
+                    str = str.substring(0, begin);
+                }
+                ruleItem.rule = r;
+            }
+            return ruleItem;
         }
-        return ruleItem;
     }
 
     /**
      * 解析规则字符串，使用';'分割
-     * @param str 描述内容：/abc/i/message;rule1;rule2(0,10);#failSelector;!failClass;@blur;@manul
+     * @param str 描述内容：/abc/i/message;rule1;rule2(0,10);#failSelector;!css;@blur;@manul
      * / 开头表示正则，/abc/message或/abc/i/message
      * # 开头表示失败消息显示标签的选择描述符，##myDiv或#.failDisplay或#[name="failContent"]等等
-     * ! 开头表示验证失败时附加到input上的样式名，!failClass
+     * ! 开头表示验证失败时附加到input上的样式名，!css
      * @ 开头表示blur或manul属性，只有@blur和@manul两种值
      * 其它都表示为函数，请查看parseFunctionOrArray
      */
@@ -188,11 +196,9 @@
         for(var i = statements.length - 1; i >= 0; i--) {
             var statement = statements[i];
             if(statement === '') continue; //防止规则中出现;;的情况
-            var head = statement.charAt(0);
-            var body = statement.substring(1);
-            if(head === '/') {
+            if(statement.indexOf('/') === 0) {
                 //正则
-                var a = body.split('/');
+                var a = statement.substring(1).split('/');
                 if(a.length === 2) {
                     //没有修饰符i
                     item.rules.push({rule: new RegExp(a[0]), message: a[1]});
@@ -200,20 +206,37 @@
                     //带有修饰符i
                     item.rules.push({rule: new RegExp(a[0], 'i'), message: a[2]});
                 }
-            }else if(head === '#') {
-                //显示失败消息的标签选择器
-                item.failSelector = body;
-            }else if(head === '!') {
-                //表示失败的样式名
-                item.failClass = body;
-            }else if(head === '@') {
-                //内建属性blur或manul
-                item[body] = true;
             }else {
-                //函数或数组规则
-                item.rules.push(this.parseFunctionOrArray(statement));
-                //特殊函数名，“必填”标识
-                item.required = statement === 'required';
+                var name = statement;
+                var begin = statement.indexOf('(');
+                if(begin > 0) {
+                    //带有参数
+                    name = statement.substring(0, begin);
+                    var params = statement.substring(begin + 1, statement.length - 1).split(',');
+                }
+                if(GLOBAL_ATTRIBUTES.indexOf(name) > -1) {
+                    //关键属性
+                    if(name === 'blur' || name === 'manul') {
+                        item[name] = true;
+                    }else {
+                        item[name] = params[0];
+                    }
+                }else {
+                    //函数或数组规则
+                    var definition = this.rules[statement] || config.rules[statement];
+                    if(definition) {
+                        if(definition instanceof Array) {
+                            //数组正则规则
+                            item.rules.push({rule: definition[0], message: definition[1]});
+                        }else {
+                            //函数规则
+                            item.rules.push({rule: definition, params: params});
+                        }
+                        //特殊函数名，“必填”标识
+                        item.required = statement === 'required';
+                    }
+
+                }
             }
         }
         return item;
@@ -223,13 +246,13 @@
      * 解析验证规则，有四种类型
      * 1、Array [/abc/, 'message']
      * 2、Function function(val){ return /abc/.test(val) || 'message';}
-     * 3、String '/abc/i/message;rule1;rule2(0,10);#failSelector;!failClass;@blur;@manul'
+     * 3、String '/abc/i/message;rule1;rule2(0,10);#failSelector;!css;@blur;@manul'
      * 4、Object {
      *               rule: 'rule1;rule2(0,10)'|Array|Function,
      *               failSelector: '',
-     *               failHtml: '',
-     *               failStyle: null, //如果设置为true则不使用任何样式
-     *               failClass: '',
+     *               html: '',
+     *               style: null, //如果设置为true则不使用任何样式
+     *               css: '',
      *               blur: false,
      *               manul: false //是否手动验证，默认值为false
      *           }
@@ -265,17 +288,17 @@
     /**
      * 验证通过时去掉样式，验证失败时添加样式
      * @param input
-     * @param failClassName 设置的样式名
+     * @param cssName 设置的样式名
      * @param isPass 是否验证通过
      */
-    function toggleClass(input, failClassName, isPass) {
+    function toggleClass(input, cssName, isPass) {
         var cns = input.className.split(' ');
-        var i = cns.indexOf(failClassName);
+        var i = cns.indexOf(cssName);
         if(isPass && i > -1) {
             cns.splice(i, 1);
             input.className = cns.join(' ');
         }else if(!isPass && i === -1){
-            input.className += input.className ? ' ' + failClassName : failClassName;
+            input.className += input.className ? ' ' + cssName : cssName;
         }
     }
 
@@ -324,22 +347,22 @@
             
             if(result === true) {
                 //验证成功，去掉失败样式，隐藏失败提示
-                if(item.failClass) toggleClass(input, item.failClass, true);
-                if(item.failStyle) applyStyle(input, input._SMStyle_);
+                if(item.css) toggleClass(input, item.css, true);
+                if(item.style) applyStyle(input, input._SMStyle_);
                 if(item.failSelector){
                     toggleSelector(input, item.failSelector, true);
                 }else {
-                    input._failHtml_.style.display = 'none';
+                    input._html_.style.display = 'none';
                 }
             }else {
                 //验证失败，添加失败样式，显示失败提示
-                if(item.failClass) toggleClass(input, item.failClass, false);
-                if(item.failStyle) applyStyle(input, item.failStyle);
+                if(item.css) toggleClass(input, item.css, false);
+                if(item.style) applyStyle(input, item.style);
                 if(item.failSelector) {
                     toggleSelector(input, item.failSelector, false);
                 }else {
-                    input._failHtml_.innerText = result;
-                    input._failHtml_.style.display = '';
+                    input._html_.innerText = result;
+                    input._html_.style.display = '';
                 }
             }
 
@@ -349,8 +372,8 @@
 
     /**全局配置 */
     var config = {
-        failHtml: '<span style="color:#c00;"></span>',
-        failStyle: {
+        html: '<span style="color:#c00;"></span>',
+        style: {
             color: '#c00',
             border: '1px solid #c00'
         },
@@ -376,8 +399,8 @@
     };
     /**设置全局配置 */
     SMValidator.config = function (options) {
-        if(options.failStyle) config.failStyle = options.failStyle;
-        if(options.failHtml) config.failHtml = options.failHtml;
+        if(options.style) config.style = options.style;
+        if(options.html) config.html = options.html;
         if(options.rules) {
             for(var k in options.rules) {
                 config.rules[k] = parseRule(options.rules[k]);

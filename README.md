@@ -30,9 +30,9 @@ SMValidator.validate('input');
 SMValidator.config({
   blur: false,  //是否焦点离开时验证
   manul: false,  //是否手动使用js验证
-  failHtml: '<span style="color:#c00;"></span>',  //显示消息的模板，自动添加到input的后面
-  failClass: '',  //验证失败时给input添加的样式类名
-  failStyle: {
+  html: '<span style="color:#c00;"></span>',  //显示消息的模板，自动添加到input的后面
+  css: '',  //验证失败时给input添加的样式类名
+  style: {
     color: '#c00',
     border: '1px solid #c00'
   },  //验证失败时给input添加的style属性，设置为true则禁用此属性
@@ -50,9 +50,9 @@ SMValidator.config({
 var smv = new SMValidator('querySelector', {
   blur: false,
   manul: false,
-  failHtml: '',
-  failStyle: null,
-  failClass: '',
+  html: '',
+  style: null,
+  css: '',
   rules: {},
   fields: {
     //fields里的属性名对应input的name，对应规则可以是数组、函数、字符串和对象四种类型
@@ -60,13 +60,13 @@ var smv = new SMValidator('querySelector', {
     //字符串规则请看下面的HTML选项
     field1Name: [/abc/, 'message'],
     field2Name: function(val){ return /abc/.test(val) || 'message';},
-    field3Name: '/abc/i/message;rule1;rule2(0,10);#failSelector;!failClass;@blur;@manul', //弃用
-    field3Name: '/abc/i/message;rule1;rule2(0,10);style(failStyle);css(failClass);html(failHtml);manul;blur',
+    field3Name: '/abc/i/message;rule1;rule2(0,10);#failSelector;!css;@blur;@manul', //弃用
+    field3Name: '/abc/i/message;rule1;rule2(0,10);style(style);css(css);html(html);manul;blur',
     field4Name: {
       rules: 'rule1;rule2(0,10)'|Array|Function,  //字符串类型仅限于规则名，不支持/#!@修饰符
-      failStyle: null,
-      failClass: '',
-      failHtml: '',
+      style: null,
+      css: '',
+      html: '',
       manul: false,
       blur: false
     }
@@ -87,24 +87,24 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 
 ## HTML选项
 ``` html
-<input data-rule="/abc/i/message;rule1;rule2(0,10);style(failStyle);css(failClass);html(failHtml);blur;manul">
+<input data-rule="/abc/i/message;rule1;rule2(0,10);style(style);css(css);html(html);blur;manul">
 ```
 - `/abc/i/message`正则验证规则，eg. `/^[a-z]*$/小写字母`或`/^[a-z]*$/i/任意字母`
 
 - `rule1;rule2(0,10)`自定义验证规则的函数名，不带参数或带任意参数
 
-- `style(failStyle)`自定义input样式，eg. `style({color:red})或style(true)`
+- `style(style)`自定义input样式，eg. `style({color:red})或style(true)`
 
-- `css(failClass)`自定义input样式类名，eg. `css(error)`
+- `css(css)`自定义input样式类名，eg. `css(error)`
 
-- `html(failHtml)`自定义显示消息的html，可以是选择器，eg. `html(<div></div>)或html(#divId)`
+- `html(html)`自定义显示消息的html，可以是选择器，eg. `html(<div></div>)或html(#divId)`
 
 - `blur或manul`对应blur和manul属性
 
 ## 注意
 1. 优先级：field选项 > 局部选项 > 全局选项
 
-2. failStyle可能会覆盖failClass的样式，可以使用failStyle=true来禁止使用默认的style
+2. style可能会覆盖css的样式，可以使用style=true来禁止使用默认的style
 
 3. manul会使blur失效
 
