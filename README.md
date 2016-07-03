@@ -1,7 +1,7 @@
 # sm-validator
 >一个非常容易使用的表单验证工具
 
-1. 轻量，minify小于5KB
+1. 轻量，minify在10KB以内
 
 2. 方便，只有验证规则是必填，其余选项均可选
 
@@ -19,7 +19,10 @@ SMValidator.validate('input');
 
 [查看详细例子](https://wldragon.github.io/sm-validator/)
 
-![扫一扫](https://wldragon.github.io/sm-validator/link.png)
+# 安装
+``` html
+<script src="../SMValidator.min.js"></script>
+```
 
 # 选项及说明
 ## 全局选项
@@ -119,7 +122,7 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 
 2. 服务器验证
 
-3. 添加其他表单的验证
+3. 添加checkbox,select,textarea的验证
 
 4. 测试用例及浏览器兼容测试
 
@@ -128,6 +131,16 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 6. 英文文档
 
 7. 添加npm和bower安装方式
+
+8. 去掉#!@等特殊符号，使用data-*支持
+
+9. 修改range规则，支持负数范围，添加email,number,password compare等规则作为范例，不内嵌到内核
+
+10. failselector也支持显示规则提供的消息，默认不显示
+
+11. 添加几套UI作为demo
+
+12. 添加jquery插件版本
 
 # 参考
 部分灵感来自于：[nice-validator](https://github.com/niceue/nice-validator)

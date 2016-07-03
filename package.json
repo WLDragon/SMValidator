@@ -1,0 +1,28 @@
+{
+  "name": "sm-validator",
+  "version": "0.5.0",
+  "description": "a beautiful and lightweight form validator that you will be surprised",
+  "main": "SMValidator.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WLDragon/sm-validator.git"
+  },
+  "keywords": [
+    "form",
+    "validator",
+    "dom"
+  ],
+  "author": "WLDragon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/WLDragon/sm-validator/issues"
+  },
+  "homepage": "https://github.com/WLDragon/sm-validator#readme",
+  "devDependencies": {
+    "uglify-js": "^2.6.4"
+  }
+}
