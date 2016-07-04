@@ -1,6 +1,6 @@
 {
   "name": "sm-validator",
-  "version": "0.6.0",
+  "version": "0.5.0",
   "description": "a beautiful and lightweight form validator that you will be surprised",
   "main": "SMValidator.js",
   "scripts": {

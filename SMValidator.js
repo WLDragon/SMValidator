@@ -28,7 +28,7 @@
         }
     });
 
-    var GLOBAL_ATTRIBUTES = ['blur', 'manul', 'html', 'style', 'css'];
+    var GLOBAL_ATTRIBUTES = ['blur', 'manul', 'failHtml', 'failStyle', 'failCss', 'passHtml', 'passStyle', 'passCss'];
     function SMValidator(selectors, options) {
         if(selectors) {
             var self = this;
@@ -38,13 +38,12 @@
                 var attr = GLOBAL_ATTRIBUTES[i];
                 self[attr] = options[attr] || config[attr];
             }
-
             self.submit = options.submit;
             self.rules = options.rules || {};
             //解析fields字段的规则
             self.fields = {};
             for(var k in options.fields) {
-                self.fields[k] = self.parseRule(options.fields[k]);
+                self.fields[k] = self.parseField(options.fields[k]);
             }
             
             self.inputs = self.queryInput(selectors);
@@ -65,7 +64,6 @@
         for (var i = els.length - 1; i >= 0; i--) {
             var el = els[i];
             if(el.tagName === 'FORM') {
-                //不使用html5的默认表单验证
                 el.novalidate = 'novalidate';
                 var ins = [];
                 for (var j = el.length - 1; j >= 0; j--) {
@@ -91,7 +89,6 @@
         }
         return inputs;
     }
-
     /**把规则绑定到input上 */
     _proto.bindInput = function(input, resetRule) {
         //如果已经绑定过规则，则不重复处理，除非指明重设规则
@@ -102,15 +99,22 @@
         var item = dataRule ? this.parseString(dataRule) : this.fields[name];
         if(item) {
             input._SMRule_ = item;
-            //只有当style明确为true时才不使用
-            if(item.style !== true) {
-                if(!item.style && !item._isInit) {
-                    //设置验证失败后input的样式
-                    item.style = this.style || config.style;
-                }
+            //只有当failStyle明确为true时才不使用
+            // if(item.failStyle !== true) {
+            //     if(!item.failStyle && !item._isInit) {
+            //         //设置验证失败后input的样式
+            //         item.failStyle = this.failStyle || config.failStyle;
+            //     }
+            //     //记录原始样式，验证成功后恢复
+            //     input._SMStyle_ = {};
+            //     for(var k in item.failStyle) {
+            //         input._SMStyle_[k] = input.style[k];
+            //     }
+            // }
+            if(item.failStyle) {
                 //记录原始样式，验证成功后恢复
                 input._SMStyle_ = {};
-                for(var k in item.style) {
+                for(var k in item.failStyle) {
                     input._SMStyle_[k] = input.style[k];
                 }
             }
@@ -119,7 +123,11 @@
                 item._isInit = true;
                 if(!item.blur) item.blur = this.blur;
                 if(!item.manul) item.manul = this.manul;
-
+                //TODO 这里考虑blur如果是false的情况，会被赋值为undefined，虽然不影响结果
+                for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
+                    var attr = GLOBAL_ATTRIBUTES[i];
+                    if(!item[attr]) item[attr] = this[attr];
+                }
                 //如果规则里带有failSelector且可以查询出对应的Element
                 //则使用该Element的文本信息
                 //否则使用fialHtml生成Element作为容器，显示规则对应的消息
@@ -130,23 +138,23 @@
                         for(var i = es.length - 1; i >= 0; i--) {
                             es[i].style.display = 'none';
                         }
-                        //跳出函数，不执行下面创建html对象的代码
+                        //跳出函数，不执行下面创建failHtml对象的代码
                         return true;
                     }else {
                         item.failSelector = null;
                     }
                 }
-                item._usehtml = true;
-                if(!item.html) {
-                    item.html = this.html || config.html;
+                item._useFailHtml = true;
+                if(!item.failHtml) {
+                    item.failHtml = this.failHtml || config.failHtml;
                 }
             }
 
-            if(item._usehtml) {
+            if(item._useFailHtml) {
                 var div = document.createElement('div');
-                div.innerHTML = item.html;
-                input._html_ = div.childNodes[0];
-                input.parentNode.insertBefore(input._html_, input.nextElementSibling);
+                div.innerHTML = item.failHtml;
+                input._failHtml_ = div.childNodes[0];
+                input.parentNode.insertBefore(input._failHtml_, input.nextElementSibling);
             }
 
             return true;
@@ -156,39 +164,37 @@
     }
 
     /**
-     * 解析表示函数的字符串
-     * @param str 描述内容：funName或funName(param1,param2,...)
+     * 解析表示函数或数组规则
      */
-    _proto.parseFunctionOrArray = function(str) {
-        //TODO 这个函数在parseRule中也有用到，考虑怎么去掉，或者和parseString公用这个方法
-        var ruleItem = {};
-        var r = this.rules[str] || config.rules[str];
-        if(r) {
-            if(r instanceof Array) {
+    _proto.parseRule = function(result, item) {
+        var n = result.name;
+        var definition = this.rules[n] || config.rules[n];
+        if(definition) {
+            if(definition instanceof Array) {
                 //数组正则规则
-                ruleItem.rule = r[0];
-                ruleItem.message = r[1];
+                item.rules.push({rule: definition[0], message: definition[1]});
             }else {
                 //函数规则
-                var begin = str.indexOf('(');
-                if(begin > 0) {
-                    ruleItem.params = str.substring(begin + 1, str.length - 1).split(',');
-                    str = str.substring(0, begin);
-                }
-                ruleItem.rule = r;
+                item.rules.push({rule: definition, params: result.params});
             }
-            return ruleItem;
+            //特殊函数名，“必填”标识
+            item.required = n === 'required';
         }
+    }
+
+    _proto.parseStringFunction = function(str) {
+        var result = {name: str};
+        var begin = str.indexOf('(');
+        if(begin > 0) {
+            //带有参数
+            result.name = str.substring(0, begin);
+            result.params = str.substring(begin + 1, str.length - 1).split(',');
+        }
+        return result;
     }
 
     /**
      * 解析规则字符串，使用';'分割
-     * @param str 描述内容：/abc/i/message;rule1;rule2(0,10);#failSelector;!css;@blur;@manul
-     * / 开头表示正则，/abc/message或/abc/i/message
-     * # 开头表示失败消息显示标签的选择描述符，##myDiv或#.failDisplay或#[name="failContent"]等等
-     * ! 开头表示验证失败时附加到input上的样式名，!css
-     * @ 开头表示blur或manul属性，只有@blur和@manul两种值
-     * 其它都表示为函数，请查看parseFunctionOrArray
      */
     _proto.parseString = function(str) {
         var item = {rules: []};
@@ -207,35 +213,18 @@
                     item.rules.push({rule: new RegExp(a[0], 'i'), message: a[2]});
                 }
             }else {
-                var name = statement;
-                var begin = statement.indexOf('(');
-                if(begin > 0) {
-                    //带有参数
-                    name = statement.substring(0, begin);
-                    var params = statement.substring(begin + 1, statement.length - 1).split(',');
-                }
-                if(GLOBAL_ATTRIBUTES.indexOf(name) > -1) {
+                var result = this.parseStringFunction(statement);
+                if(GLOBAL_ATTRIBUTES.indexOf(result.name) > -1) {
                     //关键属性
-                    if(name === 'blur' || name === 'manul') {
-                        item[name] = true;
+                    var n = result.name;
+                    if(n === 'blur' || n === 'manul') {
+                        item[n] = true;
                     }else {
-                        item[name] = params[0];
+                        item[n] = result.params[0];
                     }
                 }else {
                     //函数或数组规则
-                    var definition = this.rules[statement] || config.rules[statement];
-                    if(definition) {
-                        if(definition instanceof Array) {
-                            //数组正则规则
-                            item.rules.push({rule: definition[0], message: definition[1]});
-                        }else {
-                            //函数规则
-                            item.rules.push({rule: definition, params: params});
-                        }
-                        //特殊函数名，“必填”标识
-                        item.required = statement === 'required';
-                    }
-
+                    this.parseRule(result, item);
                 }
             }
         }
@@ -246,18 +235,18 @@
      * 解析验证规则，有四种类型
      * 1、Array [/abc/, 'message']
      * 2、Function function(val){ return /abc/.test(val) || 'message';}
-     * 3、String '/abc/i/message;rule1;rule2(0,10);#failSelector;!css;@blur;@manul'
+     * 3、String '/abc/i/message;rule1;rule2(0,10);#failSelector;!failClass;@blur;@manul'
      * 4、Object {
      *               rule: 'rule1;rule2(0,10)'|Array|Function,
      *               failSelector: '',
-     *               html: '',
-     *               style: null, //如果设置为true则不使用任何样式
-     *               css: '',
+     *               failHtml: '',
+     *               failStyle: null, //如果设置为true则不使用任何样式
+     *               failClass: '',
      *               blur: false,
      *               manul: false //是否手动验证，默认值为false
      *           }
      */
-    _proto.parseRule = function(item) {
+    _proto.parseField = function(item) {
         if(item instanceof Array) {
             return {rules: [{rule: item[0], message: item[1]}]};
         }else if(item instanceof Function) {
@@ -270,13 +259,14 @@
             }else if(item.rule instanceof Function) {
                 item.rules = [{rule: item.rule}];
             }else if(typeof item.rule === 'string') {
-                var a = item.rule.split(';');
-                item.rules = [];
+                var a = item.rules.split(';');
+                item.rules = []; //重新赋值rules，只保存解析后的结果
                 for(var i = a.length - 1; i >= 0; i--) {
-                    item.rules.push(this.parseFunctionOrArray(a[i]));
+                    if(a[i] !== '') {
+                        this.parseRule(this.parseStringFunction(a[i]), item);
+                    }
                 }
             }
-            delete item.rule;
             return item;
         }
     }
@@ -288,17 +278,17 @@
     /**
      * 验证通过时去掉样式，验证失败时添加样式
      * @param input
-     * @param cssName 设置的样式名
+     * @param failClassName 设置的样式名
      * @param isPass 是否验证通过
      */
-    function toggleClass(input, cssName, isPass) {
+    function toggleClass(input, failClassName, isPass) {
         var cns = input.className.split(' ');
-        var i = cns.indexOf(cssName);
+        var i = cns.indexOf(failClassName);
         if(isPass && i > -1) {
             cns.splice(i, 1);
             input.className = cns.join(' ');
         }else if(!isPass && i === -1){
-            input.className += input.className ? ' ' + cssName : cssName;
+            input.className += input.className ? ' ' + failClassName : failClassName;
         }
     }
 
@@ -347,22 +337,22 @@
             
             if(result === true) {
                 //验证成功，去掉失败样式，隐藏失败提示
-                if(item.css) toggleClass(input, item.css, true);
-                if(item.style) applyStyle(input, input._SMStyle_);
+                if(item.failClass) toggleClass(input, item.failClass, true);
+                if(item.failStyle) applyStyle(input, input._SMStyle_);
                 if(item.failSelector){
                     toggleSelector(input, item.failSelector, true);
                 }else {
-                    input._html_.style.display = 'none';
+                    input._failHtml_.style.display = 'none';
                 }
             }else {
                 //验证失败，添加失败样式，显示失败提示
-                if(item.css) toggleClass(input, item.css, false);
-                if(item.style) applyStyle(input, item.style);
+                if(item.failClass) toggleClass(input, item.failClass, false);
+                if(item.failStyle) applyStyle(input, item.failStyle);
                 if(item.failSelector) {
                     toggleSelector(input, item.failSelector, false);
                 }else {
-                    input._html_.innerText = result;
-                    input._html_.style.display = '';
+                    input._failHtml_.innerText = result;
+                    input._failHtml_.style.display = '';
                 }
             }
 
@@ -372,8 +362,8 @@
 
     /**全局配置 */
     var config = {
-        html: '<span style="color:#c00;"></span>',
-        style: {
+        failHtml: '<span style="color:#c00;"></span>',
+        failStyle: {
             color: '#c00',
             border: '1px solid #c00'
         },
@@ -399,11 +389,13 @@
     };
     /**设置全局配置 */
     SMValidator.config = function (options) {
-        if(options.style) config.style = options.style;
-        if(options.html) config.html = options.html;
+        for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
+            var attr = GLOBAL_ATTRIBUTES[i];
+            if(options[attr]) config[attr] = options[attr];
+        }
         if(options.rules) {
             for(var k in options.rules) {
-                config.rules[k] = parseRule(options.rules[k]);
+                config.rules[k] = options.rules[k];
             }
         }
     }

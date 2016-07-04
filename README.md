@@ -30,12 +30,12 @@ SMValidator.validate('input');
 SMValidator.config({
   blur: false,  //是否焦点离开时验证
   manul: false,  //是否手动使用js验证
-  html: '<span style="color:#c00;"></span>',  //显示消息的模板，自动添加到input的后面
-  css: '',  //验证失败时给input添加的样式类名
-  style: {
-    color: '#c00',
-    border: '1px solid #c00'
-  },  //验证失败时给input添加的style属性，设置为true则禁用此属性
+  failStyle: null,  //验证失败时给input添加的style属性，设置为true则禁用此属性
+  failHtml: '',  //显示消息的模板，自动添加到input的后面
+  failCss: '',  //验证失败时给input添加的样式类名
+  passStyle: null,
+  passHtml: '',
+  passCss: '',
   rules: {
     rule1: [/abc/, 'message'],  //数组形式的规则，第一项是正则表达式，第二项是验证失败时显示的消息
     rule2: function(val, param2, param3, ...) {
@@ -50,9 +50,12 @@ SMValidator.config({
 var smv = new SMValidator('querySelector', {
   blur: false,
   manul: false,
-  html: '',
-  style: null,
-  css: '',
+  failStyle: null,
+  failHtml: '',
+  failCss: '',
+  passStyle: null,
+  passHtml: '',
+  passCss: '',
   rules: {},
   fields: {
     //fields里的属性名对应input的name，对应规则可以是数组、函数、字符串和对象四种类型
@@ -60,13 +63,18 @@ var smv = new SMValidator('querySelector', {
     //字符串规则请看下面的HTML选项
     field1Name: [/abc/, 'message'],
     field2Name: function(val){ return /abc/.test(val) || 'message';},
-    field3Name: '/abc/i/message;rule1;rule2(0,10);#failSelector;!css;@blur;@manul', //弃用
-    field3Name: '/abc/i/message;rule1;rule2(0,10);style(style);css(css);html(html);manul;blur',
-    field4Name: {
+    field3Name: '/abc/i/message;rule1;rule2(0,10);blur;manul',
+    field4Name: 'required;failStyle(...);failCss(...);failHtml(!...);passStyle(...);passCss(...);passHtml(!...)',
+    field5Name: {
       rules: 'rule1;rule2(0,10)'|Array|Function,  //字符串类型仅限于规则名，不支持/#!@修饰符
-      style: null,
-      css: '',
-      html: '',
+      failStyle: null,
+      failHtml: '',
+      failCss: '',
+      fail:null, //验证失败时的回调函数
+      passStyle: null,
+      passHtml: '',
+      passCss: '',
+      pass: null, //成功时的回调函数绑定this为input
       manul: false,
       blur: false
     }
@@ -87,37 +95,38 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 
 ## HTML选项
 ``` html
-<input data-rule="/abc/i/message;rule1;rule2(0,10);style(style);css(css);html(html);blur;manul">
+<input data-rule="/abc/i/message;rule1;rule2(0,10);#failSelector;!failCss;@blur;@manul">
 ```
-- `/abc/i/message`正则验证规则，eg. `/^[a-z]*$/小写字母`或`/^[a-z]*$/i/任意字母`
+- / 正则规则，/abc/message或/abc/i/message
 
 - `rule1;rule2(0,10)`自定义验证规则的函数名，不带参数或带任意参数
 
-- `style(style)`自定义input样式，eg. `style({color:red})或style(true)`
+- `style(style)`自定义input样式，eg. `style({color:red})`
 
 - `css(css)`自定义input样式类名，eg. `css(error)`
 
 - `html(html)`自定义显示消息的html，可以是选择器，eg. `html(<div></div>)或html(#divId)`
+  如果是选择器，则可以加个!前缀，表示不使用规则的消息，只显示选择的html及其内容
 
 - `blur或manul`对应blur和manul属性
 
 ## 注意
-1. 优先级：field选项 > 局部选项 > 全局选项
+1. 优先级：HTML选项 > field选项 > 局部选项 > 全局选项
 
-2. style可能会覆盖css的样式，可以使用style=true来禁止使用默认的style
+2. failStyle可能会覆盖failCss的样式，可以使用failStyle=true来禁止使用默认的style
 
-3. manul会使blur失效
+3. failSelector会使failHtml失效
+
+4. manul会使blur失效
 
 # 内置规则
 1. required 必填项
 
-~~2. range(n,) 数值大于n~~
+2. range(+n) 长度大于n
 
-~~3. range(,n) 数值小于n~~
+3. range(-n) 长度小于n
 
-~~4. range(n,m) 数值在n和m之间~~
-
-~~5. range(n) 数值等于n~~
+4. range(n,m) 长度在n和m之间，如果你想指定长度5，则range(4,6)
 
 # TODO
 1. 详细的API说明
@@ -134,13 +143,13 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 
 7. 添加npm和bower安装方式
 
-8. 去掉#!@等特殊符号，因为特殊符号不能直观表达用途，所以改成关键字形式，跟规则名类似，但有特殊用途
+8. 去掉#!@等特殊符号，使用data-*支持
 
-9. 修改range规则，支持负数范围，添加email,number,password compare,length等规则作为范例，不内嵌到内核
+9. 修改range规则，支持负数范围，添加email,number,password compare等规则作为范例，不内嵌到内核
 
 10. failselector也支持显示规则提供的消息，默认不显示
 
-11. 添加几套UI作为demo
+11. 添加几套UI作为demo，默认选项都没有值，需要添加自定义项目
 
 12. 添加jquery插件版本
 
