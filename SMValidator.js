@@ -17,13 +17,13 @@
     var eventType = ('oninput' in document) ? 'input' : 'propertychange';
     on.call(document, eventType, function(e){
         var input = e.target;
-        if(input._SMRule_ && !input._SMRule_.manul && !input._SMRule_.blur) {
+        if(input._rule && !input._rule.manul && !input._rule.blur) {
             validate(input);
         }
     });
     on.call(document, 'change', function(e){
         var input = e.target;
-        if(input._SMRule_ && !input._SMRule_.manul && input._SMRule_.blur) {
+        if(input._rule && !input._rule.manul && input._rule.blur) {
             validate(input);
         }
     });
@@ -33,7 +33,7 @@
         if(selectors) {
             var self = this;
             if(!options) options = {};
-            //初始化局部和全局都有的属性
+            //初始化局部属性，如果没填，则使用全局属性
             for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
                 var attr = GLOBAL_ATTRIBUTES[i];
                 self[attr] = options[attr] || config[attr];
@@ -89,73 +89,54 @@
         }
         return inputs;
     }
+
     /**把规则绑定到input上 */
     _proto.bindInput = function(input, resetRule) {
         //如果已经绑定过规则，则不重复处理，除非指明重设规则
-        if(input._SMRule_ && !resetRule) return true;
+        if(input._rule && !resetRule) return true;
 
         var name = input.getAttribute('name');
         var dataRule = input.getAttribute('data-rule');
         var item = dataRule ? this.parseString(dataRule) : this.fields[name];
         if(item) {
-            input._SMRule_ = item;
-            //只有当failStyle明确为true时才不使用
-            // if(item.failStyle !== true) {
-            //     if(!item.failStyle && !item._isInit) {
-            //         //设置验证失败后input的样式
-            //         item.failStyle = this.failStyle || config.failStyle;
-            //     }
-            //     //记录原始样式，验证成功后恢复
-            //     input._SMStyle_ = {};
-            //     for(var k in item.failStyle) {
-            //         input._SMStyle_[k] = input.style[k];
-            //     }
-            // }
-            if(item.failStyle) {
-                //记录原始样式，验证成功后恢复
-                input._SMStyle_ = {};
-                for(var k in item.failStyle) {
-                    input._SMStyle_[k] = input.style[k];
-                }
-            }
-            //fields里的规则可能会被重复用到，如果已经初始化过的不重复处理
+            input._rule = item;
             if(!item._isInit) {
+                //fields里的规则可能会被重复用到，如果已经初始化过的不重复处理
                 item._isInit = true;
-                if(!item.blur) item.blur = this.blur;
-                if(!item.manul) item.manul = this.manul;
-                //TODO 这里考虑blur如果是false的情况，会被赋值为undefined，虽然不影响结果
+                //初始化field属性，如果没填，则使用局部属性
                 for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
                     var attr = GLOBAL_ATTRIBUTES[i];
                     if(!item[attr]) item[attr] = this[attr];
                 }
-                //如果规则里带有failSelector且可以查询出对应的Element
-                //则使用该Element的文本信息
-                //否则使用fialHtml生成Element作为容器，显示规则对应的消息
-                if(item.failSelector) {
-                    var es = document.querySelectorAll(item.failSelector);
-                    if(es.length) {
-                        item.failSelector = es;
-                        for(var i = es.length - 1; i >= 0; i--) {
-                            es[i].style.display = 'none';
-                        }
-                        //跳出函数，不执行下面创建failHtml对象的代码
-                        return true;
-                    }else {
-                        item.failSelector = null;
-                    }
-                }
-                item._useFailHtml = true;
-                if(!item.failHtml) {
-                    item.failHtml = this.failHtml || config.failHtml;
+
+                if(typeof item.failStyle === 'string') item.failStyle = JSON.parse(item.failStyle);
+                if(typeof item.passStyle === 'string') item.passStyle = JSON.parse(item.passStyle);
+            }
+
+            if(item.failStyle) {
+                //记录原始样式，验证成功后恢复
+                input._style = {};
+                for(var k in item.failStyle) {
+                    input._style[k] = input.style[k];
                 }
             }
 
-            if(item._useFailHtml) {
-                var div = document.createElement('div');
-                div.innerHTML = item.failHtml;
-                input._failHtml_ = div.childNodes[0];
-                input.parentNode.insertBefore(input._failHtml_, input.nextElementSibling);
+            function bindHtml(input, prop, html) {
+                var htmlDom;
+                if(html.indexOf('<') === 0) {
+                    //html
+                    var div = document.createElement('div');
+                    div.innerHTML = item.failHtml;
+                    htmlDom = div.childNodes[0];
+                    input.parentNode.insertBefore(htmlDom, input.nextElementSibling);
+                }else {
+                    //选择器
+                    htmlDom = document.querySelector(html);
+                }
+                if(htmlDom) input['_' + prop] = htmlDom;
             }
+            if(item.failHtml) bindHtml(input, 'failHtml', item.failHtml);
+            if(item.passHtml) bindHtml(input, 'passHtml', item.passHtml);
 
             return true;
         }
@@ -235,13 +216,13 @@
      * 解析验证规则，有四种类型
      * 1、Array [/abc/, 'message']
      * 2、Function function(val){ return /abc/.test(val) || 'message';}
-     * 3、String '/abc/i/message;rule1;rule2(0,10);#failSelector;!failClass;@blur;@manul'
+     * 3、String '/abc/i/message;rule1;rule2(0,10);#failSelector;!failCss;@blur;@manul'
      * 4、Object {
      *               rule: 'rule1;rule2(0,10)'|Array|Function,
      *               failSelector: '',
      *               failHtml: '',
      *               failStyle: null, //如果设置为true则不使用任何样式
-     *               failClass: '',
+     *               failCss: '',
      *               blur: false,
      *               manul: false //是否手动验证，默认值为false
      *           }
@@ -278,17 +259,17 @@
     /**
      * 验证通过时去掉样式，验证失败时添加样式
      * @param input
-     * @param failClassName 设置的样式名
+     * @param failCssName 设置的样式名
      * @param isPass 是否验证通过
      */
-    function toggleClass(input, failClassName, isPass) {
+    function toggleClass(input, failCssName, isPass) {
         var cns = input.className.split(' ');
-        var i = cns.indexOf(failClassName);
+        var i = cns.indexOf(failCssName);
         if(isPass && i > -1) {
             cns.splice(i, 1);
             input.className = cns.join(' ');
         }else if(!isPass && i === -1){
-            input.className += input.className ? ' ' + failClassName : failClassName;
+            input.className += input.className ? ' ' + failCssName : failCssName;
         }
     }
 
@@ -310,7 +291,7 @@
     function validate(input) {
         //暂时只支持text的验证
         if(input.type === 'text') {
-            var item = input._SMRule_;
+            var item = input._rule;
             var result = true;
             //当字段是要求必填或不为空时才进行验证
             if(item.required || input.value !== '') {
@@ -337,22 +318,22 @@
             
             if(result === true) {
                 //验证成功，去掉失败样式，隐藏失败提示
-                if(item.failClass) toggleClass(input, item.failClass, true);
-                if(item.failStyle) applyStyle(input, input._SMStyle_);
+                if(item.failCss) toggleClass(input, item.failCss, true);
+                if(item.failStyle) applyStyle(input, input._style);
                 if(item.failSelector){
                     toggleSelector(input, item.failSelector, true);
                 }else {
-                    input._failHtml_.style.display = 'none';
+                    input._failHtml.style.display = 'none';
                 }
             }else {
                 //验证失败，添加失败样式，显示失败提示
-                if(item.failClass) toggleClass(input, item.failClass, false);
+                if(item.failCss) toggleClass(input, item.failCss, false);
                 if(item.failStyle) applyStyle(input, item.failStyle);
                 if(item.failSelector) {
                     toggleSelector(input, item.failSelector, false);
                 }else {
-                    input._failHtml_.innerText = result;
-                    input._failHtml_.style.display = '';
+                    input._failHtml.innerText = result;
+                    input._failHtml.style.display = '';
                 }
             }
 
@@ -415,7 +396,7 @@
         var passCount = 0;
         for(var i = 0; i < len; i++) {
             var input = ins[i];
-            if(input._SMRule_.manul || ignoreManul) {
+            if(input._rule.manul || ignoreManul) {
                 if(validate(input) === true) passCount++;
             }
         }
