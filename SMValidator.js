@@ -377,7 +377,7 @@
         rules: {
             required: function(val) {
                 //字段必填
-                return val !== '' || '这是必填项';
+                return val !== '' || 'this is required';
             },
             range: function(val, a, b) {
                 //字符长度要求，range(5,10)大于5小于10，range(+5)大于5，range(-5)小于5

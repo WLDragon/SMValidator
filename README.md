@@ -120,11 +120,13 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 # 内置规则
 1. required 必填项
 
-2. range(+n) 长度大于n
+2. range(n,) 数值大于n
 
-3. range(-n) 长度小于n
+3. range(,n) 数值小于n
 
-4. range(n,m) 长度在n和m之间，如果你想指定长度5，则range(4,6)
+4. range(n,m) 数值在n和m之间
+
+5. range(n) 数值等于n
 
 # TODO
 1. 详细的API说明
@@ -143,11 +145,13 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 
 8. ~~去掉#!@等特殊符号，使用类似规则方法名实现~~
 
-9. 修改range规则，支持负数范围，添加email,number,password compare等规则作为范例，不内嵌到内核
+9. 修改range规则，支持负数范围，添加email,number,password compare,length等规则作为范例，不内嵌到内核
 
 10. 添加几套UI作为demo，默认选项都没有值，需要添加自定义项目
 
 11. 添加jquery插件版本
+
+12. 添加继承全局规则的功能
 
 # 参考
 部分灵感来自于：[nice-validator](https://github.com/niceue/nice-validator)
