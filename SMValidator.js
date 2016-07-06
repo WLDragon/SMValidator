@@ -17,13 +17,13 @@
     var eventType = ('oninput' in document) ? 'input' : 'propertychange';
     on.call(document, eventType, function(e){
         var input = e.target;
-        if(input._rule && !input._rule.manul && !input._rule.blur) {
+        if(input._sm && !input._sm.rule.manul && !input._sm.rule.blur) {
             validate(input);
         }
     });
     on.call(document, 'change', function(e){
         var input = e.target;
-        if(input._rule && !input._rule.manul && input._rule.blur) {
+        if(input._sm && !input._sm.rule.manul && input._sm.rule.blur) {
             validate(input);
         }
     });
@@ -93,15 +93,15 @@
     /**把规则绑定到input上 */
     _proto.bindInput = function(input, resetRule) {
         //如果已经绑定过规则，则不重复处理，除非指明重设规则
-        if(input._rule && !resetRule) return true;
+        if(input._sm && !resetRule) return true;
 
         var name = input.getAttribute('name');
         var dataRule = input.getAttribute('data-rule');
         var item = dataRule ? this.parseString(dataRule) : this.fields[name];
         if(item) {
-            input._rule = item;
+            input._sm = {rule: item, flag: 0};
+            // input._sm.rule = item;
             if(!item._isInit) {
-                //fields里的规则可能会被重复用到，如果已经初始化过的不重复处理
                 item._isInit = true;
                 //初始化field属性，如果没填，则使用局部属性
                 for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
@@ -109,17 +109,29 @@
                     if(!item[attr]) item[attr] = this[attr];
                 }
 
-                if(typeof item.failStyle === 'string') item.failStyle = JSON.parse(item.failStyle);
-                if(typeof item.passStyle === 'string') item.passStyle = JSON.parse(item.passStyle);
+                function parseStyle(item, prop) {
+                    if(typeof item[prop] !== 'string') return;
+                    try{
+                        item[prop] = JSON.parse(item[prop].replace(/'/g,'\"'));
+                    }catch(e) {
+                        console.error('error json format: ' + item[prop]);
+                    }
+                }
+                parseStyle(item, 'failStyle');
+                parseStyle(item, 'passStyle');
             }
 
-            if(item.failStyle) {
-                //记录原始样式，验证成功后恢复
-                input._style = {};
-                for(var k in item.failStyle) {
-                    input._style[k] = input.style[k];
+            //记录原始样式
+            function recordStyle(input, style) {
+                if(!style) return;
+                if(!input._sm.style) input._sm.style = {};
+                var s = input._sm.style;
+                for(var k in style) {
+                    if(!s[k]) s[k] = input.style[k];
                 }
             }
+            recordStyle(input, item.failStyle); 
+            recordStyle(input, item.passStyle); 
 
             function bindHtml(input, prop, html) {
                 var htmlDom;
@@ -133,7 +145,10 @@
                     //选择器
                     htmlDom = document.querySelector(html);
                 }
-                if(htmlDom) input['_' + prop] = htmlDom;
+                if(htmlDom) {
+                    htmlDom.style.display = 'none';
+                    input._sm[prop] = htmlDom;
+                }
             }
             if(item.failHtml) bindHtml(input, 'failHtml', item.failHtml);
             if(item.passHtml) bindHtml(input, 'passHtml', item.passHtml);
@@ -240,13 +255,12 @@
             }else if(item.rule instanceof Function) {
                 item.rules = [{rule: item.rule}];
             }else if(typeof item.rule === 'string') {
-                var a = item.rules.split(';');
-                item.rules = []; //重新赋值rules，只保存解析后的结果
+                var a = item.rule.split(';');
+                item.rules = [];
                 for(var i = a.length - 1; i >= 0; i--) {
-                    if(a[i] !== '') {
-                        this.parseRule(this.parseStringFunction(a[i]), item);
-                    }
+                    if(a[i] !== '') this.parseRule(this.parseStringFunction(a[i]), item);
                 }
+                delete item.rule;
             }
             return item;
         }
@@ -258,30 +272,28 @@
 
     /**
      * 验证通过时去掉样式，验证失败时添加样式
-     * @param input
-     * @param failCssName 设置的样式名
-     * @param isPass 是否验证通过
      */
-    function toggleClass(input, failCssName, isPass) {
+    function toggleClass(input, cssName, isAdd) {
+        if(!cssName) return;
         var cns = input.className.split(' ');
-        var i = cns.indexOf(failCssName);
-        if(isPass && i > -1) {
+        var i = cns.indexOf(cssName);
+        if(!isAdd && i > -1) {
             cns.splice(i, 1);
             input.className = cns.join(' ');
-        }else if(!isPass && i === -1){
-            input.className += input.className ? ' ' + failCssName : failCssName;
+        }else if(isAdd && i === -1){
+            input.className += input.className ? ' ' + cssName : cssName;
         }
     }
 
     /**显示或隐藏指定的消息标签 */
-    function toggleSelector(input, selectors, isPass) {
-        for(var i = selectors.length - 1; i >= 0; i--) {
-            selectors[i].style.display = isPass ? 'none' : '';
-        }
+    function toggleElement(element, isShow) {
+        if(!element) return;
+        element.style.display = isShow ? '' : 'none';
     }
 
     /**应用样式到input上 */
     function applyStyle(input, style) {
+        if(!style) return;
         for(var k in style) {
             input.style[k] = style[k];
         }
@@ -289,51 +301,65 @@
 
     /**验证input的值 */
     function validate(input) {
-        //暂时只支持text的验证
+        //暂时只支持textt的验证
         if(input.type === 'text') {
-            var item = input._rule;
+            var sm = input._sm;
+            var item = sm.rule;
             var result = true;
+            var flag = 1; //0初始状态 1通过 2失败
             //当字段是要求必填或不为空时才进行验证
             if(item.required || input.value !== '') {
                 for(var i = item.rules.length - 1; i >= 0; i--) {
-                    var r = item.rules[i];
-                    if(r.rule instanceof RegExp) {
+                    var ruleItem = item.rules[i];
+                    var rule = ruleItem.rule;
+                    if(rule instanceof RegExp) {
                         //正则规则
-                        if(!r.rule.test(input.value)) {
-                            result = r.message;
+                        if(!rule.test(input.value)) {
+                            result = ruleItem.message;
+                            flag = 2;
                             break;
                         }
                     }else {
                         //函数规则
-                        if(r.params) {
-                            var params = [input.value].concat(r.params);
-                            result = r.rule.apply(null, params);
+                        if(ruleItem.params) {
+                            result = rule.apply(null, [input.value].concat(ruleItem.params));
                         }else {
-                            result = r.rule.call(null, input.value);
+                            result = rule.call(null, input.value);
                         }
-                        if(result !== true) break;
+                        if(result !== true) {
+                            flag = 2;
+                            break;
+                        }
                     }
                 }
+            }else{
+                flag = 0;
             }
-            
-            if(result === true) {
-                //验证成功，去掉失败样式，隐藏失败提示
-                if(item.failCss) toggleClass(input, item.failCss, true);
-                if(item.failStyle) applyStyle(input, input._style);
-                if(item.failSelector){
-                    toggleSelector(input, item.failSelector, true);
+
+            //当上一次验证结果跟这一次不一样的时候才更改样式
+            if(flag !== sm.flag) {
+                sm.flag = flag;
+                applyStyle(input, sm.style);
+                toggleElement(sm.failHtml, false);
+                toggleElement(sm.passHtml, false);
+                if(flag === 0) {
+                    toggleClass(input, item.failCss, false);
+                    toggleClass(input, item.passCss, false);
+                }else if(flag === 1) {
+                    toggleClass(input, item.failCss, false);
+                    toggleClass(input, item.passCss, true);
+                    applyStyle(input, item.passStyle);
+                    toggleElement(sm.passHtml, true);
+
+                    if(item.pass) item.pass.call(input);
                 }else {
-                    input._failHtml.style.display = 'none';
-                }
-            }else {
-                //验证失败，添加失败样式，显示失败提示
-                if(item.failCss) toggleClass(input, item.failCss, false);
-                if(item.failStyle) applyStyle(input, item.failStyle);
-                if(item.failSelector) {
-                    toggleSelector(input, item.failSelector, false);
-                }else {
-                    input._failHtml.innerText = result;
-                    input._failHtml.style.display = '';
+                    toggleClass(input, item.passCss, false);
+                    toggleClass(input, item.failCss, true);
+                    applyStyle(input, item.failStyle);
+                    toggleElement(sm.failHtml, true);
+                    if(sm.failHtml) sm.failHtml.innerText = result;
+
+                    if(item.fail) item.fail.call(input);
                 }
             }
 
@@ -392,15 +418,18 @@
      */
     SMValidator.validate = function (inputs, ignoreManul, resetRule) {
         var ins = typeof inputs === 'string' ? smv.queryInput(inputs, resetRule) : inputs;
-        var len = ins.length;
         var passCount = 0;
-        for(var i = 0; i < len; i++) {
+        var count = 0;
+        for(var i = ins.length - 1; i >= 0; i--) {
             var input = ins[i];
-            if(input._rule.manul || ignoreManul) {
-                if(validate(input) === true) passCount++;
+            if(input._sm) {
+                count++;
+                if((input._sm.rule.manul || ignoreManul) && (validate(input) === true)) {
+                    passCount++;
+                }
             }
         }
-        return passCount === len;
+        return count === passCount;
     }
 
     return SMValidator;

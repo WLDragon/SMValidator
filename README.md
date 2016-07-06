@@ -66,7 +66,7 @@ var smv = new SMValidator('querySelector', {
     field3Name: '/abc/i/message;rule1;rule2(0,10);blur;manul',
     field4Name: 'required;failStyle(...);failCss(...);failHtml(!...);passStyle(...);passCss(...);passHtml(!...)',
     field5Name: {
-      rules: 'rule1;rule2(0,10)'|Array|Function,  //字符串类型仅限于规则名，不支持/#!@修饰符
+      rule: 'rule1;rule2(0,10)'|Array|Function,  //字符串类型仅限于规则名，不支持/#!@修饰符
       failStyle: null,
       failHtml: '',
       failCss: '',
@@ -115,9 +115,7 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 
 2. failStyle可能会覆盖failCss的样式，可以使用failStyle=true来禁止使用默认的style
 
-3. failSelector会使failHtml失效
-
-4. manul会使blur失效
+3. manul会使blur失效
 
 # 内置规则
 1. required 必填项
@@ -143,15 +141,13 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 
 7. 添加npm和bower安装方式
 
-8. 去掉#!@等特殊符号，使用data-*支持
+8. ~~去掉#!@等特殊符号，使用类似规则方法名实现~~
 
 9. 修改range规则，支持负数范围，添加email,number,password compare等规则作为范例，不内嵌到内核
 
-10. failselector也支持显示规则提供的消息，默认不显示
+10. 添加几套UI作为demo，默认选项都没有值，需要添加自定义项目
 
-11. 添加几套UI作为demo，默认选项都没有值，需要添加自定义项目
-
-12. 添加jquery插件版本
+11. 添加jquery插件版本
 
 # 参考
 部分灵感来自于：[nice-validator](https://github.com/niceue/nice-validator)
