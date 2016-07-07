@@ -1,5 +1,5 @@
 /*!
- * SMValidator.js 0.6.0
+ * SMValidator.js 0.6.1
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  *//*!
  * SMValidator.js
@@ -139,6 +139,11 @@
 
             function bindHtml(input, prop, html) {
                 var htmlDom;
+                if(html.indexOf('!') === 0) {
+                    html = html.substring(1);
+                    //对于failHtml不使用规则的消息，只显示html
+                    input._sm._quiet = true;
+                }
                 if(html.indexOf('<') === 0) {
                     //html
                     var div = document.createElement('div');
@@ -305,70 +310,67 @@
 
     /**验证input的值 */
     function validate(input) {
-        //暂时只支持textt的验证
-        if(input.type === 'text') {
-            var sm = input._sm;
-            var item = sm.rule;
-            var result = true;
-            var flag = 1; //0初始状态 1通过 2失败
-            //当字段是要求必填或不为空时才进行验证
-            if(item.required || input.value !== '') {
-                for(var i = item.rules.length - 1; i >= 0; i--) {
-                    var ruleItem = item.rules[i];
-                    var rule = ruleItem.rule;
-                    if(rule instanceof RegExp) {
-                        //正则规则
-                        if(!rule.test(input.value)) {
-                            result = ruleItem.message;
-                            flag = 2;
-                            break;
-                        }
+        var sm = input._sm;
+        var item = sm.rule;
+        var result = true;
+        var flag = 1; //0初始状态 1通过 2失败
+        //当字段是要求必填或不为空时才进行验证
+        if(item.required || input.value !== '') {
+            for(var i = item.rules.length - 1; i >= 0; i--) {
+                var ruleItem = item.rules[i];
+                var rule = ruleItem.rule;
+                if(rule instanceof RegExp) {
+                    //正则规则
+                    if(!rule.test(input.value)) {
+                        result = ruleItem.message;
+                        flag = 2;
+                        break;
+                    }
+                }else {
+                    //函数规则
+                    if(ruleItem.params) {
+                        result = rule.apply(null, [input.value].concat(ruleItem.params));
                     }else {
-                        //函数规则
-                        if(ruleItem.params) {
-                            result = rule.apply(null, [input.value].concat(ruleItem.params));
-                        }else {
-                            result = rule.call(null, input.value);
-                        }
-                        if(result !== true) {
-                            flag = 2;
-                            break;
-                        }
+                        result = rule.call(null, input.value);
+                    }
+                    if(result !== true) {
+                        flag = 2;
+                        break;
                     }
                 }
-            }else{
-                flag = 0;
             }
-
-            //当上一次验证结果跟这一次不一样的时候才更改样式
-            if(flag !== sm.flag) {
-                sm.flag = flag;
-                applyStyle(input, sm.style);
-                toggleElement(sm.failHtml, false);
-                toggleElement(sm.passHtml, false);
-                if(flag === 0) {
-                    toggleClass(input, item.failCss, false);
-                    toggleClass(input, item.passCss, false);
-                }else if(flag === 1) {
-                    toggleClass(input, item.failCss, false);
-                    toggleClass(input, item.passCss, true);
-                    applyStyle(input, item.passStyle);
-                    toggleElement(sm.passHtml, true);
-
-                    if(item.pass) item.pass.call(input);
-                }else {
-                    toggleClass(input, item.passCss, false);
-                    toggleClass(input, item.failCss, true);
-                    applyStyle(input, item.failStyle);
-                    toggleElement(sm.failHtml, true);
-                    if(sm.failHtml) sm.failHtml.innerText = result;
-
-                    if(item.fail) item.fail.call(input);
-                }
-            }
-
-            return result;
+        }else{
+            flag = 0;
         }
+
+        //当上一次验证结果跟这一次不一样的时候才更改样式
+        if(flag !== sm.flag) {
+            sm.flag = flag;
+            applyStyle(input, sm.style);
+            toggleElement(sm.failHtml, false);
+            toggleElement(sm.passHtml, false);
+            if(flag === 0) {
+                toggleClass(input, item.failCss, false);
+                toggleClass(input, item.passCss, false);
+            }else if(flag === 1) {
+                toggleClass(input, item.failCss, false);
+                toggleClass(input, item.passCss, true);
+                applyStyle(input, item.passStyle);
+                toggleElement(sm.passHtml, true);
+
+                if(item.pass) item.pass.call(input);
+            }else {
+                toggleClass(input, item.passCss, false);
+                toggleClass(input, item.failCss, true);
+                applyStyle(input, item.failStyle);
+                toggleElement(sm.failHtml, true);
+                if(sm.failHtml && !sm._quiet) sm.failHtml.innerText = result;
+
+                if(item.fail) item.fail.call(input);
+            }
+        }
+
+        return result;
     }
 
     /**全局配置 */
@@ -428,6 +430,8 @@ SMValidator.config({
             //required在系统中有特殊功能，请不要随意覆盖
             return val !== '' || '这是必填字段';
         },
+        number: [/^-?\d+$/, '只能输入数字'],
+        email: [/^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i, '邮箱格式不正确'],
         range: function(val, a, b) {
             //数值范围
             //range(a,b) 大于a小于b
@@ -458,7 +462,7 @@ SMValidator.config({
             }
         },
         length: function(val, a, b) {
-            //判断字符串长度范围
+            //判断字符串长度范围，格式与range一致
             var n = val.length;
             if(arguments.length === 2) {
                 return n == a || '长度必须等于' + a;
@@ -473,6 +477,10 @@ SMValidator.config({
                     return '无效参数';
                 }
             }
+        },
+        equal: function(val, targetSelector) {
+            var target = document.querySelector(targetSelector);
+            return val === target.value || '您输入的密码不一致';
         }
     }
 });

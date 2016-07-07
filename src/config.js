@@ -9,6 +9,8 @@ SMValidator.config({
             //required在系统中有特殊功能，请不要随意覆盖
             return val !== '' || '这是必填字段';
         },
+        number: [/^-?\d+$/, '只能输入数字'],
+        email: [/^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i, '邮箱格式不正确'],
         range: function(val, a, b) {
             //数值范围
             //range(a,b) 大于a小于b
@@ -39,7 +41,7 @@ SMValidator.config({
             }
         },
         length: function(val, a, b) {
-            //判断字符串长度范围
+            //判断字符串长度范围，格式与range一致
             var n = val.length;
             if(arguments.length === 2) {
                 return n == a || '长度必须等于' + a;
@@ -54,6 +56,10 @@ SMValidator.config({
                     return '无效参数';
                 }
             }
+        },
+        equal: function(val, targetSelector) {
+            var target = document.querySelector(targetSelector);
+            return val === target.value || '您输入的密码不一致';
         }
     }
 });

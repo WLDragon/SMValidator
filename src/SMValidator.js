@@ -136,6 +136,11 @@
 
             function bindHtml(input, prop, html) {
                 var htmlDom;
+                if(html.indexOf('!') === 0) {
+                    html = html.substring(1);
+                    //对于failHtml不使用规则的消息，只显示html
+                    input._sm._quiet = true;
+                }
                 if(html.indexOf('<') === 0) {
                     //html
                     var div = document.createElement('div');
@@ -302,70 +307,67 @@
 
     /**验证input的值 */
     function validate(input) {
-        //暂时只支持textt的验证
-        if(input.type === 'text') {
-            var sm = input._sm;
-            var item = sm.rule;
-            var result = true;
-            var flag = 1; //0初始状态 1通过 2失败
-            //当字段是要求必填或不为空时才进行验证
-            if(item.required || input.value !== '') {
-                for(var i = item.rules.length - 1; i >= 0; i--) {
-                    var ruleItem = item.rules[i];
-                    var rule = ruleItem.rule;
-                    if(rule instanceof RegExp) {
-                        //正则规则
-                        if(!rule.test(input.value)) {
-                            result = ruleItem.message;
-                            flag = 2;
-                            break;
-                        }
+        var sm = input._sm;
+        var item = sm.rule;
+        var result = true;
+        var flag = 1; //0初始状态 1通过 2失败
+        //当字段是要求必填或不为空时才进行验证
+        if(item.required || input.value !== '') {
+            for(var i = item.rules.length - 1; i >= 0; i--) {
+                var ruleItem = item.rules[i];
+                var rule = ruleItem.rule;
+                if(rule instanceof RegExp) {
+                    //正则规则
+                    if(!rule.test(input.value)) {
+                        result = ruleItem.message;
+                        flag = 2;
+                        break;
+                    }
+                }else {
+                    //函数规则
+                    if(ruleItem.params) {
+                        result = rule.apply(null, [input.value].concat(ruleItem.params));
                     }else {
-                        //函数规则
-                        if(ruleItem.params) {
-                            result = rule.apply(null, [input.value].concat(ruleItem.params));
-                        }else {
-                            result = rule.call(null, input.value);
-                        }
-                        if(result !== true) {
-                            flag = 2;
-                            break;
-                        }
+                        result = rule.call(null, input.value);
+                    }
+                    if(result !== true) {
+                        flag = 2;
+                        break;
                     }
                 }
-            }else{
-                flag = 0;
             }
-
-            //当上一次验证结果跟这一次不一样的时候才更改样式
-            if(flag !== sm.flag) {
-                sm.flag = flag;
-                applyStyle(input, sm.style);
-                toggleElement(sm.failHtml, false);
-                toggleElement(sm.passHtml, false);
-                if(flag === 0) {
-                    toggleClass(input, item.failCss, false);
-                    toggleClass(input, item.passCss, false);
-                }else if(flag === 1) {
-                    toggleClass(input, item.failCss, false);
-                    toggleClass(input, item.passCss, true);
-                    applyStyle(input, item.passStyle);
-                    toggleElement(sm.passHtml, true);
-
-                    if(item.pass) item.pass.call(input);
-                }else {
-                    toggleClass(input, item.passCss, false);
-                    toggleClass(input, item.failCss, true);
-                    applyStyle(input, item.failStyle);
-                    toggleElement(sm.failHtml, true);
-                    if(sm.failHtml) sm.failHtml.innerText = result;
-
-                    if(item.fail) item.fail.call(input);
-                }
-            }
-
-            return result;
+        }else{
+            flag = 0;
         }
+
+        //当上一次验证结果跟这一次不一样的时候才更改样式
+        if(flag !== sm.flag) {
+            sm.flag = flag;
+            applyStyle(input, sm.style);
+            toggleElement(sm.failHtml, false);
+            toggleElement(sm.passHtml, false);
+            if(flag === 0) {
+                toggleClass(input, item.failCss, false);
+                toggleClass(input, item.passCss, false);
+            }else if(flag === 1) {
+                toggleClass(input, item.failCss, false);
+                toggleClass(input, item.passCss, true);
+                applyStyle(input, item.passStyle);
+                toggleElement(sm.passHtml, true);
+
+                if(item.pass) item.pass.call(input);
+            }else {
+                toggleClass(input, item.passCss, false);
+                toggleClass(input, item.failCss, true);
+                applyStyle(input, item.failStyle);
+                toggleElement(sm.failHtml, true);
+                if(sm.failHtml && !sm._quiet) sm.failHtml.innerText = result;
+
+                if(item.fail) item.fail.call(input);
+            }
+        }
+
+        return result;
     }
 
     /**全局配置 */
