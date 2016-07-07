@@ -4,28 +4,29 @@
     <meta charset="UTF-8">
     <title>SMValidator复杂案例</title>
     <link rel="stylesheet" href="style.css">
-    <script src="../SMValidator.js"></script>
+    <script src="../dist/SMValidator.js"></script>
 </head>
 <body>
     <h2>使用HTML</h2>
     <form id="form1">
         <div>
             <p>oninput验证，要求长度大于5，验证成功后边框绿色</p>
-            <input type="text" data-rule="range(+5);passStyle({'border': '1px solid #090'})">
+            <input type="text" data-rule="length(5,);passStyle({'border': '1px solid #090'})">
         </div>
         <div>
             <p>onchange验证，必填且要求长度小于5，失去焦点时验证</p>
-            <input type="text" data-rule="required;range(-5);blur">
+            <input type="text" data-rule="required;length(,5);blur">
         </div>
         <div>
             <p>手动验证，要求长度小于5且大于3，使用自定义消息容器</p>
-            <input id="manul1" type="text" data-rule="range(3,5);manul;failHtml(#message1)">
+            <input id="manul1" type="text" data-rule="length(3,5);manul;failHtml(#message1);passHtml(#message11)">
             <a href="javascript:;" onclick="SMValidator.validate('#manul1')">点击验证</a>
-            <p id="message1" style="color:red">要求长度为4</p>
+            <p id="message1" style="color:red"></p>
+            <p id="message11" style="color:green">验证通过</p>
         </div>
         <div>
             <p>要求长度大于5，使用自定义类名</p>
-            <input type="text" data-rule="range(5);failCss(error)">
+            <input type="text" data-rule="length(5,);failCss(error)">
         </div>
         <div>
             <p>要求必填，正则匹配只能数字</p>
@@ -72,8 +73,8 @@
             },
             rules: {
                 onlyNumber: [/^\d*$/, '只能填数字'],
-                length: function(val, len) {
-                    return val.length == len || '长度必须是' + len;
+                required: function(val) {
+
                 }
             },
             fields: {
@@ -91,7 +92,7 @@
                         color: '#39f',
                         border: '1px solid #39f'
                     },
-                    rule: 'range(3,5)',
+                    rule: 'length(3,5)',
                     manul: true
                 }
             },

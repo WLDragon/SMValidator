@@ -1,7 +1,7 @@
 # sm-validator
 >一个非常容易使用的表单验证工具
 
-1. 轻量，minify在10KB以内
+1. 轻量，内核minify在5KB以内
 
 2. 方便，只有验证规则是必填，其余选项均可选
 
@@ -21,8 +21,13 @@ SMValidator.validate('input');
 
 # 安装
 ``` html
-<script src="../SMValidator.min.js"></script>
+<script src="SMValidator.min.js"></script>
 ```
+
+# 发布版本说明(dist/)
+SMValidator.js 带默认配置的源码
+SMValidator.min.js 带默认配置的minify
+SMValidator.pure.min.js 不带默认配置的minify，内置只有required规则，验证样式等需要自己配置，可参考src/config.js
 
 # 选项及说明
 ## 全局选项
@@ -31,7 +36,7 @@ SMValidator.config({
   blur: false,  //是否焦点离开时验证
   manul: false,  //是否手动使用js验证
   failStyle: null,  //验证失败时给input添加的style属性，设置为true则禁用此属性
-  failHtml: '',  //显示消息的模板，自动添加到input的后面
+  failHtml: '',  //显示消息的html模板，自动添加到input的后面，如果是选择器则只会把消息填到选择的标签里
   failCss: '',  //验证失败时给input添加的样式类名
   passStyle: null,
   passHtml: '',
@@ -66,15 +71,15 @@ var smv = new SMValidator('querySelector', {
     field3Name: '/abc/i/message;rule1;rule2(0,10);blur;manul',
     field4Name: 'required;failStyle(...);failCss(...);failHtml(!...);passStyle(...);passCss(...);passHtml(!...)',
     field5Name: {
-      rule: 'rule1;rule2(0,10)'|Array|Function,  //字符串类型仅限于规则名，不支持/#!@修饰符
+      rule: 'rule1;rule2(0,10)'|Array|Function,  //字符串类型仅限于规则名，不支持failStyle等属性
       failStyle: null,
       failHtml: '',
       failCss: '',
-      fail:null, //验证失败时的回调函数
+      fail:null, //验证失败时的回调函数，绑定this为input
       passStyle: null,
       passHtml: '',
       passCss: '',
-      pass: null, //成功时的回调函数绑定this为input
+      pass: null, //成功时的回调函数，绑定this为input
       manul: false,
       blur: false
     }
@@ -87,35 +92,33 @@ var smv = new SMValidator('querySelector', {
 });
 
 //设置了manul:true，需要手动验证
-//@param {Boolean} ignoreManul 忽略manul设置
-//@param {Boolean} resetRule 重新设置规则，如果动态修改了input的验证规则，可以使用此方法更新规则
-smv.validate(ignoreManul, resetRule);  //实例验证
-SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验证，可传入input数组或选择器描述符
+//@param {Boolean} ignoreManul 忽略manul设置，验证选择的全部表单
+smv.validate(ignoreManul);  //实例验证
+SMValidator.validate([input]｜selector, ignoreManul);  //静态验证，可传入input数组或选择器描述符
 ```
 
 ## HTML选项
 ``` html
-<input data-rule="/abc/i/message;rule1;rule2(0,10);#failSelector;!failCss;@blur;@manul">
+<input data-rule="/abc/i/message;rule1;rule2(0,10);blur;manul">
+<input data-rule="required;failStyle(...);failCss(...);failHtml(!...);passStyle(...);passCss(...);passHtml(!...)">
 ```
 - / 正则规则，/abc/message或/abc/i/message
 
 - `rule1;rule2(0,10)`自定义验证规则的函数名，不带参数或带任意参数
 
-- `style(style)`自定义input样式，eg. `style({color:red})`
+- `failStyle(...)` eg. `failStyle({'color':'red'})`
 
-- `css(css)`自定义input样式类名，eg. `css(error)`
+- `failCss(...)` eg. `failCss(error)`
 
-- `html(html)`自定义显示消息的html，可以是选择器，eg. `html(<div></div>)或html(#divId)`
-  如果是选择器，则可以加个!前缀，表示不使用规则的消息，只显示选择的html及其内容
+- `failHtml(...)` eg. `failHtml(<div></div>)或failHtml(#divId)`
+  可以加个"!"前缀，表示不使用规则的消息，只显示选择的html及其内容
 
-- `blur或manul`对应blur和manul属性
+- `blur或manul` 对应blur和manul属性
 
 ## 注意
-1. 优先级：HTML选项 > field选项 > 局部选项 > 全局选项
+1. 优先级：field选项 > 局部选项 > 全局选项
 
-2. failStyle可能会覆盖failCss的样式，可以使用failStyle=true来禁止使用默认的style
-
-3. manul会使blur失效
+2. manul会使blur失效
 
 # 内置规则
 1. required 必填项
@@ -127,6 +130,8 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 4. range(n,m) 数值在n和m之间
 
 5. range(n) 数值等于n
+
+6. length 格式与range一样，用来判断值的长度
 
 # TODO
 1. 详细的API说明
@@ -150,8 +155,6 @@ SMValidator.validate([input]｜selector, ignoreManul, resetRule);  //静态验�
 10. 添加几套UI作为demo，默认选项都没有值，需要添加自定义项目
 
 11. 添加jquery插件版本
-
-12. 添加继承全局规则的功能
 
 # 参考
 部分灵感来自于：[nice-validator](https://github.com/niceue/nice-validator)

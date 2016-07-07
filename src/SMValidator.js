@@ -38,8 +38,10 @@
                 var attr = GLOBAL_ATTRIBUTES[i];
                 self[attr] = options[attr] || config[attr];
             }
-            self.submit = options.submit;
+
             self.rules = options.rules || {};
+            self.submit = options.submit;
+
             //解析fields字段的规则
             self.fields = {};
             for(var k in options.fields) {
@@ -55,9 +57,8 @@
     /**
      * 提取选择器选择的input 
      * @selectors 选择描述符
-     * @resetRule 是否重新设置规则
      */
-    _proto.queryInput = function(selectors, resetRule) {
+    _proto.queryInput = function(selectors) {
         var self = this;
         var inputs = [];
         var els = document.querySelectorAll(selectors);
@@ -67,7 +68,7 @@
                 el.novalidate = 'novalidate';
                 var ins = [];
                 for (var j = el.length - 1; j >= 0; j--) {
-                    if(self.bindInput(el[j], resetRule)){
+                    if(self.bindInput(el[j])){
                         ins.push(el[j]);
                     }
                 }
@@ -82,7 +83,7 @@
                     });
                 }
             }else if(el.tagName === 'INPUT') {
-                if(self.bindInput(el, resetRule)){
+                if(self.bindInput(el)){
                     inputs.push(el);
                 }
             }
@@ -91,9 +92,9 @@
     }
 
     /**把规则绑定到input上 */
-    _proto.bindInput = function(input, resetRule) {
-        //如果已经绑定过规则，则不重复处理，除非指明重设规则
-        if(input._sm && !resetRule) return true;
+    _proto.bindInput = function(input) {
+        //如果已经绑定过规则，则不重复处理
+        if(input._sm) return true;
 
         var name = input.getAttribute('name');
         var dataRule = input.getAttribute('data-rule');
@@ -266,8 +267,8 @@
         }
     }
 
-    _proto.validate = function(ignoreManul, resetRule){
-        return SMValidator.validate(this.inputs, ignoreManul, resetRule);
+    _proto.validate = function(ignoreManul){
+        return SMValidator.validate(this.inputs, ignoreManul);
     }
 
     /**
@@ -369,31 +370,13 @@
 
     /**全局配置 */
     var config = {
-        failHtml: '<span style="color:#c00;"></span>',
-        failStyle: {
-            color: '#c00',
-            border: '1px solid #c00'
-        },
         rules: {
             required: function(val) {
-                //字段必填
                 return val !== '' || 'this is required';
-            },
-            range: function(val, a, b) {
-                //字符长度要求，range(5,10)大于5小于10，range(+5)大于5，range(-5)小于5
-                var n = val.length;
-                if(arguments.length === 2) {
-                    if(a >= 0) {
-                        return n > a || '长度必须大于' + a;
-                    }else {
-                        return n < -a || '长度必须小于' + (-a);
-                    }
-                }else if(arguments.length === 3){
-                    return (n > a && n < b) || '长度必须大于 ' + a + ' 且小于 ' + b;
-                }
             }
         }
     };
+
     /**设置全局配置 */
     SMValidator.config = function (options) {
         for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
@@ -406,18 +389,17 @@
             }
         }
     }
-    /**公共validate使用的SMValidator */
+    /**公共validate使用的SMValidator实例 */
     var smv = new SMValidator();
     smv.rules = smv.fields = {};
     /**
      * 手动验证表单，默认只验证manul属性为true的表单
      * @param inputs{Array|String} 表单数组或表单选择器描述符
      * @param ignoreManul 忽略手动标识，强制验证包括manul为false的表单
-     * @param resetRule 是否重设规则，如果动态修改了验证规则，可以传入true来更新规则
      * @return 如果全部通过则返回true，否则返回false
      */
-    SMValidator.validate = function (inputs, ignoreManul, resetRule) {
-        var ins = typeof inputs === 'string' ? smv.queryInput(inputs, resetRule) : inputs;
+    SMValidator.validate = function (inputs, ignoreManul) {
+        var ins = typeof inputs === 'string' ? smv.queryInput(inputs) : inputs;
         var passCount = 0;
         var count = 0;
         for(var i = ins.length - 1; i >= 0; i--) {
@@ -431,6 +413,8 @@
         }
         return count === passCount;
     }
+
+//DEFAULT-CONFIG-PLACEHOLDER
 
     return SMValidator;
 }));
