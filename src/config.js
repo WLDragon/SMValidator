@@ -9,6 +9,7 @@ SMValidator.config({
         number: [/^-?\d+$/, '只能输入数字'],
         email: [/^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i, '邮箱格式不正确'],
         range: function(val, a, b) {
+            val = val * 1;
             //数值范围
             //range(a,b) 大于a小于b
             //range(a,) 大于a

@@ -1,5 +1,5 @@
 /*!
- * SMValidator.js 0.9.0
+ * SMValidator.js 0.9.2
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  *//*!
  * SMValidator.js
@@ -352,7 +352,6 @@
         }
 
         //当上一次验证结果跟这一次不一样的时候才更改样式
-        //TODO 如果上一次的失败结果跟这一次的不一样时，不会象触发这一次的消息
         if(flag !== sm.flag || sm.ruleIndex !== sm.lastRuleIndex) {
             sm.lastRuleIndex = sm.ruleIndex;
             sm.flag = flag;
@@ -454,6 +453,7 @@ SMValidator.config({
         number: [/^-?\d+$/, '只能输入数字'],
         email: [/^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i, '邮箱格式不正确'],
         range: function(val, a, b) {
+            val = val * 1;
             //数值范围
             //range(a,b) 大于a小于b
             //range(a,) 大于a
