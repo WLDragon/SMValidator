@@ -325,6 +325,7 @@
                         //正则规则
                         if(!rule.test(input.value)) {
                             result = ruleItem.message;
+                            sm.ruleIndex = i;
                             flag = 2;
                             break;
                         }
@@ -336,6 +337,7 @@
                             result = rule.call(null, input.value);
                         }
                         if(result !== true) {
+                            sm.ruleIndex = i;
                             flag = 2;
                             break;
                         }
@@ -347,9 +349,10 @@
         }
 
         //当上一次验证结果跟这一次不一样的时候才更改样式
-        //TODO 如果上一次的失败结果跟这一次的不一样时，不会象触发这一次的消息
-        if(flag !== sm.flag) {
+        if(flag !== sm.flag || sm.ruleIndex !== sm.lastRuleIndex) {
+            sm.lastRuleIndex = sm.ruleIndex;
             sm.flag = flag;
+
             applyStyle(input, sm.style);
             toggleElement(sm.failHtml, false);
             toggleElement(sm.passHtml, false);
