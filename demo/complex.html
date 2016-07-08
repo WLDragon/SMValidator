@@ -65,14 +65,29 @@
             <a href="javascript:;" onclick="onManul()">点击验证</a>
             <p name="message2" style="color:#39f">要求长度为4</p>
         </div>
-        <button style="margin-left: 5px;" type="submit">提交</button>
+        <div>
+            <p>测试server功能</p>
+            <div>
+                <input name="field6" type="text">
+                <button type="button" onclick="server6(1)">field6 true</button>
+                <button type="button" onclick="server6(2)">field6 false</button>
+            </div>
+            <div>
+                <input name="field7" type="text">
+                <button type="button" onclick="server7(1)">field7 true</button>
+                <button type="button" onclick="server7(2)">field7 false</button>
+            </div>
+        </div>
+        <button type="reset" onclick="resetStyle()">重置</button>
+        <div style="margin-top:10px">提交按钮在网页底部，测试submit和locate功能</div>
+        <button style="margin: 1000px 0 0 5px;" type="submit">提交</button>
     </form>
     <script>
         //偏好使用HTML
         new SMValidator('#form1');
 
         //偏好使用JS
-        var smv = new SMValidator('#form2', {
+        new SMValidator('#form2', {
             failHtml: '<span style="color:#f6f"></span>',
             failStyle: {
                 color: '#f6f',
@@ -80,9 +95,6 @@
             },
             rules: {
                 onlyNumber: [/^\d*$/, '只能填数字'],
-                required: function(val) {
-
-                }
             },
             fields: {
                 field1: 'required;onlyNumber;failCss(error)',
@@ -101,6 +113,15 @@
                     },
                     rule: 'length(3,5)',
                     manul: true
+                },
+                field6: {
+                    server: true,
+                    failHtml: '<span style="color:red">服务器验证失败</span>',
+                    passHtml: '<span style="color:green">服务器验证通过</span>'
+                },
+                field7: {
+                    rule: 'required',
+                    server: true
                 }
             },
             submit: function(valid, form) {
@@ -109,7 +130,19 @@
         });
 
         function onManul() {
-            smv.validate();
+            SMValidator.validate('#manul2');
+        }
+
+        function resetStyle() {
+            SMValidator.reset('#form2');
+        }
+
+        function server6(result) {
+            SMValidator.validate('[name="field6"]', {forceFlag: result});
+        }
+
+        function server7(result) {
+            SMValidator.validate('[name="field7"]', {forceFlag: result});
         }
     </script>
 </body>

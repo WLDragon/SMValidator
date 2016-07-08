@@ -1,14 +1,11 @@
 SMValidator.config({
+    requiredTips: '这是必填字段',
     failHtml: '<span style="color:#c00;"></span>',
     failStyle: {
         color: '#c00',
         border: '1px solid #c00'
     },
     rules: {
-        required: function(val) {
-            //required在系统中有特殊功能，请不要随意覆盖
-            return val !== '' || '这是必填字段';
-        },
         number: [/^-?\d+$/, '只能输入数字'],
         email: [/^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i, '邮箱格式不正确'],
         range: function(val, a, b) {

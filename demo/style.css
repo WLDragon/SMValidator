@@ -24,3 +24,6 @@ input:focus {
 .error {
     background-color: #ffc;
 }
+button {
+    margin-left: 10px;
+}

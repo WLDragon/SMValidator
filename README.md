@@ -1,7 +1,7 @@
 # sm-validator
 >一个非常容易使用的表单验证工具
 
-1. 轻量，内核minify在5KB以内
+1. 轻量，内核minify在10KB以内
 
 2. 方便，只有验证规则是必填，其余选项均可选
 
@@ -25,16 +25,20 @@ SMValidator.validate('input');
 ```
 
 # 发布版本说明(dist/)
-SMValidator.js 带默认配置的源码
-SMValidator.min.js 带默认配置的minify
-SMValidator.pure.min.js 不带默认配置的minify，内置只有required规则，验证样式等需要自己配置，可参考src/config.js
+- SMValidator.js 带默认配置的源码
+
+- SMValidator.min.js 带默认配置的minify
+
+- SMValidator.pure.min.js 不带默认配置的minify，内置只有required规则，验证样式等需要自己配置，可参考src/config.js
 
 # 选项及说明
 ## 全局选项
 ``` javascript
 SMValidator.config({
-  blur: false,  //是否焦点离开时验证
+  requiredTips: '', //更新required规则的提示，因为required规则不能覆盖
+  server: false, //标志是否由服务器来验证，配置forceFlag来处理结果，一般不需要全局设置，而是针对特定的input来设置
   manul: false,  //是否手动使用js验证
+  blur: false,  //是否焦点离开时验证
   failStyle: null,  //验证失败时给input添加的style属性，设置为true则禁用此属性
   failHtml: '',  //显示消息的html模板，自动添加到input的后面，如果是选择器则只会把消息填到选择的标签里
   failCss: '',  //验证失败时给input添加的样式类名
@@ -48,13 +52,26 @@ SMValidator.config({
     }
   }
 })
+
+//设置了manul:true，需要手动验证
+/**
+options {
+  forceFlag: 0, //强行设置验证结果，0没验证 1通过 2失败
+  locate: false //是否定位到第一个验证失败的表单
+}
+*/
+SMValidator.validate([input]｜selector, options);  //静态验证，可传入input数组或选择器描述符
+
+//重新设置表单为没验证状态
+SMValidator.reset([input]｜selector);  //可传入input数组或选择器描述符
 ```
 
 ## 局部选项
 ``` javascript
 var smv = new SMValidator('querySelector', {
-  blur: false,
+  server: false,
   manul: false,
+  blur: false,
   failStyle: null,
   failHtml: '',
   failCss: '',
@@ -68,7 +85,7 @@ var smv = new SMValidator('querySelector', {
     //字符串规则请看下面的HTML选项
     field1Name: [/abc/, 'message'],
     field2Name: function(val){ return /abc/.test(val) || 'message';},
-    field3Name: '/abc/i/message;rule1;rule2(0,10);blur;manul',
+    field3Name: '/abc/i/message;rule1;rule2(0,10);blur;manul;server',
     field4Name: 'required;failStyle(...);failCss(...);failHtml(!...);passStyle(...);passCss(...);passHtml(!...)',
     field5Name: {
       rule: 'rule1;rule2(0,10)'|Array|Function,  //字符串类型仅限于规则名，不支持failStyle等属性
@@ -80,6 +97,7 @@ var smv = new SMValidator('querySelector', {
       passHtml: '',
       passCss: '',
       pass: null, //成功时的回调函数，绑定this为input
+      server: false,
       manul: false,
       blur: false
     }
@@ -90,11 +108,6 @@ var smv = new SMValidator('querySelector', {
     if(valid) form.submit();
   }
 });
-
-//设置了manul:true，需要手动验证
-//@param {Boolean} ignoreManul 忽略manul设置，验证选择的全部表单
-smv.validate(ignoreManul);  //实例验证
-SMValidator.validate([input]｜selector, ignoreManul);  //静态验证，可传入input数组或选择器描述符
 ```
 
 ## HTML选项
@@ -123,26 +136,26 @@ SMValidator.validate([input]｜selector, ignoreManul);  //静态验证，可传�
 # 内置规则
 1. required 必填项
 
-2. range(n,) 数值大于n
+2. ~~range(n,) 数值大于n~~
 
-3. range(,n) 数值小于n
+3. ~~range(,n) 数值小于n~~
 
-4. range(n,m) 数值在n和m之间
+4. ~~range(n,m) 数值在n和m之间~~
 
-5. range(n) 数值等于n
+5. ~~range(n) 数值等于n~~
 
-6. length 格式与range一样，用来判断值的长度
+6. ~~length 格式与range一样，用来判断值的长度~~
 
 # TODO
 1. 详细的API说明
 
-2. 服务器验证
+2. ~~服务器验证~~
 
 3. 添加checkbox,select,textarea的验证
 
 4. 测试用例及浏览器兼容测试
 
-5. 如果是使用submit验证，失败时定位表单
+5. ~~添加失败时定位表单功能~~
 
 6. 英文文档
 
@@ -155,6 +168,8 @@ SMValidator.validate([input]｜selector, ignoreManul);  //静态验证，可传�
 10. 添加几套UI作为demo，默认选项都没有值，需要添加自定义项目
 
 11. 添加jquery插件版本
+
+12. ~~添加reset复位到原始状态的功能~~
 
 # 参考
 部分灵感来自于：[nice-validator](https://github.com/niceue/nice-validator)
