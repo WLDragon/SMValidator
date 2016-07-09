@@ -1,5 +1,6 @@
 SMValidator.config({
-    requiredTips: '这是必填字段',
+    requiredMessage: '这是必填字段',
+    serverMessage: '还没经过服务器验证',
     failHtml: '<span style="color:#c00;"></span>',
     failStyle: {
         color: '#c00',

@@ -35,7 +35,8 @@ SMValidator.validate('input');
 ## 全局选项
 ``` javascript
 SMValidator.config({
-  requiredTips: '', //更新required规则的提示，因为required规则不能覆盖
+  noServerMessage: '', //使用了server，但是还没手动验证时的默认提示消息
+  requiredMessage: '', //更新required规则的提示，因为required规则不能覆盖
   server: false, //标志是否由服务器来验证，配置forceFlag来处理结果，一般不需要全局设置，而是针对特定的input来设置
   manul: false,  //是否手动使用js验证
   blur: false,  //是否焦点离开时验证
@@ -56,6 +57,7 @@ SMValidator.config({
 //设置了manul:true，需要手动验证
 /**
 options {
+  serverMessage: '', //传递服务器验证的消息
   forceFlag: 0, //强行设置验证结果，0没验证 1通过 2失败
   locate: false //是否定位到第一个验证失败的表单
 }
@@ -132,6 +134,8 @@ var smv = new SMValidator('querySelector', {
 1. 优先级：field选项 > 局部选项 > 全局选项
 
 2. manul会使blur失效
+
+3. server强制manul为true，即server为true时manul必然为true
 
 # 内置规则
 1. required 必填项

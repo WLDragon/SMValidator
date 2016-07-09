@@ -1,5 +1,5 @@
 /*!
- * SMValidator.js 0.9.2
+ * SMValidator.js 0.9.3
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  *//*!
  * SMValidator.js
@@ -32,7 +32,10 @@
     });
 
     function checkCoverRequired(rules) {
-        if(rules && rules.required) throw new Error('can\'t cover the rule "required"');
+        if(rules && rules.required) {
+            delete rules.required;
+            console.warn('"required" customized rule is invalid')
+        }
     }
 
     var GLOBAL_ATTRIBUTES = ['server', 'blur', 'manul', 'failHtml', 'failStyle', 'failCss', 'passHtml', 'passStyle', 'passCss'];
@@ -116,6 +119,8 @@
                     var attr = GLOBAL_ATTRIBUTES[i];
                     if(!item[attr]) item[attr] = this[attr];
                 }
+                //服务器验证必须是手动验证
+                if(item.server) item.manul = true;
 
                 function parseStyle(item, prop) {
                     if(typeof item[prop] !== 'string') return;
@@ -128,8 +133,6 @@
                 parseStyle(item, 'failStyle');
                 parseStyle(item, 'passStyle');
             }
-
-            if(item.server) input._sm._quiet = true;
 
             //记录原始样式
             function recordStyle(input, style) {
@@ -309,15 +312,35 @@
         if(options && typeof options.forceFlag === 'number') {
             flag = options.forceFlag;
             //服务端验证，通过forceFlag设置的结果
-            if(item.server) sm.serverFlag = flag;
+            if(item.server) {
+                sm.serverFlag = flag;
+                if(options.serverMessage) sm.serverMessage = options.serverMessage;
+                if(flag === 2) {
+                    sm.ruleIndex = -2;
+                    result = sm.serverMessage || 'no reason';
+                }
+            }
         }else {
             if(item.server) {
-                if(item.required && input.value === '') {
+                if(item.required && !input.value) {
                     flag = 2;
-                    result = config.requiredTips;
+                    sm.ruleIndex = -1;
+                    result = config.requiredMessage;
                 }else {
-                    flag = sm.serverFlag || 0;
-                    if(flag === 2) result = false;
+                    if(typeof sm.serverFlag === 'number') {
+                        flag = sm.serverFlag;
+                        if(flag === 2) {
+                            sm.ruleIndex = -2;
+                            result = sm.serverMessage || 'no reason';
+                        }
+                    }else if(input.value){
+                        //如果有值且没有设置过serverFlag则不通过
+                        flag = 2;
+                        sm.ruleIndex = -3;
+                        result = config.noServerMessage;
+                    }else {
+                        flag = 0;
+                    }
                 }
             }else if(item.required || input.value !== '') {
                 //当字段是要求必填或不为空时才进行验证
@@ -390,19 +413,20 @@
 
     /**全局配置 */
     var config = {
-        requiredTips: 'this is required',
+        noServerMessage: 'not been validated by server',
+        requiredMessage: 'this is required',
         rules: {
             required: function(val) {
-                return val !== '' || config.requiredTips;
+                return !!val || config.requiredMessage;
             }
         }
     };
 
     /**设置全局配置 */
     SMValidator.config = function (options) {
-        if(options.requiredTips) config.requiredTips = options.requiredTips;
-        for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
-            var attr = GLOBAL_ATTRIBUTES[i];
+        var a = GLOBAL_ATTRIBUTES.concat(['noServerMessage', 'requiredMessage']);
+        for(var i = a.length - 1; i >= 0; i--) {
+            var attr = a[i];
             if(options[attr]) config[attr] = options[attr];
         }
         if(options.rules) {
@@ -421,6 +445,7 @@
      * @param options {Object}
      * @param options.forceFlag //强行设置验证结果，0没验证 1通过 2失败
      * @param options.locate //是否定位到第一个验证失败的表单
+     * @param options.serverMessage //服务器返回来的消息，用于设置带有server属性的验证
      * @return 如果全部通过则返回true，否则返回false
      */
     SMValidator.validate = function (inputs, options) {
@@ -443,7 +468,8 @@
     }
 
 SMValidator.config({
-    requiredTips: '这是必填字段',
+    requiredMessage: '这是必填字段',
+    serverMessage: '还没经过服务器验证',
     failHtml: '<span style="color:#c00;"></span>',
     failStyle: {
         color: '#c00',

@@ -116,7 +116,7 @@
                 },
                 field6: {
                     server: true,
-                    failHtml: '<span style="color:red">服务器验证失败</span>',
+                    failHtml: '<span style="color:red"></span>',
                     passHtml: '<span style="color:green">服务器验证通过</span>'
                 },
                 field7: {
@@ -138,7 +138,7 @@
         }
 
         function server6(result) {
-            SMValidator.validate('[name="field6"]', {forceFlag: result});
+            SMValidator.validate('[name="field6"]', {forceFlag: result, serverMessage: '服务器验证失败'});
         }
 
         function server7(result) {
