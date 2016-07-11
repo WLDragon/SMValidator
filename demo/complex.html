@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SMValidator复杂案例</title>
+    <title>sm-validator复杂案例</title>
     <link rel="stylesheet" href="style.css">
     <script src="../dist/SMValidator.js"></script>
 </head>
@@ -25,8 +25,8 @@
             <p id="message11" style="color:green">验证通过</p>
         </div>
         <div>
-            <p>要求长度大于5，使用自定义类名，不显示规则消息</p>
-            <input type="text" data-rule="length(5,);failCss(error);failHtml(!#message12)">
+            <p>要求长度大于5，使用自定义类名，不显示规则消息，父容器添加样式</p>
+            <input type="text" data-rule="length(5,);failCss(error,+error);failHtml(!#message12)">
             <span id="message12" style="color:red">长度大于5，这里使用的是自定义文本，不使用规则消息</span>
         </div>
         <div>
@@ -79,7 +79,7 @@
             </div>
         </div>
         <button type="reset" onclick="resetStyle()">重置</button>
-        <div style="margin-top:10px">提交按钮在网页底部，测试submit和locate功能</div>
+        <div style="margin-top:10px"><b>提交按钮在网页底部，测试submit和locate功能</b></div>
         <button style="margin: 1000px 0 0 5px;" type="submit">提交</button>
     </form>
     <script>
@@ -106,7 +106,7 @@
                 },
                 field5: {
                     failHtml: '[name="message2"]',
-                    failCss: 'error',
+                    failCss: ['error'],
                     failStyle: {
                         color: '#39f',
                         border: '1px solid #39f'

@@ -119,19 +119,20 @@
                 //服务器验证必须是手动验证
                 if(item.server) item.manul = true;
 
-                function parseStyle(item, prop) {
-                    if(typeof item[prop] !== 'string') return;
-                    try{
-                        item[prop] = JSON.parse(item[prop].replace(/'/g,'\"'));
-                    }catch(e) {
-                        console.error('error json format: ' + item[prop]);
+                function handleStyle(item, prop) {
+                    if(typeof item[prop] === 'string') {
+                        try{
+                            item[prop] = JSON.parse(item[prop].replace(/'/g,'\"'));
+                        }catch(e) {
+                            console.error('error json format: ' + item[prop]);
+                        }
                     }
                 }
-                parseStyle(item, 'failStyle');
-                parseStyle(item, 'passStyle');
+                handleStyle(item, 'failStyle');
+                handleStyle(item, 'passStyle');
             }
 
-            //记录原始样式
+            //当有failStyle或passStyle时记录原始样式
             function recordStyle(input, style) {
                 if(!style) return;
                 if(!input._sm.style) input._sm.style = {};
@@ -143,31 +144,56 @@
             recordStyle(input, item.failStyle); 
             recordStyle(input, item.passStyle); 
 
-            function bindHtml(input, prop, html) {
-                if(!html) return;
-                var htmlDom;
-                if(html.indexOf('!') === 0) {
-                    html = html.substring(1);
-                    //failHtml不使用规则的消息，只显示html
-                    input._sm._quiet = true;
-                }
-                if(html.indexOf('<') === 0) {
-                    //html
-                    var div = document.createElement('div');
-                    div.innerHTML = html;
-                    htmlDom = div.childNodes[0];
-                    input.parentNode.insertBefore(htmlDom, input.nextElementSibling);
-                }else {
-                    //选择器
-                    htmlDom = document.querySelector(html);
-                }
-                if(htmlDom) {
-                    htmlDom.style.display = 'none';
-                    input._sm[prop] = htmlDom;
+            //用于提示消息的html，如果是html文本则新建一个Dom，如果是选择器则使用这个选择器的Dom
+            function handleHtml(input, prop, htmls) {
+                if(!htmls) return;
+                if(typeof htmls === 'string') htmls = [htmls];
+                input._sm[prop] = [];
+                for(var i = 0; i < htmls.length; i++) {
+                    var html = htmls[i];
+                    var htmlDom;
+                    if(i === 0 && html.indexOf('!') === 0) {
+                        html = html.substring(1);
+                        //failHtml不使用规则的消息，只显示html
+                        input._sm._quiet = true;
+                    }
+                    if(html.indexOf('<') === 0) {
+                        //Dom
+                        var div = document.createElement('div');
+                        div.innerHTML = html;
+                        htmlDom = div.childNodes[0];
+                        input.parentNode.insertBefore(htmlDom, input.nextElementSibling);
+                    }else {
+                        //选择器
+                        htmlDom = document.querySelector(html);
+                    }
+                    if(htmlDom) {
+                        htmlDom.style.display = 'none';
+                        input._sm[prop].push(htmlDom);
+                    }
                 }
             }
-            bindHtml(input, 'failHtml', item.failHtml);
-            bindHtml(input, 'passHtml', item.passHtml);
+            handleHtml(input, 'failHtml', item.failHtml);
+            handleHtml(input, 'passHtml', item.passHtml);
+
+            //记录使用样式的对象，如果className中有+号表示应用样式的是input的父节点，一个+号往上一层
+            function handleCss(input, prop, classNames) {
+                if(!classNames) return;
+                if(typeof classNames === 'string') classNames = [classNames];
+                input._sm[prop] = [];
+                for(var i = classNames.length - 1; i >= 0; i--) {
+                    var cn = classNames[i];
+                    //object format:[{target: element, className: ''},...]
+                    var tar = input;
+                    while(cn.indexOf('+') === 0) {
+                        cn = cn.substring(1);
+                        tar = tar.parentNode;
+                    }
+                    input._sm[prop].push({target: tar, className: cn});
+                }
+            }
+            handleCss(input, 'failCss', item.failCss);
+            handleCss(input, 'passCss', item.passCss);
 
             return true;
         }
@@ -231,8 +257,10 @@
                     var n = result.name;
                     if(n === 'blur' || n === 'manul' || n === 'server') {
                         item[n] = true;
-                    }else {
+                    }else if(n === 'failStyle' || n === 'passStyle') {
                         item[n] = result.params[0];
+                    }else {
+                        item[n] = result.params;
                     }
                 }else {
                     //函数或数组规则
@@ -273,22 +301,29 @@
     /**
      * 验证通过时去掉样式，验证失败时添加样式
      */
-    function toggleClass(input, cssName, isAdd) {
-        if(!cssName) return;
-        var cns = input.className.split(' ');
-        var i = cns.indexOf(cssName);
-        if(!isAdd && i > -1) {
-            cns.splice(i, 1);
-            input.className = cns.join(' ');
-        }else if(isAdd && i === -1){
-            input.className += input.className ? ' ' + cssName : cssName;
+    function toggleClass(items, isAdd) {
+        if(!items) return;
+        for(var i = items.length - 1; i >= 0; i--) {
+            var m = items[i];
+            var tar = m.target;
+            var cn = m.className;
+            var cns = tar.className.split(' ');
+            var j = cns.indexOf(cn);
+            if(!isAdd && j > -1) {
+                cns.splice(j, 1);
+                tar.className = cns.join(' ');
+            }else if(isAdd && j === -1){
+                tar.className += tar.className ? ' ' + cn : cn;
+            }
         }
     }
 
     /**显示或隐藏指定的消息标签 */
-    function toggleElement(element, isShow) {
-        if(!element) return;
-        element.style.display = isShow ? '' : 'none';
+    function toggleElement(items, isShow) {
+        if(!items) return;
+        for(var i = items.length - 1; i >= 0; i--) {
+            items[i].style.display = isShow ? '' : 'none';
+        }
     }
 
     /**应用样式到input上 */
@@ -380,23 +415,23 @@
             toggleElement(sm.failHtml, false);
             toggleElement(sm.passHtml, false);
             if(flag === 1) {
-                toggleClass(input, item.failCss, false);
-                toggleClass(input, item.passCss, true);
+                toggleClass(sm.failCss, false);
+                toggleClass(sm.passCss, true);
                 applyStyle(input, item.passStyle);
                 toggleElement(sm.passHtml, true);
 
                 if(item.pass) item.pass.call(input);
             }else if(flag === 2){
-                toggleClass(input, item.passCss, false);
-                toggleClass(input, item.failCss, true);
+                toggleClass(sm.passCss, false);
+                toggleClass(sm.failCss, true);
                 applyStyle(input, item.failStyle);
                 toggleElement(sm.failHtml, true);
-                if(sm.failHtml && !sm._quiet) sm.failHtml.innerText = result;
+                if(sm.failHtml && !sm._quiet) sm.failHtml[0].innerText = result;
 
                 if(item.fail) item.fail.call(input);
             }else {
-                toggleClass(input, item.failCss, false);
-                toggleClass(input, item.passCss, false);
+                toggleClass(sm.failCss, false);
+                toggleClass(sm.passCss, false);
             }
         }
 

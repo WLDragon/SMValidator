@@ -42,7 +42,7 @@ SMValidator.config({
   blur: false,  //是否焦点离开时验证
   failStyle: null,  //验证失败时给input添加的style属性，设置为true则禁用此属性
   failHtml: '',  //显示消息的html模板，自动添加到input的后面，如果是选择器则只会把消息填到选择的标签里
-  failCss: '',  //验证失败时给input添加的样式类名
+  failCss: ['error', '+error'],  //验证失败时给input添加的样式类名，+号表示往上一层，把样式添加到父标签
   passStyle: null,
   passHtml: '',
   passCss: '',
@@ -88,7 +88,7 @@ var smv = new SMValidator('querySelector', {
     field1Name: [/abc/, 'message'],
     field2Name: function(val){ return /abc/.test(val) || 'message';},
     field3Name: '/abc/i/message;rule1;rule2(0,10);blur;manul;server',
-    field4Name: 'required;failStyle(...);failCss(...);failHtml(!...);passStyle(...);passCss(...);passHtml(!...)',
+    field4Name: 'required;failStyle(...);failCss(error,+error2);failHtml(!...);passStyle(...);passCss(...);passHtml(!...)',
     field5Name: {
       rule: 'rule1;rule2(0,10)'|Array|Function,  //字符串类型仅限于规则名，不支持failStyle等属性
       failStyle: null,

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>sm-validator bootstrap skin demo</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="../../dist/SMValidator.js"></script>
+</head>
+
+<body>
+    <div class="container" style="margin:50px">
+        <div class="row">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-xs-3 control-label">User Name</label>
+                    <div class="col-xs-5">
+                        <input type="text" class="form-control" data-rule="required" placeholder="input your name">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        new SMValidator('input');
+    </script>
+</body>
+</html>
