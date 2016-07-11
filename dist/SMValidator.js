@@ -1,5 +1,5 @@
 /*!
- * SMValidator.js 0.9.3
+ * SMValidator.js 0.9.4
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  *//*!
  * SMValidator.js
