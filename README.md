@@ -1,7 +1,6 @@
-# sm-validator
->一个非常容易使用的表单验证工具
+# sm-validator(small form validator)
 
-1. 轻量，内核minify在10KB以内
+1. 轻量，10KB以内
 
 2. 方便，只有验证规则是必填，其余选项均可选
 
@@ -9,15 +8,21 @@
 
 4. 不依赖第三方库
 
+5. 支持bootstrap样式
+
 # 示例
 ``` html
 <input type="text" data-rule="required">
-```
-``` javascript
-SMValidator.validate('input');
+<script>
+  new SMValidator('input');
+</script>
 ```
 
-[查看详细例子](https://wldragon.github.io/sm-validator/)
+[复杂的例子](https://wldragon.github.io/sm-validator/)
+
+[bootstrap样式例子](https://wldragon.github.io/sm-validator/bootstrap/)
+
+![扫一扫](https://wldragon.github.io/sm-validator/bootstrap/scan.jpg)
 
 # 安装
 ``` html
@@ -36,7 +41,7 @@ SMValidator.validate('input');
 ``` javascript
 SMValidator.config({
   noServerMessage: '', //使用了server，但是还没手动验证时的默认提示消息
-  requiredMessage: '', //更新required规则的提示，因为required规则不能覆盖
+  requiredMessage: '', //required规则的提示，required规则不能覆盖
   server: false, //标志是否由服务器来验证，配置forceFlag来处理结果，一般不需要全局设置，而是针对特定的input来设置
   manul: false,  //是否手动使用js验证
   blur: false,  //是否焦点离开时验证
@@ -54,15 +59,15 @@ SMValidator.config({
   }
 })
 
-//设置了manul:true，需要手动验证
 /**
+设置了manul:true，需要手动验证
 options {
   serverMessage: '', //传递服务器验证的消息
   forceFlag: 0, //强行设置验证结果，0没验证 1通过 2失败
   locate: false //是否定位到第一个验证失败的表单
 }
 */
-SMValidator.validate([input]｜selector, options);  //静态验证，可传入input数组或选择器描述符
+SMValidator.validate([input]｜selector, options);  //手动验证，可传入input数组或选择器描述符
 
 //重新设置表单为没验证状态
 SMValidator.reset([input]｜selector);  //可传入input数组或选择器描述符
@@ -114,8 +119,8 @@ var smv = new SMValidator('querySelector', {
 
 ## HTML选项
 ``` html
-<input data-rule="/abc/i/message;rule1;rule2(0,10);blur;manul">
-<input data-rule="required;failStyle(...);failCss(...);failHtml(!...);passStyle(...);passCss(...);passHtml(!...)">
+<input data-rule="/abc/i/message;rule1;rule2(0,10);blur;manul;server">
+<input data-rule="required;failStyle(...);failCss(+..);failHtml(!...);passStyle(...);passCss(++.);passHtml(!...)">
 ```
 - / 正则规则，/abc/message或/abc/i/message
 
@@ -123,12 +128,13 @@ var smv = new SMValidator('querySelector', {
 
 - `failStyle(...)` eg. `failStyle({'color':'red'})`
 
-- `failCss(...)` eg. `failCss(error)`
+- `failCss(...)` eg. `failCss(error,+error)`
+  "+"表示样式应用到input的父节点，一个"+"表示往上一层，可以多个连在一起
 
 - `failHtml(...)` eg. `failHtml(<div></div>)或failHtml(#divId)`
-  可以加个"!"前缀，表示不使用规则的消息，只显示选择的html及其内容
+  "!"表示不使用规则的消息，只显示选择的html及其内容
 
-- `blur或manul` 对应blur和manul属性
+- `blur、manul、server` 对应blur、manul和server属性
 
 ## 注意
 1. 优先级：field选项 > 局部选项 > 全局选项
@@ -136,19 +142,6 @@ var smv = new SMValidator('querySelector', {
 2. manul会使blur失效
 
 3. server强制manul为true，即server为true时manul必然为true
-
-# 内置规则
-1. required 必填项
-
-2. ~~range(n,) 数值大于n~~
-
-3. ~~range(,n) 数值小于n~~
-
-4. ~~range(n,m) 数值在n和m之间~~
-
-5. ~~range(n) 数值等于n~~
-
-6. ~~length 格式与range一样，用来判断值的长度~~
 
 # TODO
 1. 详细的API说明
