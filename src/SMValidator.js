@@ -35,23 +35,27 @@
         }
     }
 
+    function isString(obj) {
+        return typeof obj === 'string';
+    }
+
     var GLOBAL_ATTRIBUTES = ['server', 'blur', 'manul', 'failHtml', 'failStyle', 'failCss', 'passHtml', 'passStyle', 'passCss'];
     function SMValidator(selectors, options) {
+        var self = this;
+        if(!options) options = {};
+        //初始化局部属性，如果没填，则使用全局属性
+        for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
+            var attr = GLOBAL_ATTRIBUTES[i];
+            self[attr] = options[attr] || config[attr];
+        }
+        
+        self.fields = {};
+        self.rules = options.rules || {};
         if(selectors) {
-            var self = this;
-            if(!options) options = {};
-            //初始化局部属性，如果没填，则使用全局属性
-            for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
-                var attr = GLOBAL_ATTRIBUTES[i];
-                self[attr] = options[attr] || config[attr];
-            }
-
             checkCoverRequired(options.rules);
-            self.rules = options.rules || {};
             self.submit = options.submit;
 
             //解析fields字段的规则
-            self.fields = {};
             for(var k in options.fields) {
                 self.fields[k] = self.parseField(options.fields[k]);
             }
@@ -120,7 +124,7 @@
                 if(item.server) item.manul = true;
 
                 function handleStyle(item, prop) {
-                    if(typeof item[prop] === 'string') {
+                    if(isString(item[prop])) {
                         try{
                             item[prop] = JSON.parse(item[prop].replace(/'/g,'\"'));
                         }catch(e) {
@@ -147,15 +151,16 @@
             //用于提示消息的html，如果是html文本则新建一个Dom，如果是选择器则使用这个选择器的Dom
             function handleHtml(input, prop, htmls) {
                 if(!htmls) return;
-                if(typeof htmls === 'string') htmls = [htmls];
                 input._sm[prop] = [];
+                if(isString(htmls)) htmls = [htmls];
                 for(var i = 0; i < htmls.length; i++) {
-                    var html = htmls[i];
                     var htmlDom;
-                    if(i === 0 && html.indexOf('!') === 0) {
+                    var html = htmls[i];
+                    var htmlItem = {}; //object format:{dom:null, quiet:false}
+                    if(html.indexOf('!') === 0) {
                         html = html.substring(1);
                         //failHtml不使用规则的消息，只显示html
-                        input._sm._quiet = true;
+                        htmlItem.quiet = true;
                     }
                     if(html.indexOf('<') === 0) {
                         //Dom
@@ -168,8 +173,9 @@
                         htmlDom = document.querySelector(html);
                     }
                     if(htmlDom) {
+                        htmlItem.dom = htmlDom;
                         htmlDom.style.display = 'none';
-                        input._sm[prop].push(htmlDom);
+                        input._sm[prop].push(htmlItem);
                     }
                 }
             }
@@ -179,7 +185,7 @@
             //记录使用样式的对象，如果className中有+号表示应用样式的是input的父节点，一个+号往上一层
             function handleCss(input, prop, classNames) {
                 if(!classNames) return;
-                if(typeof classNames === 'string') classNames = [classNames];
+                if(isString(classNames)) classNames = [classNames];
                 input._sm[prop] = [];
                 for(var i = classNames.length - 1; i >= 0; i--) {
                     var cn = classNames[i];
@@ -239,7 +245,7 @@
         var statements = str.split(';');
         for(var i = statements.length - 1; i >= 0; i--) {
             var statement = statements[i];
-            if(statement === '') continue; //防止规则中出现;;的情况
+            if(!statement) continue; //防止规则中出现;;的情况
             if(statement.indexOf('/') === 0) {
                 //正则
                 var a = statement.substring(1).split('/');
@@ -279,14 +285,14 @@
             return {rules: [{rule: item[0], message: item[1]}]};
         }else if(item instanceof Function) {
             return {rules: [{rule: item}]};
-        }else if(typeof item === 'string') {
+        }else if(isString(item)) {
             return this.parseString(item);
         }else if(typeof item === 'object') {
             if(item.rule instanceof Array) {
                 item.rules = [{rule: item.rule[0], message: item.rule[1]}];
             }else if(item.rule instanceof Function) {
                 item.rules = [{rule: item.rule}];
-            }else if(typeof item.rule === 'string') {
+            }else if(isString(item.rule)) {
                 var a = item.rule.split(';');
                 item.rules = [];
                 for(var i = a.length - 1; i >= 0; i--) {
@@ -306,23 +312,29 @@
         for(var i = items.length - 1; i >= 0; i--) {
             var m = items[i];
             var tar = m.target;
-            var cn = m.className;
-            var cns = tar.className.split(' ');
-            var j = cns.indexOf(cn);
-            if(!isAdd && j > -1) {
-                cns.splice(j, 1);
-                tar.className = cns.join(' ');
-            }else if(isAdd && j === -1){
-                tar.className += tar.className ? ' ' + cn : cn;
+            //使用数组而不是字符串的方式来处理可以避免字符串查询不完整的情况
+            var newCss = m.className.split(' ');
+            var oldCss = tar.className.split(' ');
+            for(var k = newCss.length - 1; k >=0; k--) {
+                var c = newCss[k];
+                var j = oldCss.indexOf(c);
+                if(!isAdd && j > -1) {
+                    oldCss.splice(j, 1);
+                }else if(isAdd && j === -1){
+                    oldCss.push(c);
+                }
             }
+            tar.className = oldCss.join(' ');
         }
     }
 
     /**显示或隐藏指定的消息标签 */
-    function toggleElement(items, isShow) {
+    function toggleElement(items, isShow, result) {
         if(!items) return;
         for(var i = items.length - 1; i >= 0; i--) {
-            items[i].style.display = isShow ? '' : 'none';
+            var m = items[i];
+            m.dom.style.display = isShow ? '' : 'none';
+            if(result && !m.quiet) m.dom.innerText = result;
         }
     }
 
@@ -425,8 +437,7 @@
                 toggleClass(sm.passCss, false);
                 toggleClass(sm.failCss, true);
                 applyStyle(input, item.failStyle);
-                toggleElement(sm.failHtml, true);
-                if(sm.failHtml && !sm._quiet) sm.failHtml[0].innerText = result;
+                toggleElement(sm.failHtml, true, result);
 
                 if(item.fail) item.fail.call(input);
             }else {
@@ -454,6 +465,8 @@
         }
     };
 
+    /**公共validate使用的SMValidator实例 */
+    var globalInstance;
     /**设置全局配置 */
     SMValidator.config = function (options) {
         var a = GLOBAL_ATTRIBUTES.concat(['noServerMessage', 'requiredMessage']);
@@ -467,10 +480,9 @@
                 config.rules[k] = options.rules[k];
             }
         }
+
+        globalInstance = new SMValidator();
     }
-    /**公共validate使用的SMValidator实例 */
-    var smv = new SMValidator();
-    smv.rules = smv.fields = {};
     /**
      * 手动验证表单
      * @param inputs{Array|String} 表单数组或表单选择器描述符
@@ -481,7 +493,7 @@
      * @return 如果全部通过则返回true，否则返回false
      */
     SMValidator.validate = function (inputs, options) {
-        var ins = typeof inputs === 'string' ? smv.queryInput(inputs) : inputs;
+        var ins = isString(inputs) ? globalInstance.queryInput(inputs) : inputs;
         var passCount = 0;
         var count = 0;
         if(options && options.locate) config._useLocate = true;

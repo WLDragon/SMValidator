@@ -1,11 +1,6 @@
 SMValidator.config({
     requiredMessage: '这是必填字段',
     noServerMessage: '还没经过服务器验证',
-    // failHtml: '<span style="color:#c00;"></span>',
-    // failStyle: {
-    //     color: '#c00',
-    //     border: '1px solid #c00'
-    // },
     rules: {
         number: [/^-?\d+$/, '只能输入数字'],
         email: [/^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i, '邮箱格式不正确'],
@@ -65,11 +60,19 @@ SMValidator.config({
 
 
 var skins = {
+    default: {
+        failHtml: '<span style="color:#c00;"></span>',
+        failStyle: {
+            color: '#c00',
+            border: '1px solid #c00'
+        }
+    },
     bootstrap: {
-        failHtml: ['<small class="help-block"></small>','<i class="form-control-feedback glyphicon glyphicon-remove"></i>'],
-        failCss: ['++has-error', '++has-feedback'],
+        failStyle: {}, //覆盖默认样式的值
+        failHtml: ['!<span class="glyphicon glyphicon-remove form-control-feedback"></span>', '<small class="help-block"></small>'],
+        failCss: '++has-error has-feedback',
         passHtml: '<span class="glyphicon glyphicon-ok form-control-feedback"></span>',
-        passCss: ['++has-success', '++has-feedback']
+        passCss: '++has-success has-feedback'
     }
 }
 
@@ -81,4 +84,4 @@ SMValidator.setSkin = function(skin) {
     SMValidator.config(skins[skin]);
 }
 
-SMValidator.setSkin('bootstrap');
+SMValidator.setSkin('default');
