@@ -31,10 +31,15 @@
     </tr>
 </table>
 
-# 安装
-``` html
-<script src="SMValidator.min.js"></script>
+# 安装和使用
+- 在github下载
+
+- 使用npm获取
 ```
+npm install --save sm-validator
+```
+
+- sm-validator使用umd规范，支持amd、commonjs和window.SMValidator使用方式
 
 # 发布版本说明(dist/)
 - SMValidator.js 带默认配置的源码
