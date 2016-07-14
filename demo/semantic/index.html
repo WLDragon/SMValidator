@@ -10,56 +10,63 @@
         .ui.form .fields .field {
             margin-bottom: 1em;
         }
+        .container {
+            max-width: 760px;
+            padding: 20px;
+            margin: 50px auto;
+        }
     </style>
 </head>
 
 <body>
-    <div class="ui grid" style="margin:50px">
-        <div class="sixteen wide column">
-            <form class="ui form" method="POST">
-                <div class="fields">
-                    <label class="four wide field">Full Name</label>
-                    <div class="six wide field">
-                        <div class="ui input icon">
-                            <input type="text" data-rule="required" placeholder="first name">
+    <div class="container">
+        <div class="ui grid">
+            <div class="sixteen wide column">
+                <form class="ui form" method="POST">
+                    <div class="fields">
+                        <label class="four wide field">Full Name</label>
+                        <div class="six wide field">
+                            <div class="ui input icon">
+                                <input type="text" data-rule="required" placeholder="first name">
+                            </div>
+                        </div>
+                        <div class="six wide field ">
+                            <div class="ui input icon">
+                                <input type="text" class="" data-rule="required" placeholder="last name">
+                            </div>
                         </div>
                     </div>
-                    <div class="six wide field ">
-                        <div class="ui input icon">
-                            <input type="text" class="" data-rule="required" placeholder="last name">
+                    <div class="fields">
+                        <label class="four wide field">Email</label>
+                        <div class="twelve wide field">
+                            <div class="ui input icon">
+                                <input type="text" class="" data-rule="required;email">
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="fields">
-                    <label class="four wide field">Email</label>
-                    <div class="twelve wide field">
-                        <div class="ui input icon">
-                            <input type="text" class="" data-rule="required;email">
+                    <div class="fields">
+                        <label class="four wide field">Password</label>
+                        <div class="twelve wide field">
+                            <div class="ui input icon">
+                                <input name="password" type="password" class="" data-rule="required;length(7,11)" placeholder="length between 8 to 10">
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="fields">
-                    <label class="four wide field">Password</label>
-                    <div class="twelve wide field">
-                        <div class="ui input icon">
-                            <input name="password" type="password" class="" data-rule="required;length(7,11)" placeholder="length between 8 to 10">
+                    <div class="fields">
+                        <label class="four wide field">Verify Password</label>
+                        <div class="twelve wide field">
+                            <div class="ui input icon">
+                                <input type="password" class="" data-rule="required;equal([name='password'])">
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="fields">
-                    <label class="four wide field">Verify Password</label>
-                    <div class="twelve wide field">
-                        <div class="ui input icon">
-                            <input type="password" class="" data-rule="required;equal([name='password'])">
+                    <div class="fields">
+                        <div class="eight wide field">
+                            <button type="submit" class="ui primary button">Submit</button>
                         </div>
                     </div>
-                </div>
-                <div class="fields">
-                    <div class="eight wide field">
-                        <button type="submit" class="ui primary button">Submit</button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
     <script>

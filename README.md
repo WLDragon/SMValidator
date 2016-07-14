@@ -20,9 +20,16 @@
 
 [复杂的例子](https://wldragon.github.io/sm-validator/)
 
-[bootstrap样式例子](https://wldragon.github.io/sm-validator/bootstrap/)
-
-![扫一扫](https://wldragon.github.io/sm-validator/bootstrap/scan.jpg)
+<table style="padding:20px">
+    <tr>
+      <td>[bootstrap样式例子](https://wldragon.github.io/sm-validator/bootstrap/)</td>
+      <td>[semantic样式例子](https://wldragon.github.io/sm-validator/semantic/)</td>
+    </tr>
+    <tr>
+      <td>![扫一扫](https://wldragon.github.io/sm-validator/bootstrap/scan.jpg)</td>
+      <td>![扫一扫](https://wldragon.github.io/sm-validator/semantic/scan.jpg)</td>
+    </tr>
+</table>
 
 # 安装
 ``` html
