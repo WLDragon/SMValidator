@@ -18,16 +18,16 @@
 </script>
 ```
 
-[复杂的例子](https://wldragon.github.io/sm-validator/)
-
-<table style="padding:20px">
+<table style="padding:20px;text-aglin:center;">
     <tr>
-      <td>[bootstrap样式例子](https://wldragon.github.io/sm-validator/bootstrap/)</td>
-      <td>[semantic样式例子](https://wldragon.github.io/sm-validator/semantic/)</td>
+      <td><a href="https://wldragon.github.io/sm-validator/">复杂的例子</a></td>
+      <td><a href="https://wldragon.github.io/sm-validator/bootstrap/">bootstrap样式例子</a></td>
+      <td><a href="https://wldragon.github.io/sm-validator/semantic/">semantic样式例子</a></td>
     </tr>
     <tr>
-      <td>![扫一扫](https://wldragon.github.io/sm-validator/bootstrap/scan.jpg)</td>
-      <td>![扫一扫](https://wldragon.github.io/sm-validator/semantic/scan.jpg)</td>
+      <td></td>
+      <td><img src="https://wldragon.github.io/sm-validator/bootstrap/scan.jpg"></td>
+      <td><img src="https://wldragon.github.io/sm-validator/semantic/scan.jpg"></td>
     </tr>
 </table>
 
