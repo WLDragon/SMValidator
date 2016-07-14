@@ -18,7 +18,7 @@
 </script>
 ```
 
-<table style="padding:20px;text-aglin:center;">
+<table>
     <tr>
       <td><a href="https://wldragon.github.io/sm-validator/">复杂的例子</a></td>
       <td><a href="https://wldragon.github.io/sm-validator/bootstrap/">bootstrap样式例子</a></td>
