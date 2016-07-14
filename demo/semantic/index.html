@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>sm-validator semantic skin demo</title>
+    <link rel="stylesheet" href="semantic.min.css">
+    <script src="../../dist/SMValidator.js"></script>
+    <style>
+        .ui.form .fields .field {
+            margin-bottom: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui grid" style="margin:50px">
+        <div class="sixteen wide column">
+            <form class="ui form" method="POST">
+                <div class="fields">
+                    <label class="four wide field">Full Name</label>
+                    <div class="six wide field">
+                        <div class="ui input icon">
+                            <input type="text" data-rule="required" placeholder="first name">
+                        </div>
+                    </div>
+                    <div class="six wide field ">
+                        <div class="ui input icon">
+                            <input type="text" class="" data-rule="required" placeholder="last name">
+                        </div>
+                    </div>
+                </div>
+                <div class="fields">
+                    <label class="four wide field">Email</label>
+                    <div class="twelve wide field">
+                        <div class="ui input icon">
+                            <input type="text" class="" data-rule="required;email">
+                        </div>
+                    </div>
+                </div>
+                <div class="fields">
+                    <label class="four wide field">Password</label>
+                    <div class="twelve wide field">
+                        <div class="ui input icon">
+                            <input name="password" type="password" class="" data-rule="required;length(7,11)" placeholder="length between 8 to 10">
+                        </div>
+                    </div>
+                </div>
+                <div class="fields">
+                    <label class="four wide field">Verify Password</label>
+                    <div class="twelve wide field">
+                        <div class="ui input icon">
+                            <input type="password" class="" data-rule="required;equal([name='password'])">
+                        </div>
+                    </div>
+                </div>
+                <div class="fields">
+                    <div class="eight wide field">
+                        <button type="submit" class="ui primary button">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        SMValidator.setSkin('semantic');
+        new SMValidator('form', {
+            submit: function(valid, form) {
+                if(valid) form.submit();
+            }
+        });
+    </script>
+</body>
+</html>

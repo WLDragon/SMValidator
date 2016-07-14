@@ -1,7 +1,7 @@
 {
   "name": "sm-validator",
-  "version": "0.9.5",
-  "description": "a beautiful and lightweight form validator that you will be surprised",
+  "version": "0.9.6",
+  "description": "a simple but powerful tool for validating form fields. enjoy it!",
   "main": "SMValidator.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

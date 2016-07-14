@@ -162,12 +162,20 @@
                         //failHtml不使用规则的消息，只显示html
                         htmlItem.quiet = true;
                     }
-                    if(html.indexOf('<') === 0) {
+                    if(html.indexOf('<') > -1) {
                         //Dom
+                        //去掉“+”号
+                        var tar = input;
+                        while(html.indexOf('+') === 0) {
+                            html = html.substring(1);
+                            tar = tar.parentNode;
+                        }
+                        //使用html字符串生成Dom
                         var div = document.createElement('div');
                         div.innerHTML = html;
                         htmlDom = div.childNodes[0];
-                        input.parentNode.insertBefore(htmlDom, input.nextElementSibling);
+                        //把Dom插到相应位置
+                        tar.parentNode.insertBefore(htmlDom, tar.nextElementSibling);
                     }else {
                         //选择器
                         htmlDom = document.querySelector(html);

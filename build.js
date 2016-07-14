@@ -6,7 +6,7 @@ var src = fs.readFileSync('./src/SMValidator.js', {encoding: 'utf-8'});
 var cfg = fs.readFileSync('./src/config.js', {encoding: 'utf-8'});
 //作者信息
 var cp = '/*!'
-        +'\n * SMValidator.js ' + version
+        +'\n * sm-validator ' + version
         +'\n * Copyright (c) 2016 WLDragon(cwloog@qq.com)'
         +'\n */';
 //只有内核的纯净版
