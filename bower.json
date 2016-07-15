@@ -1,0 +1,24 @@
+{
+  "name": "sm-validator",
+  "description": "a simple but powerful tool for validating form fields. enjoy it!",
+  "main": "dist/SMValidator.js",
+  "authors": [
+    "WLDragon"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "form",
+    "validator",
+    "validate",
+    "bootstrap",
+    "semantic"
+  ],
+  "homepage": "https://github.com/WLDragon/sm-validator",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "demo",
+    "build.js"
+  ]
+}

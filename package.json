@@ -19,7 +19,9 @@
   "keywords": [
     "form",
     "validator",
-    "dom"
+    "validate",
+    "bootstrap",
+    "semantic"
   ],
   "author": "WLDragon",
   "license": "MIT",
