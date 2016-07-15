@@ -108,6 +108,7 @@
         //如果已经绑定过规则，则不重复处理
         if(input._sm) return true;
 
+        //TODO 通过name提取checkbox\radio，只处理一个
         var name = input.getAttribute('name');
         var dataRule = input.getAttribute('data-rule');
         var item = dataRule ? this.parseString(dataRule) : this.fields[name];
@@ -356,11 +357,13 @@
 
     /**验证input的值 */
     function validate(input, options) {
+        var value = input.value;
         var sm = input._sm;
         var item = sm.rule;
         var result = true;
         var flag = 1; //0初始状态 1通过 2失败
 
+        //TODO 区分checkbox\radio\select，这三个只有required规则
         if(options && typeof options.forceFlag === 'number') {
             flag = options.forceFlag;
             //服务端验证，通过forceFlag设置的结果
@@ -373,7 +376,7 @@
             }
         }else {
             if(item.server) {
-                if(item.required && !input.value) {
+                if(item.required && !value) {
                     flag = 2;
                     result = config.requiredMessage;
                 }else {
@@ -382,7 +385,7 @@
                         if(flag === 2) {
                             result = sm.serverMessage || 'no reason';
                         }
-                    }else if(input.value){
+                    }else if(value){
                         //如果有值且没有设置过serverFlag则不通过
                         flag = 2;
                         result = config.noServerMessage;
@@ -390,14 +393,14 @@
                         flag = 0;
                     }
                 }
-            }else if(item.required || input.value !== '') {
+            }else if(item.required || value !== '') {
                 //当字段是要求必填或不为空时才进行验证
                 for(var i = item.rules.length - 1; i >= 0; i--) {
                     var ruleItem = item.rules[i];
                     var rule = ruleItem.rule;
                     if(rule instanceof RegExp) {
                         //正则规则
-                        if(!rule.test(input.value)) {
+                        if(!rule.test(value)) {
                             result = ruleItem.message;
                             flag = 2;
                             break;
@@ -405,9 +408,9 @@
                     }else {
                         //函数规则
                         if(ruleItem.params) {
-                            result = rule.apply(null, [input.value].concat(ruleItem.params));
+                            result = rule.apply(null, [value].concat(ruleItem.params));
                         }else {
-                            result = rule.call(null, input.value);
+                            result = rule.call(null, value);
                         }
                         if(result !== true) {
                             flag = 2;

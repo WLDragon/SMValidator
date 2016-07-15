@@ -175,7 +175,7 @@ var smv = new SMValidator('querySelector', {
 
 9. ~~修改range规则，支持负数范围，添加email,number,equal,length等规则作为范例，不内嵌到内核~~
 
-10. 添加几套UI作为demo，默认选项都没有值，需要添加自定义项目
+10. ~~添加几套UI作为demo，默认选项都没有值，需要添加自定义项目~~
 
 11. 添加jquery插件版本
 
