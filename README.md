@@ -34,9 +34,10 @@
 # 安装和使用
 - 在github下载
 
-- 使用npm获取
+- 使用npm/bower获取
 ```
 npm install --save sm-validator
+bower install sm-validator
 ```
 
 - sm-validator使用umd规范，支持amd、commonjs和window.SMValidator使用方式
@@ -168,7 +169,7 @@ var smv = new SMValidator('querySelector', {
 
 6. 英文文档
 
-7. 添加npm和bower安装方式
+7. ~~添加npm和bower安装方式~~
 
 8. ~~去掉#!@等特殊符号，使用类似规则方法名实现~~
 

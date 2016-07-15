@@ -368,7 +368,6 @@
                 sm.serverFlag = flag;
                 if(options.serverMessage) sm.serverMessage = options.serverMessage;
                 if(flag === 2) {
-                    sm.ruleIndex = -2;
                     result = sm.serverMessage || 'no reason';
                 }
             }
@@ -376,19 +375,16 @@
             if(item.server) {
                 if(item.required && !input.value) {
                     flag = 2;
-                    sm.ruleIndex = -1;
                     result = config.requiredMessage;
                 }else {
                     if(typeof sm.serverFlag === 'number') {
                         flag = sm.serverFlag;
                         if(flag === 2) {
-                            sm.ruleIndex = -2;
                             result = sm.serverMessage || 'no reason';
                         }
                     }else if(input.value){
                         //如果有值且没有设置过serverFlag则不通过
                         flag = 2;
-                        sm.ruleIndex = -3;
                         result = config.noServerMessage;
                     }else {
                         flag = 0;
@@ -403,7 +399,6 @@
                         //正则规则
                         if(!rule.test(input.value)) {
                             result = ruleItem.message;
-                            sm.ruleIndex = i;
                             flag = 2;
                             break;
                         }
@@ -415,7 +410,6 @@
                             result = rule.call(null, input.value);
                         }
                         if(result !== true) {
-                            sm.ruleIndex = i;
                             flag = 2;
                             break;
                         }
@@ -427,8 +421,8 @@
         }
 
         //当上一次验证结果跟这一次不一样的时候才更改样式
-        if(flag !== sm.flag || sm.ruleIndex !== sm.lastRuleIndex) {
-            sm.lastRuleIndex = sm.ruleIndex;
+        if(flag !== sm.flag || sm.lastResult !== result) {
+            sm.lastResult = result;
             sm.flag = flag;
 
             applyStyle(input, sm.style);
