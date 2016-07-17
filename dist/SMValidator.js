@@ -1,5 +1,5 @@
 /*!
- * sm-validator 0.9.7
+ * sm-validator 0.10.1
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  *//*!
  * SMValidator.js
@@ -24,9 +24,10 @@
             validate(input);
         }
     });
+    //blur事件不能冒泡，所以使用change
     on.call(document, 'change', function(e){
         var input = e.target;
-        if(input._sm && !input._sm.rule.manul) {
+        if(input._sm && !input._sm.rule.manul && input._sm.rule.blur) {
             validate(input);
         }
     });
@@ -79,7 +80,8 @@
         var els = document.querySelectorAll(selectors);
         for (var i = els.length - 1; i >= 0; i--) {
             var el = els[i];
-            if(el.tagName === 'FORM') {
+            var tagName = el.tagName;
+            if(tagName === 'FORM') {
                 el.novalidate = 'novalidate';
                 var ins = [];
                 for (var j = el.length - 1; j >= 0; j--) {
@@ -97,7 +99,7 @@
                         self.submit(result, e.target);
                     });
                 }
-            }else if(el.tagName === 'INPUT') {
+            }else if(tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') {
                 if(self.bindInput(el)){
                     inputs.push(el);
                 }
@@ -116,6 +118,17 @@
         var item = dataRule ? this.parseString(dataRule) : this.fields[name];
         if(item) {
             input._sm = {rule: item, flag: 0};
+
+            if(input.type === 'checkbox' || input.type === 'radio') {
+                //对于checkbox和radio只解析一个，其他input都引用这个规则
+                var inputs = document.querySelectorAll('input[name="' + name + '"]');
+                for(var i = inputs.length - 1; i >= 0; i--) {
+                    if(inputs[i] !== input) inputs[i]._sm = input._sm;
+                }
+                //checkbox和radio只有change事件有效
+                item.blur = true;
+            }
+
             if(!item._isInit) {
                 item._isInit = true;
                 //初始化field属性，如果没填，则使用局部属性
@@ -359,12 +372,30 @@
 
     /**验证input的值 */
     function validate(input, options) {
+        var type = input.type;
+        var name = input.name;
         var sm = input._sm;
         var item = sm.rule;
         var result = true;
         var flag = 1; //0初始状态 1通过 2失败
+        var value = '';
+        if((type === 'checkbox' || type === 'radio') && input.form) {
+            //对于checkbox|radio|select-multiple，value为其选择项的数量
+            var els = input.form.elements[name];
+            for(var i = els.length - 1; i >= 0; i--) {
+                if(els[i].checked) value += ' ';
+            }
+        }else if(type === 'select-multiple'){
+            var els = input.children;
+            for(var i = els.length - 1; i >= 0; i--) {
+                if(els[i].selected && els[i].value) value += ' ';
+            }
+        }else {
+            value = input.value;
+        }
 
         if(options && typeof options.forceFlag === 'number') {
+            //强制设置验证结果
             flag = options.forceFlag;
             //服务端验证，通过forceFlag设置的结果
             if(item.server) {
@@ -376,7 +407,7 @@
             }
         }else {
             if(item.server) {
-                if(item.required && !input.value) {
+                if(item.required && !value) {
                     flag = 2;
                     result = config.requiredMessage;
                 }else {
@@ -385,7 +416,7 @@
                         if(flag === 2) {
                             result = sm.serverMessage || 'no reason';
                         }
-                    }else if(input.value){
+                    }else if(value){
                         //如果有值且没有设置过serverFlag则不通过
                         flag = 2;
                         result = config.noServerMessage;
@@ -393,14 +424,14 @@
                         flag = 0;
                     }
                 }
-            }else if(item.required || input.value !== '') {
+            }else if(item.required || value !== '') {
                 //当字段是要求必填或不为空时才进行验证
                 for(var i = item.rules.length - 1; i >= 0; i--) {
                     var ruleItem = item.rules[i];
                     var rule = ruleItem.rule;
                     if(rule instanceof RegExp) {
                         //正则规则
-                        if(!rule.test(input.value)) {
+                        if(!rule.test(value)) {
                             result = ruleItem.message;
                             flag = 2;
                             break;
@@ -408,9 +439,9 @@
                     }else {
                         //函数规则
                         if(ruleItem.params) {
-                            result = rule.apply(null, [input.value].concat(ruleItem.params));
+                            result = rule.apply(null, [value].concat(ruleItem.params));
                         }else {
-                            result = rule.call(null, input.value);
+                            result = rule.call(null, value);
                         }
                         if(result !== true) {
                             flag = 2;
@@ -450,7 +481,7 @@
                 toggleClass(sm.passCss, false);
             }
         }
-
+        //定位验证失败的字段
         if(flag === 2 && config._useLocate) {
             input.scrollIntoView();
             config._useLocate = false;

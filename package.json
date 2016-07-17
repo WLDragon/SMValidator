@@ -1,6 +1,6 @@
 {
   "name": "sm-validator",
-  "version": "0.9.7",
+  "version": "0.10.1",
   "description": "a simple but powerful tool for validating form fields. enjoy it!",
   "main": "dist/SMValidator.js",
   "scripts": {

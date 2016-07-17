@@ -21,9 +21,10 @@
             validate(input);
         }
     });
+    //blur事件不能冒泡，所以使用change
     on.call(document, 'change', function(e){
         var input = e.target;
-        if(input._sm && !input._sm.rule.manul) {
+        if(input._sm && !input._sm.rule.manul && input._sm.rule.blur) {
             validate(input);
         }
     });
@@ -76,7 +77,8 @@
         var els = document.querySelectorAll(selectors);
         for (var i = els.length - 1; i >= 0; i--) {
             var el = els[i];
-            if(el.tagName === 'FORM') {
+            var tagName = el.tagName;
+            if(tagName === 'FORM') {
                 el.novalidate = 'novalidate';
                 var ins = [];
                 for (var j = el.length - 1; j >= 0; j--) {
@@ -94,7 +96,7 @@
                         self.submit(result, e.target);
                     });
                 }
-            }else if(el.tagName === 'INPUT') {
+            }else if(tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') {
                 if(self.bindInput(el)){
                     inputs.push(el);
                 }
@@ -108,12 +110,22 @@
         //如果已经绑定过规则，则不重复处理
         if(input._sm) return true;
 
-        //TODO 通过name提取checkbox\radio，只处理一个
         var name = input.getAttribute('name');
         var dataRule = input.getAttribute('data-rule');
         var item = dataRule ? this.parseString(dataRule) : this.fields[name];
         if(item) {
             input._sm = {rule: item, flag: 0};
+
+            if(input.type === 'checkbox' || input.type === 'radio') {
+                //对于checkbox和radio只解析一个，其他input都引用这个规则
+                var inputs = document.querySelectorAll('input[name="' + name + '"]');
+                for(var i = inputs.length - 1; i >= 0; i--) {
+                    if(inputs[i] !== input) inputs[i]._sm = input._sm;
+                }
+                //checkbox和radio只有change事件有效
+                item.blur = true;
+            }
+
             if(!item._isInit) {
                 item._isInit = true;
                 //初始化field属性，如果没填，则使用局部属性
@@ -357,14 +369,30 @@
 
     /**验证input的值 */
     function validate(input, options) {
-        var value = input.value;
+        var type = input.type;
+        var name = input.name;
         var sm = input._sm;
         var item = sm.rule;
         var result = true;
         var flag = 1; //0初始状态 1通过 2失败
+        var value = '';
+        if((type === 'checkbox' || type === 'radio') && input.form) {
+            //对于checkbox|radio|select-multiple，value为其选择项的数量
+            var els = input.form.elements[name];
+            for(var i = els.length - 1; i >= 0; i--) {
+                if(els[i].checked) value += ' ';
+            }
+        }else if(type === 'select-multiple'){
+            var els = input.children;
+            for(var i = els.length - 1; i >= 0; i--) {
+                if(els[i].selected && els[i].value) value += ' ';
+            }
+        }else {
+            value = input.value;
+        }
 
-        //TODO 区分checkbox\radio\select，这三个只有required规则
         if(options && typeof options.forceFlag === 'number') {
+            //强制设置验证结果
             flag = options.forceFlag;
             //服务端验证，通过forceFlag设置的结果
             if(item.server) {
@@ -450,7 +478,7 @@
                 toggleClass(sm.passCss, false);
             }
         }
-
+        //定位验证失败的字段
         if(flag === 2 && config._useLocate) {
             input.scrollIntoView();
             config._useLocate = false;

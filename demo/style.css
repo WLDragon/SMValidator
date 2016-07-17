@@ -11,7 +11,7 @@ p{
 div {
     margin: 0 5px 10px;
 }
-input {
+select,input[type="text"],input[type="password"] {
     width: 250px;
     height: 24px;
     padding: 1px;
@@ -26,4 +26,7 @@ input:focus {
 }
 button {
     margin-left: 10px;
+}
+select[multiple] {
+    height: 100px;
 }

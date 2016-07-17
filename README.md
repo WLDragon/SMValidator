@@ -161,7 +161,7 @@ var smv = new SMValidator('querySelector', {
 
 2. ~~服务器验证~~
 
-3. 添加checkbox,select,textarea的验证
+3. ~~添加checkbox,radio,select,textarea的验证~~
 
 4. 测试用例及浏览器兼容测试
 

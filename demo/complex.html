@@ -39,6 +39,35 @@
             <p>重复密码</p>
             <input type="password" data-rule="equal(#password)">
         </div>
+        <div>
+            <p>测试checkbox</p>
+            <input value="0" name="checkbox1" type="checkbox" data-rule="required;failHtml(#checkMessage);length(1,)">
+            <input value="1" name="checkbox1" type="checkbox">
+            <input value="2" name="checkbox1" type="checkbox">
+            <div id="checkMessage" style="color:red"></div>
+        </div>
+        <div>
+            <p>测试one select</p>
+            <select data-rule="required">
+                <option value="">请选择</option>
+                <option value="1">A</option>
+                <option value="2">B</option>
+            </select>
+        </div>
+        <div>
+            <p>测试multiple select</p>
+            <select data-rule="required;length(1,)" multiple>
+                <option value="">请选择</option>
+                <option value="1">A</option>
+                <option value="2">B</option>
+                <option value="3">C</option>
+                <option value="4">D</option>
+            </select>
+        </div>
+        <div>
+            <p>只能输入英文数字的textarea</p>
+            <textarea data-rule="/^[a-z0-9]*$/i/只能输入英文或数字;required" cols="30" rows="3"></textarea>
+        </div>
     </form>
     <h2>使用JavaScript，功能更全面</h2>
     <form id="form2">
