@@ -44,17 +44,17 @@
 
 - Use bower ```bower install sm-validator```
 
-# Documents
+## Documents
 [Quick Start](https://github.com/WLDragon/sm-validator/wiki/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
 
-# About dist
+## About dist
 - `SMValidator.js` source with config
 
 - `SMValidator.min.js` the minify for SMValidator
 
 - `SMValidator.pure.min.js` only `required` rule,need config rule and style by yourself
 
-# TODO
+## TODO
 1. 详细的API说明
 
 2. 测试用例及浏览器兼容测试
@@ -65,5 +65,5 @@
 
 5. i18n
 
-# Reference
+## Reference
 some inspirations comes from: [nice-validator](https://github.com/niceue/nice-validator)
