@@ -32,14 +32,13 @@
       <td><a href="https://wldragon.github.io/sm-validator/semantic/">semantic demo</a></td>
     </tr>
     <tr>
-      <td></td>
       <td><img src="https://wldragon.github.io/sm-validator/bootstrap/scan.jpg"></td>
       <td><img src="https://wldragon.github.io/sm-validator/semantic/scan.jpg"></td>
     </tr>
 </table>
 
 ## Download
-- Download from github
+- [From Github](https://github.com/WLDragon/sm-validator/archive/0.10.1.zip)
 
 - Use npm ```npm install --save sm-validator```
 
