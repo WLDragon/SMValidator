@@ -243,7 +243,7 @@
                 item.rules.push({rule: definition, params: result.params});
             }
             //特殊函数名，“必填”标识
-            item.required = n === 'required';
+            if(n === 'required') item.required = true;
         }
     }
 
@@ -421,7 +421,7 @@
                         flag = 0;
                     }
                 }
-            }else if(item.required || value !== '') {
+            }else if(item.required || !value) {
                 //当字段是要求必填或不为空时才进行验证
                 for(var i = item.rules.length - 1; i >= 0; i--) {
                     var ruleItem = item.rules[i];
