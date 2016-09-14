@@ -8,6 +8,7 @@ var cfg = fs.readFileSync('./src/config.js', {encoding: 'utf-8'});
 var cp = '/*!'
         +'\n * sm-validator ' + version
         +'\n * Copyright (c) 2016 WLDragon(cwloog@qq.com)'
+        +'\n * Released under the MIT License.'
         +'\n */';
 //只有内核的纯净版
 fs.writeFileSync('./dist/SMValidator.pure.min.js', cp + uglify.minify(src, {fromString: true}).code);
