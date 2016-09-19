@@ -46,7 +46,7 @@
         //初始化局部属性，如果没填，则使用全局属性
         for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
             var attr = GLOBAL_ATTRIBUTES[i];
-            self[attr] = options[attr] || config[attr];
+            self[attr] = options.hasOwnProperty(attr) ? options[attr] : config[attr];
         }
         
         self.fields = {};
@@ -127,10 +127,10 @@
 
             if(!item._isInit) {
                 item._isInit = true;
-                //初始化field属性，如果没填，则使用局部属性
+                //初始化field属性，如果没填，则使用局部或全局属性
                 for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
                     var attr = GLOBAL_ATTRIBUTES[i];
-                    if(!item[attr]) item[attr] = this[attr];
+                    if(!item.hasOwnProperty(attr)) item[attr] = this[attr];
                 }
                 //服务器验证必须是手动验证
                 if(item.server) item.manul = true;
@@ -420,7 +420,7 @@
                         flag = 0;
                     }
                 }
-            }else if(item.required || !value) {
+            }else if(item.required || value) {
                 //当字段是要求必填或不为空时才进行验证
                 for(var i = item.rules.length - 1; i >= 0; i--) {
                     var ruleItem = item.rules[i];
@@ -504,7 +504,7 @@
         var a = GLOBAL_ATTRIBUTES.concat(['noServerMessage', 'requiredMessage']);
         for(var i = a.length - 1; i >= 0; i--) {
             var attr = a[i];
-            if(options[attr]) config[attr] = options[attr];
+            if(options.hasOwnProperty(attr)) config[attr] = options[attr];
         }
         if(options.rules) {
             checkCoverRequired(options.rules);
