@@ -1,5 +1,5 @@
 /*!
- * sm-validator 0.10.1
+ * sm-validator 0.10.2
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  * Released under the MIT License.
  */(function (global, factory) {
