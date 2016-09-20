@@ -24,31 +24,28 @@
         }
     });
 
-    function checkCoverRequired(rules) {
-        if(rules && rules.required) {
-            delete rules.required;
-            console.warn('"required" customized rule is invalid')
-        }
-    }
-
     function isString(obj) {
         return typeof obj === 'string';
     }
 
-    var GLOBAL_ATTRIBUTES = ['server', 'blur', 'manul', 'failHtml', 'failStyle', 'failCss', 'passHtml', 'passStyle', 'passCss'];
+    var hasOwnProperty = Object.prototype.hasOwnProperty;
+    function hasOwn(obj, key) {
+        return hasOwnProperty.call(obj, key);
+    }
+
+    var GLOBAL_ATTRIBUTES = ['required', 'server', 'blur', 'manul', 'failHtml', 'failStyle', 'failCss', 'passHtml', 'passStyle', 'passCss'];
     function SMValidator(selectors, options) {
         var self = this;
         if(!options) options = {};
         //初始化局部属性，如果没填，则使用全局属性
         for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
             var attr = GLOBAL_ATTRIBUTES[i];
-            self[attr] = options.hasOwnProperty(attr) ? options[attr] : config[attr];
+            self[attr] = hasOwn(options, attr) ? options[attr] : config[attr];
         }
         
         self.fields = {};
         self.rules = options.rules || {};
         if(selectors) {
-            checkCoverRequired(options.rules);
             self.submit = options.submit;
 
             //解析fields字段的规则
@@ -121,15 +118,30 @@
                 item.blur = true;
             }
 
+            //对于name相同的input，共用同一个规则，只初始化一次
             if(!item._isInit) {
                 item._isInit = true;
-                //初始化field属性，如果没填，则使用局部或全局属性
-                for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
-                    var attr = GLOBAL_ATTRIBUTES[i];
-                    if(!item.hasOwnProperty(attr)) item[attr] = this[attr];
+
+                function handleProperty(item, prop) {
+                    //required和server没指定则默认为false
+                    //如果为true则赋值为显示的消息文本
+                    if(!hasOwn(item, prop)) {
+                        item[prop] = false;
+                    }else if(item[prop] === true) {
+                        item[prop] = this[prop];
+                    }
                 }
+                handleProperty.call(this, item, 'required');
+                handleProperty.call(this, item, 'server');
                 //服务器验证必须是手动验证
                 if(item.server) item.manul = true;
+
+                //初始化field属性，如果没填，则使用局部或全局属性
+                //required和server已经处理过，虽然在循环中，但不处理
+                for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
+                    var attr = GLOBAL_ATTRIBUTES[i];
+                    if(!hasOwn(item, attr)) item[attr] = this[attr];
+                }
 
                 function handleStyle(item, prop) {
                     if(isString(item[prop])) {
@@ -181,7 +193,7 @@
                         //使用html字符串生成Dom
                         var div = document.createElement('div');
                         div.innerHTML = html;
-                        htmlDom = div.childNodes[0];
+                        htmlDom = div.children[0];
                         //把Dom插到相应位置
                         tar.parentNode.insertBefore(htmlDom, tar.nextElementSibling);
                     }else {
@@ -237,8 +249,6 @@
                 //函数规则
                 item.rules.push({rule: definition, params: result.params});
             }
-            //特殊函数名，“必填”标识
-            if(n === 'required') item.required = true;
         }
     }
 
@@ -277,12 +287,11 @@
                 if(GLOBAL_ATTRIBUTES.indexOf(result.name) > -1) {
                     //关键属性
                     var n = result.name;
-                    if(n === 'blur' || n === 'manul' || n === 'server') {
-                        item[n] = true;
-                    }else if(n === 'failStyle' || n === 'passStyle') {
+                    if(n === 'failStyle' || n === 'passStyle') {
                         item[n] = result.params[0];
                     }else {
-                        item[n] = result.params;
+                        //blur manul required server不带参数时赋true值
+                        item[n] = result.params || true;
                     }
                 }else {
                     //函数或数组规则
@@ -312,7 +321,7 @@
                 var a = item.rule.split(';');
                 item.rules = [];
                 for(var i = a.length - 1; i >= 0; i--) {
-                    if(a[i] !== '') this.parseRule(this.parseStringFunction(a[i]), item);
+                    if(a[i]) this.parseRule(this.parseStringFunction(a[i]), item);
                 }
                 delete item.rule;
             }
@@ -386,7 +395,7 @@
             value = input.value;
         }
 
-        if(options && typeof options.forceFlag === 'number') {
+        if(options && (typeof options.forceFlag === 'number')) {
             //强制设置验证结果
             flag = options.forceFlag;
             //服务端验证，通过forceFlag设置的结果
@@ -394,30 +403,29 @@
                 sm.serverFlag = flag;
                 if(options.serverMessage) sm.serverMessage = options.serverMessage;
                 if(flag === 2) {
-                    result = sm.serverMessage || 'no reason';
+                    result = sm.serverMessage || 'no serverMessage!';
                 }
             }
         }else {
             if(item.server) {
                 if(item.required && !value) {
                     flag = 2;
-                    result = config.requiredMessage;
+                    result = item.required;
                 }else {
                     if(typeof sm.serverFlag === 'number') {
                         flag = sm.serverFlag;
                         if(flag === 2) {
-                            result = sm.serverMessage || 'no reason';
+                            result = sm.serverMessage || 'no serverMessage!';
                         }
                     }else if(value){
                         //如果有值且没有设置过serverFlag则不通过
                         flag = 2;
-                        result = config.noServerMessage;
+                        result = item.server;
                     }else {
                         flag = 0;
                     }
                 }
-            }else if(item.required || value) {
-                //当字段是要求必填或不为空时才进行验证
+            }else if(value) {
                 for(var i = item.rules.length - 1; i >= 0; i--) {
                     var ruleItem = item.rules[i];
                     var rule = ruleItem.rule;
@@ -441,6 +449,9 @@
                         }
                     }
                 }
+            }else if(item.required) {
+                flag = 2;
+                result = item.required;
             }else{
                 flag = 0;
             }
@@ -484,26 +495,20 @@
 
     /**全局配置 */
     var config = {
-        noServerMessage: 'not been validated by server',
-        requiredMessage: 'this is required',
-        rules: {
-            required: function(val) {
-                return !!val || config.requiredMessage;
-            }
-        }
+        server: 'not been validated by server',
+        required: 'this is required',
+        rules: {}
     };
 
     /**公共validate使用的SMValidator实例 */
     var globalInstance;
     /**设置全局配置 */
     SMValidator.config = function (options) {
-        var a = GLOBAL_ATTRIBUTES.concat(['noServerMessage', 'requiredMessage']);
-        for(var i = a.length - 1; i >= 0; i--) {
-            var attr = a[i];
-            if(options.hasOwnProperty(attr)) config[attr] = options[attr];
+        for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
+            var attr = GLOBAL_ATTRIBUTES[i];
+            if(hasOwn(options, attr)) config[attr] = options[attr];
         }
         if(options.rules) {
-            checkCoverRequired(options.rules);
             for(var k in options.rules) {
                 config.rules[k] = options.rules[k];
             }

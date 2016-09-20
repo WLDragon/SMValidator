@@ -30,8 +30,8 @@
             <span id="message12" style="color:red">长度大于5，这里使用的是自定义文本，不使用规则消息</span>
         </div>
         <div>
-            <p>要求必填，正则匹配只能数字</p>
-            <input type="text" data-rule="required;/^\d*$/只能填数字">
+            <p>要求必填，正则匹配只能数字，自定义必填提示语</p>
+            <input type="text" data-rule="required(请输入内容);/^\d*$/只能填数字">
         </div>
         <div>
             <p>长度大于7小于17的密码，必填</p>
@@ -144,7 +144,7 @@
                     manul: true
                 },
                 field6: {
-                    server: true,
+                    server: '还没通过服务器验证',
                     failHtml: '<span style="color:red"></span>',
                     passHtml: '<span style="color:green">服务器验证通过</span>'
                 },
