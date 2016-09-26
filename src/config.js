@@ -1,14 +1,35 @@
+function replace(str, loaners) {
+    for(var i = 0; i < loaners.length; i++) {
+        str = str.replace('{'+i+'}', loaners[i]);
+    }
+    return str;
+}
+
+var lang = {
+    number: 'only number',
+    email: 'wrong email format',
+    range_equal: 'value must be equal to {0}',
+    range_scope: 'value must be greater than {0} and less than {1}',
+    range_greater: 'value must be greater than {0}',
+    range_less: 'value must be less than {0}',
+    renge_no_number: 'value must be number',
+    error_param: 'error param',
+    length_equal: 'length must be equal to {0}',
+    length_scope: 'length must be greater than {0} and less than {1}',
+    length_greater: 'length must be greater than {0}',
+    length_less: 'length must be less than {0}',
+    password: 'passwords don\'t match'
+}
+
 SMValidator.config({
-    requiredMessage: '这是必填字段',
-    noServerMessage: '还没经过服务器验证',
     failHtml: '<span style="color:#c00;"></span>',
     failStyle: {
         color: '#c00',
         border: '1px solid #c00'
     },
     rules: {
-        number: [/^-?\d+$/, '只能输入数字'],
-        email: [/^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i, '邮箱格式不正确'],
+        number: [/^-?\d+(\.{1}\d+)?$/, lang.number],
+        email: [/^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i, lang.email],
         range: function(val, a, b) {
             val = val * 1;
             //数值范围
@@ -16,53 +37,61 @@ SMValidator.config({
             //range(a,) 大于a
             //range(,b) 小于b
             //range(a) 等于a
-            var numberRegExp = /^-?\d+$/;
+            var numberRegExp = /^-?\d+(\.{1}\d+)?$/;
             if(numberRegExp.test(val)) {
                 if((!a || numberRegExp.test(a)) || (!b || numberRegExp.test(b))) {
                     if(arguments.length === 2) {
-                        return val == a || '值必须等于' + a;
-                    }else if(arguments.length === 3){
+                        return val == a || replace(lang.range_equal, [a]);
+                    }else if(arguments.length === 3) {
                         if(a && b) {
-                            return (val > a && val < b) || '值必须大于 ' + a + ' 且小于 ' + b;
+                            return (val > a && val < b) || replace(lang.range_scope, [a,b]);
                         }else if(a) {
-                            return (val > a) || '值必须大于 ' + a;
+                            return (val > a) || replace(lang.range_greater, [a]);
                         }else if(b) {
-                            return (val < b) || '值必须小于 ' + b;
+                            return (val < b) || replace(lang.range_less, [b]);
                         }else {
-                            return '无效参数';
+                            return lang.error_param;
                         }
                     }
                 }else {
-                    return '无效参数';
+                    return lang.error_param;
                 }
             }else {
-                return '不是数字';
+                return lang.renge_no_number;
             }
         },
         length: function(val, a, b) {
             //判断字符串长度范围，格式与range一致
             var n = val.length;
             if(arguments.length === 2) {
-                return n == a || '长度必须等于' + a;
+                return n == a || replace(lang.length_equal, [a]);
             }else if(arguments.length === 3){
                 if(a && b) {
-                    return (n > a && n < b) || '长度必须大于 ' + a + ' 且小于 ' + b;
+                    return (n > a && n < b) || replace(lang.length_scope, [a,b]);
                 }else if(a) {
-                    return (n > a) || '长度必须大于 ' + a;
+                    return (n > a) || replace(lang.length_greater, [a]);
                 }else if(b) {
-                    return (n < b) || '长度必须小于 ' + b;
+                    return (n < b) || replace(lang.length_less, [b]);
                 }else {
-                    return '无效参数';
+                    return lang.error_param;
                 }
             }
         },
         equal: function(val, targetSelector) {
             var target = document.querySelector(targetSelector);
-            return val === target.value || '您输入的密码不一致';
+            return val === target.value || lang.password;
         }
     }
 });
 
+/**
+ * 设置语言包
+ */
+SMValidator.setLang = function(options) {
+    for(var k in options) {
+        lang[k] = options[k];
+    }
+}
 
 var skins = {
     bootstrap: {

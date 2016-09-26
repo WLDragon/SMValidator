@@ -112,11 +112,29 @@
         <button style="margin: 1000px 0 0 5px;" type="submit">提交</button>
     </form>
     <script>
+        SMValidator.setLang({
+            number: '请输入数字',
+            email: '请输入正确的邮箱格式',
+            range_equal: '值必须等于{0}',
+            range_scope: '值必须大于{0}且小于{1}',
+            range_greater: '值必须大于{0}',
+            range_less: '值必须小于{0}',
+            renge_no_number: '值必须是数字',
+            error_param: '参数错误',
+            length_equal: '长度必须为{0}',
+            length_scope: '长度必须大于{0}且小于{1}',
+            length_greater: '长度必须大于{0}',
+            length_less: '长度必须小于{0}',
+            password: '两次输入密码不一致'
+        });
+        
         //偏好使用HTML
         new SMValidator('#form1');
 
         //偏好使用JS
         new SMValidator('#form2', {
+            server: '未经过服务器验证数据', //设置server和required的提示消息
+            required: '这是必填项',
             failHtml: '<span style="color:#f6f"></span>',
             failStyle: {
                 color: '#f6f',

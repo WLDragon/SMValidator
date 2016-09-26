@@ -485,9 +485,9 @@
             }
         }
         //定位验证失败的字段
-        if(flag === 2 && config._useLocate) {
+        if(flag === 2 && isLocate) {
             input.scrollIntoView();
-            config._useLocate = false;
+            isLocate = false;
         }
 
         return result;
@@ -502,6 +502,8 @@
 
     /**公共validate使用的SMValidator实例 */
     var globalInstance;
+    /** 是否使用了定位错误表单位置 */
+    var isLocate;
     /**设置全局配置 */
     SMValidator.config = function (options) {
         for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
@@ -529,7 +531,7 @@
         var ins = isString(inputs) ? globalInstance.queryInput(inputs) : inputs;
         var passCount = 0;
         var count = 0;
-        if(options && options.locate) config._useLocate = true;
+        if(options && options.locate) isLocate = true;
         for(var i = ins.length - 1; i >= 0; i--) {
             var input = ins[i];
             if(input._sm) {
