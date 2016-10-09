@@ -1,5 +1,5 @@
 /*!
- * sm-validator 0.12.0
+ * sm-validator 0.13.0
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  * Released under the MIT License.
  */(function (global, factory) {
@@ -37,7 +37,23 @@
         return hasOwnProperty.call(obj, key);
     }
 
-    var GLOBAL_ATTRIBUTES = ['required', 'server', 'blur', 'manul', 'failHtml', 'failStyle', 'failCss', 'passHtml', 'passStyle', 'passCss'];
+    /**全局属性 */
+    var GLOBAL_ATTRIBUTES = [
+        'required',
+        'server',
+        'short',
+        'blur',
+        'manul',
+        'failHtml',
+        'failStyle',
+        'failCss',
+        'passHtml',
+        'passStyle',
+        'passCss'
+    ];
+    /**input规则赋值时忽略required、server和short属性 */
+    var INPUT_ATTRIBUTES = GLOBAL_ATTRIBUTES.slice(3);
+    console.log(INPUT_ATTRIBUTES);
     function SMValidator(selectors, options) {
         var self = this;
         if(!options) options = {};
@@ -88,7 +104,10 @@
                     el._smInputs = ins;
                     on.call(el, 'submit', function(e) {
                         e.preventDefault();
-                        var result = SMValidator.validate(e.target._smInputs, {locate: true});
+                        var result = SMValidator.validate(e.target._smInputs, {
+                            locate: true,
+                            short: self.short
+                        });
                         self.submit(result, e.target);
                     });
                 }
@@ -141,9 +160,8 @@
                 if(item.server) item.manul = true;
 
                 //初始化field属性，如果没填，则使用局部或全局属性
-                //required和server已经处理过，虽然在循环中，但不处理
-                for(var i = GLOBAL_ATTRIBUTES.length - 1; i >= 0; i--) {
-                    var attr = GLOBAL_ATTRIBUTES[i];
+                for(var i = INPUT_ATTRIBUTES.length - 1; i >= 0; i--) {
+                    var attr = INPUT_ATTRIBUTES[i];
                     if(!hasOwn(item, attr)) item[attr] = this[attr];
                 }
 
@@ -528,6 +546,7 @@
      * @param options {Object}
      * @param options.forceFlag //强行设置验证结果，0没验证 1通过 2失败
      * @param options.locate //是否定位到第一个验证失败的表单
+     * @param options.short //是否遇到验证失败的表单后就跳出
      * @param options.serverMessage //服务器返回来的消息，用于设置带有server属性的验证
      * @return 如果全部通过则返回true，否则返回false
      */
@@ -540,7 +559,11 @@
             var input = ins[i];
             if(input._sm) {
                 count++;
-                if(validate(input, options) === true) passCount++;
+                if(validate(input, options) === true) {
+                    passCount++;
+                }else if(options.short) {
+                    return false;
+                }
             }
         }
         return count === passCount;

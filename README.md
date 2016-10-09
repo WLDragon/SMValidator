@@ -52,7 +52,7 @@
 
 - `SMValidator.min.js` the minify for SMValidator
 
-- `SMValidator.pure.min.js` only `required` rule,need config rule and style by yourself
+- `SMValidator.pure.min.js` without config, set rule and style by yourself
 
 ## TODO
 1. 详细的API说明

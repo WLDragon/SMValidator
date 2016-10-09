@@ -108,6 +108,7 @@
             </div>
         </div>
         <button type="reset" onclick="resetStyle()">重置</button>
+        <button type="button" onclick="testShort()">当有一个规则失败时短路验证"short"</button>
         <div style="margin-top:10px"><b>提交按钮在网页底部，测试submit和locate功能</b></div>
         <button style="margin: 1000px 0 0 5px;" type="submit">提交</button>
     </form>
@@ -180,16 +181,20 @@
             SMValidator.validate('#manul2');
         }
 
-        function resetStyle() {
-            SMValidator.reset('#form2');
-        }
-
         function server6(result) {
             SMValidator.validate('[name="field6"]', {forceFlag: result, serverMessage: '服务器验证失败'});
         }
 
         function server7(result) {
             SMValidator.validate('[name="field7"]', {forceFlag: result});
+        }
+
+        function resetStyle() {
+            SMValidator.reset('#form2');
+        }
+        
+        function testShort() {
+            SMValidator.validate('#form2', {short: true});
         }
     </script>
 </body>
