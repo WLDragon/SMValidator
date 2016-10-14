@@ -41,7 +41,7 @@
                         <label class="four wide field">Email</label>
                         <div class="twelve wide field">
                             <div class="ui input icon">
-                                <input type="text" class="" data-rule="required;email">
+                                <input type="text" class="" data-rule="required|email">
                             </div>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                         <label class="four wide field">Password</label>
                         <div class="twelve wide field">
                             <div class="ui input icon">
-                                <input name="password" type="password" class="" data-rule="required;length(7,11)" placeholder="length between 8 to 10">
+                                <input name="password" type="password" class="" data-rule="required|length(7,11)" placeholder="length between 8 to 10">
                             </div>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                         <label class="four wide field">Verify Password</label>
                         <div class="twelve wide field">
                             <div class="ui input icon">
-                                <input type="password" class="" data-rule="required;equal([name='password'])">
+                                <input type="password" class="" data-rule="required|equal([name='password'])">
                             </div>
                         </div>
                     </div>

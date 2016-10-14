@@ -11,37 +11,37 @@
     <form id="form1">
         <div>
             <p>oninput验证，要求长度大于5，验证成功后边框绿色</p>
-            <input type="text" data-rule="length(5,);disblur;passStyle({'border': '1px solid #090'})">
+            <input type="text" data-rule="length(5,)|disblur|passStyle({'border': '1px solid #090'})">
         </div>
         <div>
             <p>onblur验证，必填且要求长度小于5，失去焦点时验证</p>
-            <input type="text" data-rule="required;length(,5);disinput">
+            <input type="text" data-rule="required|length(,5)|disinput">
         </div>
         <div>
             <p>手动验证，要求内容为-100~100的数字，使用自定义消息容器</p>
-            <input id="manul1" type="text" data-rule="range(-100,100);manul;failHtml(#message1);passHtml(#message11)">
+            <input id="manul1" type="text" data-rule="range(-100,100)|manul|failHtml(#message1)|passHtml(#message11)">
             <a href="javascript:;" onclick="SMValidator.validate('#manul1')">点击验证</a>
             <p id="message1" style="color:red"></p>
             <p id="message11" style="color:green">验证通过</p>
         </div>
         <div>
             <p>要求长度大于5，使用自定义类名，不显示规则消息，父容器添加样式</p>
-            <input type="text" data-rule="length(5,);failCss(error,+error);failHtml(!#message12)">
+            <input type="text" data-rule="length(5,)|failCss(error,+error)|failHtml(!#message12)">
             <span id="message12" style="color:red">长度大于5，这里使用的是自定义文本，不使用规则消息</span>
         </div>
         <div>
             <p>要求必填，正则匹配只能数字，自定义必填提示语</p>
-            <input type="text" data-rule="required(请输入内容);/^\d*$/只能填数字">
+            <input type="text" data-rule="required(请输入内容)|/^\d*$/只能填数字">
         </div>
         <div>
             <p>长度大于7小于17的密码，必填</p>
-            <input type="password" id="password" data-rule="required;length(7,17)">
+            <input type="password" id="password" data-rule="required|length(7,17)">
             <p>重复密码</p>
             <input type="password" data-rule="equal(#password)">
         </div>
         <div>
             <p>测试checkbox</p>
-            <input value="0" name="checkbox1" type="checkbox" data-rule="required;failHtml(#checkMessage);length(1,)">
+            <input value="0" name="checkbox1" type="checkbox" data-rule="required|failHtml(#checkMessage)|length(1,)">
             <input value="1" name="checkbox1" type="checkbox">
             <input value="2" name="checkbox1" type="checkbox">
             <div id="checkMessage" style="color:red"></div>
@@ -56,7 +56,7 @@
         </div>
         <div>
             <p>测试multiple select</p>
-            <select data-rule="required;length(1,)" multiple>
+            <select data-rule="required|length(1,)" multiple>
                 <option value="">请选择</option>
                 <option value="1">A</option>
                 <option value="2">B</option>
@@ -66,7 +66,7 @@
         </div>
         <div>
             <p>只能输入英文数字的textarea</p>
-            <textarea data-rule="/^[a-z0-9]*$/i/只能输入英文或数字;required" cols="30" rows="3"></textarea>
+            <textarea data-rule="/^[a-z0-9]*$/i/只能输入英文或数字|required" cols="30" rows="3"></textarea>
         </div>
     </form>
     <h2>使用JavaScript，功能更全面</h2>
@@ -151,8 +151,8 @@
                 onlyNumber: [/^\d*$/, '只能填数字'],
             },
             fields: {
-                field1: 'required;onlyNumber;disblur;failCss(error)',
-                field2: 'required;length(5);disinput',
+                field1: 'required|onlyNumber|disblur|failCss(error)',
+                field2: 'required|length(5)|disinput',
                 field3: [/^\d*$/, '只能填数字'],
                 field4: function(val) {
                     //在fields里的函数只能使用一个参数val

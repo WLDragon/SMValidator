@@ -25,19 +25,19 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Email</label>
                     <div class="col-sm-6">
-                        <input type="text" class="form-control" data-rule="required;email">
+                        <input type="text" class="form-control" data-rule="required|email">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Password</label>
                     <div class="col-sm-6">
-                        <input name="password" type="password" class="form-control" data-rule="required;length(7,11)" placeholder="length between 8 to 10">
+                        <input name="password" type="password" class="form-control" data-rule="required|length(7,11)" placeholder="length between 8 to 10">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Verify Password</label>
                     <div class="col-sm-6">
-                        <input type="password" class="form-control" data-rule="required;equal([name='password'])">
+                        <input type="password" class="form-control" data-rule="required|equal([name='password'])">
                     </div>
                 </div>
                 <div class="form-group">

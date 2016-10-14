@@ -1,5 +1,5 @@
 /*!
- * sm-validator 0.14.0
+ * sm-validator 0.14.1
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  * Released under the MIT License.
  */(function (global, factory) {
@@ -306,14 +306,16 @@
     }
 
     /**
-     * 解析规则字符串，使用';'分割
+     * 解析规则字符串，使用'|'分割
      */
     _proto.parseString = function(str) {
         var item = {rules: []};
-        var statements = str.split(';');
+        var token = str.indexOf('&') > -1 ? '&' : '|';
+        var statements = str.split(token);
+        item.token = token;
         for(var i = statements.length - 1; i >= 0; i--) {
             var statement = statements[i];
-            if(!statement) continue; //防止规则中出现;;的情况
+            if(!statement) continue; //防止规则中出现||的情况
             if(statement.indexOf('/') === 0) {
                 //正则
                 var a = statement.substring(1).split('/');
@@ -401,7 +403,7 @@
         for(var i = items.length - 1; i >= 0; i--) {
             var m = items[i];
             m.dom.style.display = isShow ? '' : 'none';
-            if(result && !m.quiet) m.dom.innerText = result;
+            if(result && !m.quiet) m.dom.innerHTML = result;
         }
     }
 
@@ -420,8 +422,10 @@
         var sm = input._sm;
         var item = sm.rule;
         var result = true;
+        var results = [];
         var flag = 1; //0初始状态 1通过 2失败
         var value = '';
+        var isBreak = item.token === '|';
         if((type === 'checkbox' || type === 'radio') && input.form) {
             //对于checkbox|radio|select-multiple，value为其选择项的数量
             var els = input.form.elements[name];
@@ -476,7 +480,11 @@
                         if(!rule.test(value)) {
                             result = ruleItem.message;
                             flag = 2;
-                            break;
+                            if(isBreak) {
+                                break;
+                            }else {
+                                results.push(result);
+                            }
                         }
                     }else {
                         //函数规则
@@ -487,7 +495,11 @@
                         }
                         if(result !== true) {
                             flag = 2;
-                            break;
+                            if(isBreak) {
+                                break;
+                            }else {
+                                results.push(result);
+                            }
                         }
                     }
                 }
@@ -500,13 +512,21 @@
         }
 
         //当上一次验证结果跟这一次不一样的时候才更改样式
-        if(flag !== sm.flag || sm.lastResult !== result) {
-            sm.lastResult = result;
-            sm.flag = flag;
-
+        if(flag !== sm.flag || sm.lastResult !== result || !isBreak) {
             applyStyle(input, sm.style);
             toggleElement(sm.failHtml, false);
             toggleElement(sm.passHtml, false);
+            if(isBreak) {
+                sm.lastResult = result;
+                sm.flag = flag;
+            }else if(results.length) {
+                //分割符为&的时候，至少一个规则验证失败
+                flag = 2;
+            }else {
+                //全部规则验证通过
+                flag = 1;
+            }
+
             if(flag === 1) {
                 toggleClass(sm.failCss, false);
                 toggleClass(sm.passCss, true);
@@ -518,9 +538,9 @@
                 toggleClass(sm.passCss, false);
                 toggleClass(sm.failCss, true);
                 applyStyle(input, item.failStyle);
-                toggleElement(sm.failHtml, true, result);
+                toggleElement(sm.failHtml, true, isBreak ? result : results.join('<br/>'));
 
-                if(item.fail) item.fail.call(input);
+                if(item.fail) item.fail.call(input, isBreak ? result : results);
             }else {
                 toggleClass(sm.failCss, false);
                 toggleClass(sm.passCss, false);
