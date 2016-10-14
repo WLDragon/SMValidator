@@ -1,5 +1,5 @@
 /*!
- * sm-validator 0.14.1
+ * sm-validator 0.15.1
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  * Released under the MIT License.
  */(function (global, factory) {
@@ -178,7 +178,7 @@
 
             if(!item.disfocus) {
                 on.call(input, 'focus', function(e){
-                    validate(e.target, {forceFlag: 0});
+                    clear(e.target);
                 });
             }
             if(!item.disblur) {
@@ -415,6 +415,15 @@
         }
     }
 
+    function clear(input) {
+        var sm = input._sm;
+        applyStyle(input, sm.style);
+        toggleElement(sm.failHtml, false);
+        toggleElement(sm.passHtml, false);
+        toggleClass(sm.failCss, false);
+        toggleClass(sm.passCss, false);
+    }
+
     /**验证input的值 */
     function validate(input, options) {
         var type = input.type;
@@ -512,10 +521,9 @@
         }
 
         //当上一次验证结果跟这一次不一样的时候才更改样式
-        if(flag !== sm.flag || sm.lastResult !== result || !isBreak) {
-            applyStyle(input, sm.style);
-            toggleElement(sm.failHtml, false);
-            toggleElement(sm.passHtml, false);
+        //TODO 清理sm.flag和lastResult，换其他算法来减少dom更新
+        if(true) {
+            clear(input);
             if(isBreak) {
                 sm.lastResult = result;
                 sm.flag = flag;
@@ -541,9 +549,6 @@
                 toggleElement(sm.failHtml, true, isBreak ? result : results.join('<br/>'));
 
                 if(item.fail) item.fail.call(input, isBreak ? result : results);
-            }else {
-                toggleClass(sm.failCss, false);
-                toggleClass(sm.passCss, false);
             }
         }
         //定位验证失败的字段
@@ -614,7 +619,9 @@
     }
 
     SMValidator.reset = function (inputs) {
-        SMValidator.validate(inputs, {forceFlag: 0});
+        for(var i = inputs.length - 1; i >= 0; i--) {
+            clear(inputs[i]);
+        }
     }
 
 function replace(str, loaners) {

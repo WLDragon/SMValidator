@@ -10,11 +10,11 @@
     <h2>使用HTML</h2>
     <form id="form1">
         <div>
-            <p>oninput验证，要求长度大于5，验证成功后边框绿色</p>
+            <p>onblur不验证，要求长度大于5，验证成功后边框绿色</p>
             <input type="text" data-rule="length(5,)|disblur|passStyle({'border': '1px solid #090'})">
         </div>
         <div>
-            <p>onblur验证，必填且要求长度小于5，失去焦点时验证</p>
+            <p>oninput不验证，必填且要求长度小于5，失去焦点时验证</p>
             <input type="text" data-rule="required|length(,5)|disinput">
         </div>
         <div>
@@ -34,8 +34,8 @@
             <input type="text" data-rule="required(请输入内容)|/^\d*$/只能填数字">
         </div>
         <div>
-            <p>长度大于7小于17的密码，必填</p>
-            <input type="password" id="password" data-rule="required|length(7,17)">
+            <p>长度大于7小于17的密码，必填，获得焦点时不清理样式</p>
+            <input type="password" id="password" data-rule="required|length(7,17)|disfocus">
             <p>重复密码</p>
             <input type="password" data-rule="equal(#password)">
         </div>
@@ -72,12 +72,12 @@
     <h2>使用JavaScript，功能更全面</h2>
     <form id="form2">
         <div>
-            <p>oninput验证，必填，只能填数字，使用自定义样式</p>
+            <p>onblur不验证，必填，只能填数字，使用自定义样式</p>
             <div><input name="field1" type="text"></div>
             <div><input name="field1" type="text"></div>
         </div>
         <div>
-            <p>onblur验证，必填，且要求长度为5，失去焦点时验证</p>
+            <p>oninput不验证，必填，且要求长度为5，失去焦点时验证</p>
             <input name="field2" type="text">
         </div>
         <div>

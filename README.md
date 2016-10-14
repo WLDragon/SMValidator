@@ -61,7 +61,5 @@
 
 4. 添加vue、jquery插件版本
 
-5. fail和pass回调函数带规则序号，能识别是哪个规则，加一个强制验证所有规则的属性，而不是验证失败就退出
-
 ## Reference
 some inspirations comes from: [nice-validator](https://github.com/niceue/nice-validator)
