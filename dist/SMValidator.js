@@ -1,5 +1,5 @@
 /*!
- * sm-validator 0.13.0
+ * sm-validator 0.14.0
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  * Released under the MIT License.
  */(function (global, factory) {
@@ -13,17 +13,18 @@
 
     //事件代理，兼容低版本IE
     var on = document.addEventListener ? document.addEventListener : document.attachEvent;
+    //值在输入时校验
     var eventType = ('oninput' in document) ? 'input' : 'propertychange';
     on.call(document, eventType, function(e){
         var input = e.target;
-        if(input._sm && !input._sm.rule.manul && !input._sm.rule.blur) {
+        if(input._sm && !input._sm.rule.disinput && !input._sm.rule.manul) {
             validate(input);
         }
     });
-    //blur事件不能冒泡，所以使用change
+    //checkbox和radio校验
     on.call(document, 'change', function(e){
         var input = e.target;
-        if(input._sm && !input._sm.rule.manul && input._sm.rule.blur) {
+        if(input.type === 'checkbox' || input.type === 'radio') {
             validate(input);
         }
     });
@@ -42,7 +43,9 @@
         'required',
         'server',
         'short',
-        'blur',
+        'disinput',
+        'disfocus',
+        'disblur',
         'manul',
         'failHtml',
         'failStyle',
@@ -53,7 +56,7 @@
     ];
     /**input规则赋值时忽略required、server和short属性 */
     var INPUT_ATTRIBUTES = GLOBAL_ATTRIBUTES.slice(3);
-    console.log(INPUT_ATTRIBUTES);
+    
     function SMValidator(selectors, options) {
         var self = this;
         if(!options) options = {};
@@ -125,37 +128,19 @@
         //如果已经绑定过规则，则不重复处理
         if(input._sm) return true;
 
+        var self = this;
         var name = input.getAttribute('name');
         var dataRule = input.getAttribute('data-rule');
         var item = dataRule ? this.parseString(dataRule) : this.fields[name];
         if(item) {
             input._sm = {rule: item, flag: 0};
 
-            if(input.type === 'checkbox' || input.type === 'radio') {
-                //对于checkbox和radio只解析一个，其他input都引用这个规则
-                var inputs = document.querySelectorAll('input[name="' + name + '"]');
-                for(var i = inputs.length - 1; i >= 0; i--) {
-                    if(inputs[i] !== input) inputs[i]._sm = input._sm;
-                }
-                //checkbox和radio只有change事件有效
-                item.blur = true;
-            }
-
             //对于name相同的input，共用同一个规则，只初始化一次
             if(!item._isInit) {
                 item._isInit = true;
 
-                function handleProperty(item, prop) {
-                    //required和server没指定则默认为false
-                    //如果为true则赋值为显示的消息文本
-                    if(!hasOwn(item, prop)) {
-                        item[prop] = false;
-                    }else if(item[prop] === true) {
-                        item[prop] = this[prop];
-                    }
-                }
-                handleProperty.call(this, item, 'required');
-                handleProperty.call(this, item, 'server');
+                self.handleProperty(item, 'required');
+                self.handleProperty(item, 'server');
                 //服务器验证必须是手动验证
                 if(item.server) item.manul = true;
 
@@ -165,96 +150,131 @@
                     if(!hasOwn(item, attr)) item[attr] = this[attr];
                 }
 
-                function handleStyle(item, prop) {
-                    if(isString(item[prop])) {
-                        try{
-                            item[prop] = JSON.parse(item[prop].replace(/'/g,'\"'));
-                        }catch(e) {
-                            console.error('error json format: ' + item[prop]);
-                        }
-                    }
+                self.handleStyle(item, 'failStyle');
+                self.handleStyle(item, 'passStyle');
+            }
+
+            if(input.type === 'checkbox' || input.type === 'radio') {
+                //对于checkbox和radio只解析一个，其他input都引用这个规则
+                var inputs = document.querySelectorAll('input[name="' + name + '"]');
+                for(var i = inputs.length - 1; i >= 0; i--) {
+                    if(inputs[i] !== input) inputs[i]._sm = input._sm;
                 }
-                handleStyle(item, 'failStyle');
-                handleStyle(item, 'passStyle');
+                //checkbox和radio只能使用onchange触发校验
+                item.disblur = item.disfocus = item.disinput = true;
             }
 
             //当有failStyle或passStyle时记录原始样式
-            function recordStyle(input, style) {
-                if(!style) return;
-                if(!input._sm.style) input._sm.style = {};
-                var s = input._sm.style;
-                for(var k in style) {
-                    if(!s[k]) s[k] = input.style[k];
-                }
-            }
-            recordStyle(input, item.failStyle); 
-            recordStyle(input, item.passStyle); 
+            self.recordStyle(input, item.failStyle); 
+            self.recordStyle(input, item.passStyle); 
 
             //用于提示消息的html，如果是html文本则新建一个Dom，如果是选择器则使用这个选择器的Dom
-            function handleHtml(input, prop, htmls) {
-                if(!htmls) return;
-                input._sm[prop] = [];
-                if(isString(htmls)) htmls = [htmls];
-                for(var i = 0; i < htmls.length; i++) {
-                    var htmlDom;
-                    var html = htmls[i];
-                    var htmlItem = {}; //object format:{dom:null, quiet:false}
-                    if(html.indexOf('!') === 0) {
-                        html = html.substring(1);
-                        //failHtml不使用规则的消息，只显示html
-                        htmlItem.quiet = true;
-                    }
-                    if(html.indexOf('<') > -1) {
-                        //Dom
-                        //去掉“+”号
-                        var tar = input;
-                        while(html.indexOf('+') === 0) {
-                            html = html.substring(1);
-                            tar = tar.parentNode;
-                        }
-                        //使用html字符串生成Dom
-                        var div = document.createElement('div');
-                        div.innerHTML = html;
-                        htmlDom = div.children[0];
-                        //把Dom插到相应位置
-                        tar.parentNode.insertBefore(htmlDom, tar.nextElementSibling);
-                    }else {
-                        //选择器
-                        htmlDom = document.querySelector(html);
-                    }
-                    if(htmlDom) {
-                        htmlItem.dom = htmlDom;
-                        htmlDom.style.display = 'none';
-                        input._sm[prop].push(htmlItem);
-                    }
-                }
-            }
-            handleHtml(input, 'failHtml', item.failHtml);
-            handleHtml(input, 'passHtml', item.passHtml);
+            self.handleHtml(input, 'failHtml', item.failHtml);
+            self.handleHtml(input, 'passHtml', item.passHtml);
 
             //记录使用样式的对象，如果className中有+号表示应用样式的是input的父节点，一个+号往上一层
-            function handleCss(input, prop, classNames) {
-                if(!classNames) return;
-                if(isString(classNames)) classNames = [classNames];
-                input._sm[prop] = [];
-                for(var i = classNames.length - 1; i >= 0; i--) {
-                    var cn = classNames[i];
-                    //object format:[{target: element, className: ''},...]
-                    var tar = input;
-                    while(cn.indexOf('+') === 0) {
-                        cn = cn.substring(1);
-                        tar = tar.parentNode;
-                    }
-                    input._sm[prop].push({target: tar, className: cn});
-                }
+            self.handleCss(input, 'failCss', item.failCss);
+            self.handleCss(input, 'passCss', item.passCss);
+
+            if(!item.disfocus) {
+                on.call(input, 'focus', function(e){
+                    validate(e.target, {forceFlag: 0});
+                });
             }
-            handleCss(input, 'failCss', item.failCss);
-            handleCss(input, 'passCss', item.passCss);
+            if(!item.disblur) {
+                on.call(input, 'blur', function(e){
+                    validate(e.target);
+                });
+            }
 
             return true;
         }
 
         return false;
+    }
+
+    _proto.handleProperty = function (item, prop) {
+        //required和server没指定则默认为false
+        //如果为true则赋值为显示的消息文本
+        if(!hasOwn(item, prop)) {
+            item[prop] = false;
+        }else if(item[prop] === true) {
+            item[prop] = this[prop];
+        }
+    }
+
+    _proto.handleStyle = function (item, prop) {
+        if(isString(item[prop])) {
+            try{
+                item[prop] = JSON.parse(item[prop].replace(/'/g,'\"'));
+            }catch(e) {
+                console.error('error json format: ' + item[prop]);
+            }
+        }
+    }
+
+    _proto.recordStyle = function (input, style) {
+        if(!style) return;
+        if(!input._sm.style) input._sm.style = {};
+        var s = input._sm.style;
+        for(var k in style) {
+            if(!s[k]) s[k] = input.style[k];
+        }
+    }
+
+    _proto.handleHtml = function (input, prop, htmls) {
+        if(!htmls) return;
+        input._sm[prop] = [];
+        if(isString(htmls)) htmls = [htmls];
+        for(var i = 0; i < htmls.length; i++) {
+            var htmlDom;
+            var html = htmls[i];
+            var htmlItem = {}; //object format:{dom:null, quiet:false}
+            if(html.indexOf('!') === 0) {
+                html = html.substring(1);
+                //failHtml不使用规则的消息，只显示html
+                htmlItem.quiet = true;
+            }
+            if(html.indexOf('<') > -1) {
+                //Dom
+                //去掉“+”号
+                var tar = input;
+                while(html.indexOf('+') === 0) {
+                    html = html.substring(1);
+                    tar = tar.parentNode;
+                }
+                //使用html字符串生成Dom
+                var div = document.createElement('div');
+                div.innerHTML = html;
+                htmlDom = div.children[0];
+                //把Dom插到相应位置
+                tar.parentNode.insertBefore(htmlDom, tar.nextElementSibling);
+            }else {
+                //选择器
+                htmlDom = document.querySelector(html);
+            }
+            if(htmlDom) {
+                htmlItem.dom = htmlDom;
+                htmlDom.style.display = 'none';
+                input._sm[prop].push(htmlItem);
+            }
+        }
+    }
+
+    _proto.handleCss = function (input, prop, classNames) {
+        if(!classNames) return;
+        if(isString(classNames)) classNames = [classNames];
+        input._sm[prop] = [];
+        for(var i = classNames.length - 1; i >= 0; i--) {
+            var cn = classNames[i];
+            //object format:[{target: element, className: ''},...]
+            var tar = input;
+            while(cn.indexOf('+') === 0) {
+                cn = cn.substring(1);
+                tar = tar.parentNode;
+            }
+            input._sm[prop].push({target: tar, className: cn});
+        }
     }
 
     /**
@@ -312,7 +332,7 @@
                     if(n === 'failStyle' || n === 'passStyle') {
                         item[n] = result.params[0];
                     }else {
-                        //blur manul required server不带参数时赋true值
+                        //manul required server等不带参数时赋true值
                         item[n] = result.params || true;
                     }
                 }else {
@@ -554,14 +574,18 @@
         var ins = isString(inputs) ? globalInstance.queryInput(inputs) : inputs;
         var passCount = 0;
         var count = 0;
-        if(options && options.locate) isLocate = true;
+        var short = false;
+        if(options) {
+            isLocate = options.locate;
+            short = options.short;
+        }
         for(var i = ins.length - 1; i >= 0; i--) {
             var input = ins[i];
             if(input._sm) {
                 count++;
                 if(validate(input, options) === true) {
                     passCount++;
-                }else if(options.short) {
+                }else if(short) {
                     return false;
                 }
             }

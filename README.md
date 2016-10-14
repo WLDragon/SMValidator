@@ -11,8 +11,6 @@
 
 - Useable RegExp on html
 
-- Support AMD CommonJS and Global
-
 ## Demos
 - Simplest demo
 
@@ -61,7 +59,7 @@
 
 3. 英文文档
 
-4. 添加jquery插件版本
+4. 添加vue、jquery插件版本
 
 5. fail和pass回调函数带规则序号，能识别是哪个规则，加一个强制验证所有规则的属性，而不是验证失败就退出
 
