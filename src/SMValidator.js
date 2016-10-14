@@ -516,7 +516,7 @@
                 applyStyle(input, item.failStyle);
                 toggleElement(sm.failHtml, true, result);
 
-                if(item.fail) item.fail.call(input);
+                if(item.fail) item.fail.call(input, result);
             }else {
                 toggleClass(sm.failCss, false);
                 toggleClass(sm.passCss, false);
