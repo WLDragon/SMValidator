@@ -1,5 +1,5 @@
 /*!
- * sm-validator 0.15.1
+ * sm-validator 0.15.2
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  * Released under the MIT License.
  */(function (global, factory) {
@@ -328,14 +328,19 @@
                 }
             }else {
                 var result = this.parseStringFunction(statement);
-                if(GLOBAL_ATTRIBUTES.indexOf(result.name) > -1) {
+                var n = result.name;
+                var v = true;
+                if(n.charAt(0) === '!') {
+                    n = n.substring(1);
+                    v = false;
+                }
+                if(GLOBAL_ATTRIBUTES.indexOf(n) > -1) {
                     //关键属性
-                    var n = result.name;
                     if(n === 'failStyle' || n === 'passStyle') {
                         item[n] = result.params[0];
                     }else {
-                        //manul required server等不带参数时赋true值
-                        item[n] = result.params || true;
+                        //manul required server等不带参数时赋Boolean值
+                        item[n] = result.params || v;
                     }
                 }else {
                     //函数或数组规则
@@ -357,17 +362,20 @@
         }else if(isString(item)) {
             return this.parseString(item);
         }else if(typeof item === 'object') {
+            item.token = '|'; //初始化item.token，防止没有rule为string时没有token的情况
             if(item.rule instanceof Array) {
                 item.rules = [{rule: item.rule[0], message: item.rule[1]}];
             }else if(item.rule instanceof Function) {
                 item.rules = [{rule: item.rule}];
             }else if(isString(item.rule)) {
-                var a = item.rule.split(';');
+                var r = item.rule;
+                delete item.rule;
+                if(r.indexOf('&') > -1) item.token = '&';
+                var a = r.split(item.token);
                 item.rules = [];
                 for(var i = a.length - 1; i >= 0; i--) {
                     if(a[i]) this.parseRule(this.parseStringFunction(a[i]), item);
                 }
-                delete item.rule;
             }
             return item;
         }
@@ -520,8 +528,9 @@
             }
         }
 
-        //当上一次验证结果跟这一次不一样的时候才更改样式
         //TODO 清理sm.flag和lastResult，换其他算法来减少dom更新
+        //TODO 看看要不要全局属性里设置disfocus默认为true
+        //TODO 测试&分割符
         if(true) {
             clear(input);
             if(isBreak) {
@@ -619,8 +628,9 @@
     }
 
     SMValidator.reset = function (inputs) {
-        for(var i = inputs.length - 1; i >= 0; i--) {
-            clear(inputs[i]);
+        var ins = isString(inputs) ? globalInstance.queryInput(inputs) : inputs;
+        for(var i = ins.length - 1; i >= 0; i--) {
+            clear(ins[i]);
         }
     }
 
