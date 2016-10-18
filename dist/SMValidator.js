@@ -1,5 +1,5 @@
 /*!
- * sm-validator 0.15.2
+ * sm-validator 0.15.3
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  * Released under the MIT License.
  */(function (global, factory) {
@@ -25,7 +25,9 @@
     on.call(document, 'change', function(e){
         var input = e.target;
         if(input.type === 'checkbox' || input.type === 'radio') {
-            validate(input);
+            if(input._sm && !input._sm.rule.manul) {
+                validate(input);
+            }
         }
     });
 
@@ -44,8 +46,8 @@
         'server',
         'short',
         'disinput',
-        'disfocus',
         'disblur',
+        'focus',
         'manul',
         'failHtml',
         'failStyle',
@@ -161,7 +163,8 @@
                     if(inputs[i] !== input) inputs[i]._sm = input._sm;
                 }
                 //checkbox和radio只能使用onchange触发校验
-                item.disblur = item.disfocus = item.disinput = true;
+                item.disblur = item.disinput = true;
+                item.focus = false;
             }
 
             //当有failStyle或passStyle时记录原始样式
@@ -176,7 +179,7 @@
             self.handleCss(input, 'failCss', item.failCss);
             self.handleCss(input, 'passCss', item.passCss);
 
-            if(!item.disfocus) {
+            if(item.focus) {
                 on.call(input, 'focus', function(e){
                     clear(e.target);
                 });
@@ -489,6 +492,7 @@
                     }
                 }
             }else if(value) {
+                //验证各项规则
                 for(var i = item.rules.length - 1; i >= 0; i--) {
                     var ruleItem = item.rules[i];
                     var rule = ruleItem.rule;
@@ -523,42 +527,33 @@
             }else if(item.required) {
                 flag = 2;
                 result = item.required;
+                if(!isBreak) results.push(result);
             }else{
                 flag = 0;
             }
         }
 
-        //TODO 清理sm.flag和lastResult，换其他算法来减少dom更新
-        //TODO 看看要不要全局属性里设置disfocus默认为true
-        //TODO 测试&分割符
-        if(true) {
-            clear(input);
-            if(isBreak) {
-                sm.lastResult = result;
-                sm.flag = flag;
-            }else if(results.length) {
-                //分割符为&的时候，至少一个规则验证失败
-                flag = 2;
-            }else {
-                //全部规则验证通过
-                flag = 1;
-            }
+        if(!isBreak) {
+            //2 分割符为&的时候，至少一个规则验证失败
+            //1 全部规则验证通过
+            flag = results.length ? 2 : 1;
+        }
 
-            if(flag === 1) {
-                toggleClass(sm.failCss, false);
-                toggleClass(sm.passCss, true);
-                applyStyle(input, item.passStyle);
-                toggleElement(sm.passHtml, true);
+        clear(input);
+        if(flag === 1) {
+            toggleClass(sm.failCss, false);
+            toggleClass(sm.passCss, true);
+            applyStyle(input, item.passStyle);
+            toggleElement(sm.passHtml, true);
 
-                if(item.pass) item.pass.call(input);
-            }else if(flag === 2){
-                toggleClass(sm.passCss, false);
-                toggleClass(sm.failCss, true);
-                applyStyle(input, item.failStyle);
-                toggleElement(sm.failHtml, true, isBreak ? result : results.join('<br/>'));
+            if(item.pass) item.pass.call(input);
+        }else if(flag === 2){
+            toggleClass(sm.passCss, false);
+            toggleClass(sm.failCss, true);
+            applyStyle(input, item.failStyle);
+            toggleElement(sm.failHtml, true, isBreak ? result : results.join('<br/>'));
 
-                if(item.fail) item.fail.call(input, isBreak ? result : results);
-            }
+            if(item.fail) item.fail.call(input, isBreak ? result : results);
         }
         //定位验证失败的字段
         if(flag === 2 && isLocate) {

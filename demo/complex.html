@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>sm-validator复杂案例</title>
     <link rel="stylesheet" href="style.css">
     <script src="../dist/SMValidator.js"></script>
@@ -10,8 +11,8 @@
     <h2>使用HTML</h2>
     <form id="form1">
         <div>
-            <p>onblur不验证，要求长度大于5，验证成功后边框绿色</p>
-            <input type="text" data-rule="length(5,)|disblur|passStyle({'border': '1px solid #090'})">
+            <p>获取焦点后清除样式，失去焦点时不验证，要求长度大于5，验证成功后边框绿色</p>
+            <input type="text" data-rule="focus|disblur|length(5,)|passStyle({'border': '1px solid #090'})">
         </div>
         <div>
             <p>oninput不验证，必填且要求长度小于5，失去焦点时验证</p>
@@ -35,7 +36,7 @@
         </div>
         <div>
             <p>长度大于7小于17的密码，必填，获得焦点时不清理样式</p>
-            <input type="password" id="password" data-rule="required|length(7,17)|disfocus">
+            <input type="password" id="password" data-rule="required|length(7,17)">
             <p>重复密码</p>
             <input type="password" data-rule="equal(#password)">
         </div>
@@ -68,16 +69,23 @@
             <p>只能输入英文数字的textarea</p>
             <textarea data-rule="/^[a-z0-9]*$/i/只能输入英文或数字|required" cols="30" rows="3"></textarea>
         </div>
+        <div>
+            <p>测试&分割符，必填，长度大于3，只能数字，自定义容器</p>
+            <input type="text" data-rule="required&length(3,)&number&failHtml(#message13)">
+            <div style="color:#f00" id="message13"></div>
+        </div>
     </form>
     <h2>使用JavaScript，功能更全面</h2>
     <form id="form2">
         <div>
             <p>onblur不验证，必填，只能填数字，使用自定义样式</p>
+            <p>同一个name绑定多个input</p>
             <div><input name="field1" type="text"></div>
             <div><input name="field1" type="text"></div>
         </div>
         <div>
             <p>oninput不验证，必填，且要求长度为5，失去焦点时验证</p>
+            <p>局部禁用focus，获得焦点时不清除样式</p>
             <input name="field2" type="text">
         </div>
         <div>
@@ -95,23 +103,28 @@
             <p name="message2" style="color:#39f">要求长度为4</p>
         </div>
         <div>
-            <p>测试radio</p>
+            <p>测试radio，因为只有required规则，所以请滚到页面底部点击提交按钮测试</p>
             <input type="radio" name="radio1">
             <input type="radio" name="radio1">
             <input type="radio" name="radio1"  data-rule="required">
         </div>
         <div>
-            <p>测试server功能</p>
+            <p>测试server功能，先点击页面底部提交按钮查看效果</p>
+            <p>点击true或false按钮模拟收到服务器结果进行设值</p>
             <div>
-                <input name="field6" type="text">
-                <button type="button" onclick="server6(1)">field6 true</button>
-                <button type="button" onclick="server6(2)">field6 false</button>
+                <input name="field6" type="text" value="测试值">
+                <button type="button" onclick="server6(1)">true</button>
+                <button type="button" onclick="server6(2)">false</button>
             </div>
             <div>
                 <input name="field7" type="text">
-                <button type="button" onclick="server7(1)">field7 true</button>
-                <button type="button" onclick="server7(2)">field7 false</button>
+                <button type="button" onclick="server7(1)">true</button>
+                <button type="button" onclick="server7(2)">false</button>
             </div>
+        </div>
+        <div>
+            <p>测试&分割符，必填，长度大于3，只能数字</p>
+            <input name="field8" type="text">
         </div>
         <button type="reset" onclick="resetStyle()">重置</button>
         <button type="button" onclick="testShort()">当有一个规则失败时短路验证"short"</button>
@@ -140,6 +153,7 @@
 
         //偏好使用JS
         new SMValidator('#form2', {
+            focus: true,
             server: '未经过服务器验证数据', //设置server和required的提示消息
             required: '这是必填项',
             failHtml: '<span style="color:#f6f"></span>',
@@ -152,7 +166,7 @@
             },
             fields: {
                 field1: 'required|onlyNumber|disblur|failCss(error)',
-                field2: 'required|length(5)|disinput',
+                field2: 'required|length(5)|disinput|!focus',
                 field3: [/^\d*$/, '只能填数字'],
                 field4: function(val) {
                     //在fields里的函数只能使用一个参数val
@@ -174,8 +188,13 @@
                     passHtml: '<span style="color:green">服务器验证通过</span>'
                 },
                 field7: {
-                    rule: 'required',
+                    required: true,
                     server: true
+                },
+                field8: {
+                    rule: 'length(3,)&number',
+                    required: '请输入内容',
+                    failHtml: '<div style="color:#f00"></div>'
                 }
             },
             submit: function(valid, form) {
