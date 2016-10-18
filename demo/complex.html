@@ -16,7 +16,8 @@
         </div>
         <div>
             <p>oninput不验证，必填且要求长度小于5，失去焦点时验证</p>
-            <input type="text" data-rule="required|length(,5)|disinput">
+            <p>失败时不使用默认failStyle，只使用默认配置的failHtml</p>
+            <input type="text" data-rule="required|length(,5)|disinput|!failStyle">
         </div>
         <div>
             <p>手动验证，要求内容为-100~100的数字，使用自定义消息容器</p>
@@ -70,7 +71,7 @@
             <textarea data-rule="/^[a-z0-9]*$/i/只能输入英文或数字|required" cols="30" rows="3"></textarea>
         </div>
         <div>
-            <p>测试&分割符，必填，长度大于3，只能数字，自定义容器</p>
+            <p>测试&分割符，必填，长度大于3的数字，自定义容器</p>
             <input type="text" data-rule="required&length(3,)&number&failHtml(#message13)">
             <div style="color:#f00" id="message13"></div>
         </div>
@@ -125,6 +126,11 @@
         <div>
             <p>测试&分割符，必填，长度大于3，只能数字</p>
             <input name="field8" type="text">
+        </div>
+        <div>
+            <p>测试fail/pass，必填，只能数字，长度大于5，通过时文字绿色，失败时自定义错误文本格式</p>
+            <input name="field9" type="text" >
+            <div id="field9Message" style="color:#f00"></div>
         </div>
         <button type="reset" onclick="resetStyle()">重置</button>
         <button type="button" onclick="testShort()">当有一个规则失败时短路验证"short"</button>
@@ -195,6 +201,20 @@
                     rule: 'length(3,)&number',
                     required: '请输入内容',
                     failHtml: '<div style="color:#f00"></div>'
+                },
+                field9: {
+                    required: true,
+                    rule: 'onlyNumber&length(5,)',
+                    failHtml: false, //禁用默认样式
+                    failStyle: false,
+                    pass: function() {
+                        this.style.color = '#090';
+                        document.getElementById('field9Message').innerText = '';
+                    },
+                    fail: function(messages) {
+                        this.style.color = '#f00';
+                        document.getElementById('field9Message').innerText = '【' + messages.toString() + '】';
+                    }
                 }
             },
             submit: function(valid, form) {

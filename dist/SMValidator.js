@@ -1,5 +1,5 @@
 /*!
- * sm-validator 0.15.3
+ * sm-validator 1.0.0
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  * Released under the MIT License.
  */(function (global, factory) {
@@ -339,11 +339,11 @@
                 }
                 if(GLOBAL_ATTRIBUTES.indexOf(n) > -1) {
                     //关键属性
-                    if(n === 'failStyle' || n === 'passStyle') {
-                        item[n] = result.params[0];
+                    var params = result.params;
+                    if(params) {
+                        item[n] = (n === 'failStyle' || n === 'passStyle') ? params[0] : params;
                     }else {
-                        //manul required server等不带参数时赋Boolean值
-                        item[n] = result.params || v;
+                        item[n] = v;
                     }
                 }else {
                     //函数或数组规则
