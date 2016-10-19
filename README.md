@@ -1,5 +1,8 @@
 # SMValidator(small form validator)
 
+## QQ群(点击添加) 
+[585674463](http://jq.qq.com/?_wv=1027&k=40WxN5s)
+
 ## Features
 - Less than 10KB
 
@@ -51,13 +54,11 @@
 - `SMValidator.pure.min.js` without config, set rule and style by yourself
 
 ## TODO
-1. 详细的API说明
+1. 测试用例及浏览器兼容测试
 
-2. 测试用例及浏览器兼容测试
+2. 英文文档
 
-3. 英文文档
-
-4. 添加vue、jquery插件版本
+3. 添加vue插件版本
 
 ## Reference
 some inspirations comes from: [nice-validator](https://github.com/niceue/nice-validator)
