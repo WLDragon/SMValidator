@@ -43,7 +43,7 @@
     /**全局属性 */
     var GLOBAL_ATTRIBUTES = [
         'required',
-        'server',
+        'async',
         'short',
         'disinput',
         'disblur',
@@ -56,7 +56,7 @@
         'passStyle',
         'passCss'
     ];
-    /**input规则赋值时忽略required、server和short属性 */
+    /**input规则赋值时忽略required、async和short属性 */
     var INPUT_ATTRIBUTES = GLOBAL_ATTRIBUTES.slice(3);
     
     function SMValidator(selectors, options) {
@@ -142,9 +142,9 @@
                 item._isInit = true;
 
                 self.handleProperty(item, 'required');
-                self.handleProperty(item, 'server');
+                self.handleProperty(item, 'async');
                 //服务器验证必须是手动验证
-                if(item.server) item.manul = true;
+                if(item.async) item.manul = true;
 
                 //初始化field属性，如果没填，则使用局部或全局属性
                 for(var i = INPUT_ATTRIBUTES.length - 1; i >= 0; i--) {
@@ -197,7 +197,7 @@
     }
 
     _proto.handleProperty = function (item, prop) {
-        //required和server没指定则默认为false
+        //required和async没指定则默认为false
         //如果为true则赋值为显示的消息文本
         if(!hasOwn(item, prop)) {
             item[prop] = false;
@@ -465,28 +465,28 @@
             //强制设置验证结果
             flag = options.forceFlag;
             //服务端验证，通过forceFlag设置的结果
-            if(item.server) {
-                sm.serverFlag = flag;
-                if(options.serverMessage) sm.serverMessage = options.serverMessage;
+            if(item.async) {
+                sm.asyncFlag = flag;
+                if(options.asyncMessage) sm.asyncMessage = options.asyncMessage;
                 if(flag === 2) {
-                    result = sm.serverMessage || 'no serverMessage!';
+                    result = sm.asyncMessage || 'no asyncMessage!';
                 }
             }
         }else {
-            if(item.server) {
+            if(item.async) {
                 if(item.required && !value) {
                     flag = 2;
                     result = item.required;
                 }else {
-                    if(typeof sm.serverFlag === 'number') {
-                        flag = sm.serverFlag;
+                    if(typeof sm.asyncFlag === 'number') {
+                        flag = sm.asyncFlag;
                         if(flag === 2) {
-                            result = sm.serverMessage || 'no serverMessage!';
+                            result = sm.asyncMessage || 'no asyncMessage!';
                         }
                     }else if(value){
-                        //如果有值且没有设置过serverFlag则不通过
+                        //如果有值且没有设置过asyncFlag则不通过
                         flag = 2;
-                        result = item.server;
+                        result = item.async;
                     }else {
                         flag = 0;
                     }
@@ -566,7 +566,7 @@
 
     /**全局配置 */
     var config = {
-        server: 'not been validated by server',
+        async: 'not been validated by async',
         required: 'this is required',
         rules: {}
     };
@@ -596,7 +596,7 @@
      * @param options.forceFlag //强行设置验证结果，0没验证 1通过 2失败
      * @param options.locate //是否定位到第一个验证失败的表单
      * @param options.short //是否遇到验证失败的表单后就跳出
-     * @param options.serverMessage //服务器返回来的消息，用于设置带有server属性的验证
+     * @param options.asyncMessage //服务器返回来的消息，用于设置带有async属性的验证
      * @return 如果全部通过则返回true，否则返回false
      */
     SMValidator.validate = function (inputs, options) {
