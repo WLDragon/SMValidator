@@ -1,7 +1,7 @@
 # SMValidator(small form validator)
 
-## QQ群(点击添加) 
-[585674463](http://jq.qq.com/?_wv=1027&k=40WxN5s)
+## QQ群
+[585674463](http://jq.qq.com/?_wv=1027&k=40WxN5s)(点击添加)
 
 ## Features
 - Less than 10KB
