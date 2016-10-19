@@ -20,12 +20,16 @@
     //checkbox和radio校验
     on.call(document, 'change', function(e){
         var input = e.target;
-        if(input.type === 'checkbox' || input.type === 'radio') {
+        if(isCheckBoxOrRadio(input.type)) {
             if(input._sm && !input._sm.rule.manul) {
                 validate(input);
             }
         }
     });
+
+    function isCheckBoxOrRadio(type) {
+        return type === 'checkbox' || type === 'radio';
+    }
 
     function isString(obj) {
         return typeof obj === 'string';
@@ -152,7 +156,7 @@
                 self.handleStyle(item, 'passStyle');
             }
 
-            if(input.type === 'checkbox' || input.type === 'radio') {
+            if(isCheckBoxOrRadio(input.type)) {
                 //对于checkbox和radio只解析一个，其他input都引用这个规则
                 var inputs = document.querySelectorAll('input[name="' + name + '"]');
                 for(var i = inputs.length - 1; i >= 0; i--) {
@@ -442,7 +446,7 @@
         var flag = 1; //0初始状态 1通过 2失败
         var value = '';
         var isBreak = item.token === '|';
-        if((type === 'checkbox' || type === 'radio') && input.form) {
+        if(isCheckBoxOrRadio(type) && input.form) {
             //对于checkbox|radio|select-multiple，value为其选择项的数量
             var els = input.form.elements[name];
             for(var i = els.length - 1; i >= 0; i--) {

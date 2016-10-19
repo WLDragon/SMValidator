@@ -36,8 +36,6 @@
 </table>
 
 ## Download
-- [From Github](https://github.com/WLDragon/SMValidator/archive/0.10.1.zip)
-
 - Use npm ```npm install --save SMValidator```
 
 - Use bower ```bower install SMValidator```
