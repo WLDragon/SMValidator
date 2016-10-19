@@ -1,4 +1,4 @@
-# sm-validator(small form validator)
+# SMValidator(small form validator)
 
 ## Features
 - Less than 10KB
@@ -21,29 +21,29 @@
 </script>
 ```
 
-- [A complex demo](https://wldragon.github.io/sm-validator/)
+- [A complex demo](https://wldragon.github.io/SMValidator/)
 
 - Support third-party UI framework
 <table>
     <tr>
-      <td><a href="https://wldragon.github.io/sm-validator/bootstrap/">bootstrap demo</a></td>
-      <td><a href="https://wldragon.github.io/sm-validator/semantic/">semantic demo</a></td>
+      <td><a href="https://wldragon.github.io/SMValidator/bootstrap/">bootstrap demo</a></td>
+      <td><a href="https://wldragon.github.io/SMValidator/semantic/">semantic demo</a></td>
     </tr>
     <tr>
-      <td><img src="https://wldragon.github.io/sm-validator/bootstrap/scan.jpg"></td>
-      <td><img src="https://wldragon.github.io/sm-validator/semantic/scan.jpg"></td>
+      <td><img src="https://wldragon.github.io/SMValidator/bootstrap/scan.jpg"></td>
+      <td><img src="https://wldragon.github.io/SMValidator/semantic/scan.jpg"></td>
     </tr>
 </table>
 
 ## Download
-- [From Github](https://github.com/WLDragon/sm-validator/archive/0.10.1.zip)
+- [From Github](https://github.com/WLDragon/SMValidator/archive/0.10.1.zip)
 
-- Use npm ```npm install --save sm-validator```
+- Use npm ```npm install --save SMValidator```
 
-- Use bower ```bower install sm-validator```
+- Use bower ```bower install SMValidator```
 
 ## Documents
-[Quick Start](https://github.com/WLDragon/sm-validator/wiki/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
+[Quick Start](https://github.com/WLDragon/SMValidator/wiki/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
 
 ## About dist
 - `SMValidator.js` source with config

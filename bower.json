@@ -1,5 +1,5 @@
 {
-  "name": "sm-validator",
+  "name": "SMValidator",
   "description": "a simple but powerful tool for validating form fields. enjoy it!",
   "main": "dist/SMValidator.js",
   "authors": [
@@ -13,7 +13,7 @@
     "bootstrap",
     "semantic"
   ],
-  "homepage": "https://github.com/WLDragon/sm-validator",
+  "homepage": "https://github.com/WLDragon/SMValidator",
   "ignore": [
     "**/.*",
     "node_modules",

@@ -1,5 +1,5 @@
 {
-  "name": "sm-validator",
+  "name": "SMValidator",
   "version": "1.0.0",
   "description": "a simple but powerful tool for validating form fields. enjoy it!",
   "main": "dist/SMValidator.js",
@@ -14,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/WLDragon/sm-validator.git"
+    "url": "git+https://github.com/WLDragon/SMValidator.git"
   },
   "keywords": [
     "form",
@@ -26,9 +26,9 @@
   "author": "WLDragon",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/WLDragon/sm-validator/issues"
+    "url": "https://github.com/WLDragon/SMValidator/issues"
   },
-  "homepage": "https://github.com/WLDragon/sm-validator#readme",
+  "homepage": "https://github.com/WLDragon/SMValidator#readme",
   "devDependencies": {
     "uglify-js": "^2.6.4"
   }
