@@ -30,8 +30,8 @@
       <td><a href="https://wldragon.github.io/SMValidator/semantic/">semantic demo</a></td>
     </tr>
     <tr>
-      <td><img src="https://wldragon.github.io/SMValidator/bootstrap/scan.jpg"></td>
-      <td><img src="https://wldragon.github.io/SMValidator/semantic/scan.jpg"></td>
+      <td><img src="https://wldragon.github.io/SMValidator/bootstrap/scan.png"></td>
+      <td><img src="https://wldragon.github.io/SMValidator/semantic/scan.png"></td>
     </tr>
 </table>
 
