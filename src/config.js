@@ -105,7 +105,7 @@ var skins = {
         failStyle: {},
         failHtml: ['!<i class="remove icon"></i>', '+<small class="ui red pointing label"></small>'],
         failCss: '++error',
-        passHtml: '<i class="checkmark icon"></i>',
+        passHtml: '<i class="checkmark icon"></i>'
     }
 }
 

@@ -24,6 +24,11 @@
                 return e;
             }
         });
+    }else {
+        document.addEventListener('input', function(e) {
+            var input = e.target;
+            if(input._sm && !input._sm.rule.disinput) validate(input);
+        });
     }
 
     function on(context, eventType, callback) {
@@ -34,14 +39,6 @@
         }
     }
 
-    //值在输入时校验
-    var eventType = ('oninput' in document) ? 'input' : 'propertychange';
-    on(document, eventType, function(e){
-        var input = e.target || e.srcElement;
-        if(input && input._sm && !input._sm.rule.disinput && !input._sm.rule.manul) {
-            validate(input);
-        }
-    });
     //checkbox和radio校验
     on(document, 'change', function(e){
         var input = e.target || e.srcElement;
@@ -208,6 +205,9 @@
             self.handleCss(input, 'failCss', item.failCss);
             self.handleCss(input, 'passCss', item.passCss);
 
+            //设置手动后blur和input均失效
+            if(item.manul) item.disblur = item.disinput = true;
+            
             if(item.focus) {
                 on(input, 'focus', function(e){
                     clear(e.target || e.srcElement);
@@ -216,6 +216,12 @@
             if(!item.disblur) {
                 on(input, 'blur', function(e){
                     validate(e.target || e.srcElement);
+                });
+            }
+            //非IE8浏览器使用document代理input事件
+            if(isIE8 && !item.disinput) {
+                input.attachEvent('onpropertychange', function(e){
+                    if(e.propertyName === 'value') validate(e.srcElement);
                 });
             }
 
