@@ -7,19 +7,44 @@
 
     var document = window.document;
 
-    //事件代理，兼容低版本IE
-    var on = document.addEventListener ? document.addEventListener : document.attachEvent;
+    var isIE8 = !document.addEventListener;
+    if(isIE8) {
+        Array.prototype.indexOf = function(searchElement) {
+            for(var i = 0, len = this.length; i < len; i++) {
+                if(this[i] === searchElement) return i;
+            }
+            return -1;
+        }
+        // Source: https://github.com/Alhadis/Snippets/blob/master/js/polyfills/IE8-child-elements.js
+        Object.defineProperty(Element.prototype, "nextElementSibling", {
+            get: function(){
+                var e = this.nextSibling;
+                while(e && 1 !== e.nodeType)
+                    e = e.nextSibling;
+                return e;
+            }
+        });
+    }
+
+    function on(context, eventType, callback) {
+        if(isIE8) {
+            context.attachEvent('on' + eventType, callback);
+        }else {
+            context.addEventListener(eventType, callback);
+        }
+    }
+
     //值在输入时校验
     var eventType = ('oninput' in document) ? 'input' : 'propertychange';
-    on.call(document, eventType, function(e){
-        var input = e.target;
-        if(input._sm && !input._sm.rule.disinput && !input._sm.rule.manul) {
+    on(document, eventType, function(e){
+        var input = e.target || e.srcElement;
+        if(input && input._sm && !input._sm.rule.disinput && !input._sm.rule.manul) {
             validate(input);
         }
     });
     //checkbox和radio校验
-    on.call(document, 'change', function(e){
-        var input = e.target;
+    on(document, 'change', function(e){
+        var input = e.target || e.srcElement;
         if(isCheckBoxOrRadio(input.type)) {
             if(input._sm && !input._sm.rule.manul) {
                 validate(input);
@@ -107,13 +132,14 @@
                 //如果设置了submit属性，则阻止Form默认的提交行为，回调submit方法
                 if(self.submit && ins.length) {
                     el._smInputs = ins;
-                    on.call(el, 'submit', function(e) {
+                    on(el, 'submit', function(e) {
                         e.preventDefault();
-                        var result = SMValidator.validate(e.target._smInputs, {
+                        var target = e.target || e.srcElement;
+                        var result = SMValidator.validate(target._smInputs, {
                             locate: true,
                             short: self.short
                         });
-                        self.submit(result, e.target);
+                        self.submit(result, target);
                     });
                 }
             }else if(tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') {
@@ -165,6 +191,9 @@
                 //checkbox和radio只能使用onchange触发校验
                 item.disblur = item.disinput = true;
                 item.focus = false;
+            }else {
+                //统一浏览器不设置border时的外观，防止IE下恢复样式会出现奇怪的边框
+                if(!input.style.border) input.style.border = '1px solid #a9a9a9';
             }
 
             //当有failStyle或passStyle时记录原始样式
@@ -180,13 +209,13 @@
             self.handleCss(input, 'passCss', item.passCss);
 
             if(item.focus) {
-                on.call(input, 'focus', function(e){
-                    clear(e.target);
+                on(input, 'focus', function(e){
+                    clear(e.target || e.srcElement);
                 });
             }
             if(!item.disblur) {
-                on.call(input, 'blur', function(e){
-                    validate(e.target);
+                on(input, 'blur', function(e){
+                    validate(e.target || e.srcElement);
                 });
             }
 
