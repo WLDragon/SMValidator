@@ -8,6 +8,15 @@
     var document = window.document;
 
     var isIE8 = !document.addEventListener;
+
+    function on(context, eventType, callback) {
+        if(isIE8) {
+            context.attachEvent('on' + eventType, callback);
+        }else {
+            context.addEventListener(eventType, callback);
+        }
+    }
+
     if(isIE8) {
         Array.prototype.indexOf = function(searchElement) {
             for(var i = 0, len = this.length; i < len; i++) {
@@ -25,23 +34,29 @@
             }
         });
     }else {
-        document.addEventListener('input', function(e) {
-            var input = e.target;
-            if(input._sm && !input._sm.rule.disinput) validate(input);
+        //标记输入法是否完成，完成之前不验证表单
+        var isCompositionend = true;
+        document.addEventListener('compositionstart', function(e){
+            isCompositionend = false;
         });
-    }
-
-    function on(context, eventType, callback) {
-        if(isIE8) {
-            context.attachEvent('on' + eventType, callback);
-        }else {
-            context.addEventListener(eventType, callback);
-        }
+        document.addEventListener('compositionend', function(e){
+            isCompositionend = true;
+            var inputEvent = document.createEvent('HTMLEvents');
+            inputEvent.initEvent('input', true, true);
+            e.target.dispatchEvent(inputEvent);
+        });
+        //值改变时验证表单
+        document.addEventListener('input', function(e) {
+            if(isCompositionend) {
+                var input = e.target;
+                if(input._sm && !input._sm.rule.disinput) validate(input);
+            }
+        });
     }
 
     //checkbox和radio校验
     on(document, 'change', function(e){
-        var input = e.target || e.srcElement;
+        var input = e.target;
         if(isCheckBoxOrRadio(input.type)) {
             if(input._sm && !input._sm.rule.manul) {
                 validate(input);
@@ -218,7 +233,7 @@
                     validate(e.target || e.srcElement);
                 });
             }
-            //非IE8浏览器使用document代理input事件
+            //注：非IE8浏览器使用document代理input事件
             if(isIE8 && !item.disinput) {
                 input.attachEvent('onpropertychange', function(e){
                     if(e.propertyName === 'value') validate(e.srcElement);

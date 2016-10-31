@@ -14,6 +14,8 @@
 
 - Useable RegExp on html
 
+- Support IE8+
+
 ## Demos
 - Simplest demo
 
@@ -46,6 +48,11 @@
 ## Documents
 [Quick Start](https://github.com/WLDragon/SMValidator/wiki/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
 
+## Notice
+- checkbox invalid in IE8
+
+- <select> only validate on blur in IE9~11, because it's not support oninput
+
 ## About dist
 - `SMValidator.js` source with config
 
@@ -54,11 +61,9 @@
 - `SMValidator.pure.min.js` without config, set rule and style by yourself
 
 ## TODO
-1. 测试用例及浏览器兼容测试
+1. 英文文档
 
-2. 英文文档
-
-3. 添加vue插件版本
+2. 添加vue插件版本
 
 ## Reference
 some inspirations comes from: [nice-validator](https://github.com/niceue/nice-validator)
