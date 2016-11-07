@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>SMValidator Tutor</title>
+	<link rel="stylesheet" href="monokai-sublime.css">
+	<link rel="stylesheet" href="style.css">
+	<script src="highlight.pack.js"></script>
+	<script src="../dist/SMValidator.js"></script>
+</head>
+<body>
+	<form id="form1">
+		<ul>
+			<li>
+				<p>1. 请随便输入一个字母，再删掉试试</p>
+				<pre><code class="html">
+&lt;input data-rule="required" type="text"&gt;
+				</code></pre>
+				<pre><code class="javascript">
+new SMValidator('form');
+				</code></pre>
+				<input data-rule="required" type="text">
+			</li>
+			<li>
+				<p>2. 自定义必填项提示的文字</p>
+				<pre><code class="html">
+&lt;input data-rule="required(请输入内容)" type="text"&gt;
+				</code></pre>
+				<input data-rule="required(请输入内容)" type="text">
+			</li>
+			<li>
+				<p>3. 使用正则规则校验</p>
+				<pre><code class="html">
+&lt;!--没有忽略大小写标志--&gt;
+&lt;input data-rule="/^[A-Z]*$/只能填写大写字母" type="text"&gt;
+				</code></pre>
+				<input data-rule="/^[A-Z]*$/只能填写大写字母" type="text">
+				<pre><code class="html">
+&lt;!--忽略大小写--&gt;
+&lt;input data-rule="/^[A-Z]*$/i/请输入字母" type="text"&gt;
+				</code></pre>
+				<input data-rule="/^[A-Z]*$/i/请输入字母" type="text">
+			</li>
+			<li>
+				<p>4. 使用<b>"|"</b>连接两种验证规则</p>
+				<pre><code class="html">
+&lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母" type="text"&gt;
+				</code></pre>
+				<input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母" type="text">
+			</li>
+			<li>
+				<p>5. 验证失败时修改样式1(failCss)</p>
+				<pre><code class="html">
+&lt;!--给input添加error class--&gt;
+&lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)" type="text"&gt;
+				</code></pre>
+				<input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)" type="text">
+				<pre><code class="html">
+&lt;!--给input的父容器添加error class，你也可以使用"++"修改父容器的父容器--&gt;
+&lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error,+error)" type="text"&gt;
+				</code></pre>
+				<input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error,+error)" type="text">
+			</li>
+			<li>
+				<p>6. 验证失败时修改样式2(failStyle)</p>
+				<pre><code class="html">
+&lt;!--修改input的内联样式，failStyle只接受一个JSON格式参数，且无法使用"+"号影响它的父容器--&gt;
+&lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})" type="text"&gt;
+				</code></pre>
+				<input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})" type="text">
+			</li>
+			<li>
+				<p>7. 验证成功时修改样式(passCss/passStyle)，用法与(failCss/failStyle)一致</p>
+			</li>
+			<li>
+				<p>8. 验证失败时修改提示文本的容器(failHtml)</p>
+				<pre><code class="html">
+&lt;!--把失败消息嵌到span中再追加到input后面--&gt;
+&lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(&lt;span class='error'&gt;&lt;/span&gt;)" type="text"&gt;
+				</code></pre>
+				<input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(<span class='error'></span>)" type="text">
+				<pre><code class="html">
+&lt;!--添加一个&times;符号，使用"!"号忽略失败消息--&gt;
+&lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(!&lt;span style='color:#f00'&gt;&lt;/span&gt;)" type="text"&gt;
+				</code></pre>
+				<input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(!<span style='color:#f00'>&times;</span>)" type="text">
+				<pre><code class="html">
+&lt;!--再使用"+"号把失败消息放到input的父容器后面--&gt;
+&lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(!&lt;span style='color:#f00'&gt;&lt;/span&gt;,+&lt;span class='error'&gt;&lt;/span&gt;)" type="text"&gt;
+				</code></pre>
+				<div>
+					<input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(!<span style='color:#f00'>&times;</span>,+<span class='error'></span>)" type="text">
+				</div>
+			</li>
+		</ul>
+	</form>
+
+	<form id="form2">
+		<ul>
+			<li>
+				<p>9. 看了上面的教程你可能会问我是不是SB，居然在html上写这么大坨东西。当然，上面的例子只是跟大家开个玩笑，一般我们只会在html上写required|disblur|focus等几个简单特性(下文会提到)。那么我们怎样才能不在html上实现上面的功能呢？答案是在js上，下面使用js实现与第8条一样效果的验证</p>
+				<pre><code class="html">
+&lt;input type="text" name="test1"&gt;
+				</code></pre>
+				<pre><code class="javascript">
+new SMValidator('#form2', {
+	required: '请输入内容',
+	failCss: 'error',
+	failStyle: {color: '#c3f'},
+	failHtml: ["!&lt;span style='color:#f00'&gt;&lt;/span&gt;", "+&lt;span class='error'&gt;&lt;/span&gt;"]
+	rules: {
+		onlyNumber: [/^[A-Z]*$/, '只能填写大写字母']
+	},
+	fields: {
+		test1: 'required|onlyNumber'
+	}
+});
+				</code></pre>
+				<input type="text" name="test1">
+			</li>
+			<li>
+				<div>10. 解释一下上面的代码<br>
+					<ul>
+						<li>
+							SMValidator(selector, options);<br>
+							第一个参数是css选择器，可以指定需要校验的input/textarea/select。如果指定是form，则校验form里所有的表单。<br>
+							第二个参数用于配置校验规则，校验样式和其他特性等。
+						</li>
+						<li>
+							rules是自定义校验规则，可以是Array或Function。在data-rule中可以直接像使用required那样使用自定义的规则。
+						</li>
+						<li>
+							fields指定表单需要用什么规则来校验，fields的属性名与input的name对应。<br>
+							test1对应的值可以是String、Array、Function或Object<br>
+							<ul>
+								<li>String：可以填与html的data-rule一样的值</li>
+								<li>Array: 一个只有两项的数组，第一项为正则表达式，第二项为校验失败时的提示消息</li>
+								<li>Function: 函数接收一个表单的值，返回true或校验失败时的提示消息</li>
+								<li>Object: 可以全功能设置表单的验证行为</li>
+							</ul>
+						</li>
+						<li>
+							上面的代码除了fields的设置外，对#form2里的所有表单有效。
+						</li>
+						<li>
+							如果希望failCss等设置只对test1有效，只要移到test1里即可(除了rules)。如下所示
+							<pre><code class="javascript">
+new SMValidator('#form2', {
+	rules: {
+		onlyNumber: [/^[A-Z]*$/, '只能填写大写字母']
+	},
+	fields: {
+		test1: {
+			rule: 'onlyNumber',
+			required: '请输入内容',
+			failCss: 'error',
+			failStyle: {color: '#c3f'},
+			failHtml: ["!&lt;span style='color:#f00'&gt;&lt;/span&gt;", "+&lt;span class='error'&gt;&lt;/span&gt;"]
+		}
+	}
+});
+							</code></pre>
+							<b>注意：</b>test1里的rule可以是String、Array和Function，类似rules<br>
+							但是rule为String类型时只能填onlyNumber等自定义校验规则，不能填required，因为required属于特性。<br>
+							required、failCss等特性的值可以为true或false，表示使用默认配置或禁用该特性。
+						</li>
+					</ul>
+				</div>
+			</li>
+		</ul>
+	</form>
+
+	<p>未完待继续。。。。。。</p>
+
+	<script>
+		hljs.initHighlightingOnLoad();
+
+		new SMValidator('#form1');
+
+		new SMValidator('#form2', {
+			required: '请输入内容',
+			failCss: 'error',
+			failStyle: {color: '#c3f'},
+			failHtml: ["!<span style='color:#f00'>&times;</span>", "+<span class='error'></span>"],
+			rules: {
+				onlyNumber: [/^[A-Z]*$/, '只能填写大写字母']
+			},
+			fields: {
+				test1: 'required|onlyNumber'
+			}
+		});
+	</script>
+</body>
+</html>

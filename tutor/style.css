@@ -1,0 +1,12 @@
+pre code {
+	font: normal 10pt Consolas, Monaco, monospace;
+}
+.hljs {
+	padding: 0 0.5em;
+}
+.error {
+	background-color: #fcc;
+}
+input {
+	outline: none;
+}
