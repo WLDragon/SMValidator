@@ -194,23 +194,29 @@
                 self.handleStyle(item, 'passStyle');
             }
 
+            //当有failStyle或passStyle时记录原始样式
+            self.recordStyle(input, item.failStyle);
+            self.recordStyle(input, item.passStyle);
+
+            var _sm = input._sm;
             if(isCheckBoxOrRadio(input.type)) {
                 //对于checkbox和radio只解析一个，其他input都引用这个规则
                 var inputs = document.querySelectorAll('input[name="' + name + '"]');
                 for(var i = inputs.length - 1; i >= 0; i--) {
-                    if(inputs[i] !== input) inputs[i]._sm = input._sm;
+                    if(inputs[i] !== input) inputs[i]._sm = _sm;
                 }
                 //checkbox和radio只能使用onchange触发校验
                 item.disblur = item.disinput = true;
                 item.focus = false;
             }else {
-                //统一浏览器不设置border时的外观，防止IE下恢复样式会出现奇怪的边框
-                if(!input.style.border) input.style.border = '1px solid #a9a9a9';
+                //防止IE自动添加borderImage
+                if(!input.style.borderImage) {
+                    if(!_sm.style) {
+                        _sm.style = {};
+                    }
+                    _sm.style.borderImage = '';
+                }
             }
-
-            //当有failStyle或passStyle时记录原始样式
-            self.recordStyle(input, item.failStyle); 
-            self.recordStyle(input, item.passStyle); 
 
             //用于提示消息的html，如果是html文本则新建一个Dom，如果是选择器则使用这个选择器的Dom
             self.handleHtml(input, 'failHtml', item.failHtml);
@@ -444,7 +450,7 @@
             var tar = m.target;
             //使用数组而不是字符串的方式来处理可以避免字符串查询不完整的情况
             var newCss = m.className.split(' ');
-            var oldCss = tar.className.split(' ');
+            var oldCss = tar.className ? tar.className.split(' ') : [];
             for(var k = newCss.length - 1; k >=0; k--) {
                 var c = newCss[k];
                 var j = oldCss.indexOf(c);

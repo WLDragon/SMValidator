@@ -7,6 +7,9 @@ pre code {
 .error {
 	background-color: #fcc;
 }
-input {
+.success {
+	border: 1px solid #090;
+}
+input,select {
 	outline: none;
 }
