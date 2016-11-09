@@ -10,6 +10,21 @@ pre code {
 .success {
 	border: 1px solid #090;
 }
-input,select {
+input,select,textarea {
 	outline: none;
+	border: 1px solid #a9a9a9;
+}
+input {
+	height: 18px;
+}
+.ring {
+	padding: 2px;
+	display: inline-block;
+	border: 1px dashed #f00;
+}
+.boss-ring {
+	width: 171px;
+	height: 20px;
+	border: 1px dashed #f00;
+	margin-bottom: 2px;
 }

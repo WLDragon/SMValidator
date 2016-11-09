@@ -15,8 +15,9 @@
     <form id="form1">
         <ul>
             <li>
-                <p>1. 最简单的校验只需要两行代码，失去焦点时可看到校验效果</p>
+                <p>1. 学习SMVlidator要从一个故事开始，很久很久以前，老板叫你校验一个表单，没填内容的时候提示一下，你就写了下面几行代码</p>
                 <pre><code class="html">
+&lt;!--失去焦点时校验--&gt;
 &lt;input data-rule="required" type="text"&gt;
 &lt;script&gt;
     new SMValidator('form');
@@ -25,47 +26,47 @@
                 <input data-rule="required" type="text">
             </li>
             <li>
-                <p>2. 如果你想修改必填要求的提示的消息可以这样写</p>
+                <p>2. 但是老板看不懂英文，你就改成这样</p>
                 <pre><code class="html">
 &lt;input data-rule="required(请输入内容)" type="text"&gt;
                 </code></pre>
                 <input data-rule="required(请输入内容)" type="text">
             </li>
             <li>
-                <p>3. 还可以使用正则表达式实现自定义规则</p>
+                <p>3. 老板要求只能输入字母</p>
                 <pre><code class="html">
-&lt;!--没有忽略大小写标志--&gt;
 &lt;input data-rule="/^[A-Z]*$/只能填写大写字母" type="text"&gt;
                 </code></pre>
                 <input data-rule="/^[A-Z]*$/只能填写大写字母" type="text">
                 <pre><code class="html">
-&lt;!--忽略大小写--&gt;
+&lt;!--还要不区分大小写--&gt;
 &lt;input data-rule="/^[A-Z]*$/i/请输入字母" type="text"&gt;
                 </code></pre>
                 <input data-rule="/^[A-Z]*$/i/请输入字母" type="text">
             </li>
             <li>
-                <p>4. 如果需要必填且使用自定义规则怎么办呢？只需用<b>"|"</b>分割即可</p>
+                <p>4. 完成后老板来检查，不填内容没提示了。于是你用"|"把两个规则合在了一起</p>
                 <pre><code class="html">
 &lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母" type="text"&gt;
                 </code></pre>
                 <input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母" type="text">
             </li>
             <li>
-                <p>5. 默认的样式太丑了？使用failCss自定义样式</p>
+                <p>5. 老板有个个人喜好，他希望校验失败时input背景变成粉红色？你使用failCss来处理</p>
                 <pre><code class="html">
 &lt;!--给input添加类名为error的样式--&gt;
 &lt;input data-rule="required|failCss(error)" type="text"&gt;
                 </code></pre>
                 <input data-rule="required|failCss(error)" type="text">
                 <pre><code class="html">
-&lt;!--给input的父容器添加error，甚至可以使用"++"影响父容器的父容器--&gt;
+&lt;!--但是还不够，老板希望input的父容器都粉红色--&gt;
+&lt;!--"+"可以把样式应用到input的父容器，还可以使用"++"影响父容器的父容器--&gt;
 &lt;input data-rule="required|failCss(error,+error)" type="text"&gt;
                 </code></pre>
                 <input data-rule="required|failCss(error,+error)" type="text">
             </li>
             <li>
-                <p>6. 除此以外还可以使用failStyle自定义内联样式</p>
+                <p>6. 第二天，老板心情改了，他不要红色背景，只需要input文字变成紫色。failStyle自定义内联样式</p>
                 <pre><code class="html">
 &lt;!--failStyle只接受一个JSON格式(允许单引号)参数，但不能使用"+"来影响它的父容器--&gt;
 &lt;input data-rule="/^[A-Z]*$/只能填写大写字母|failStyle({'color':'#c3f'})" type="text"&gt;
@@ -73,34 +74,49 @@
                 <input data-rule="/^[A-Z]*$/只能填写大写字母|failStyle({'color':'#c3f'})" type="text">
             </li>
             <li>
-                <p>7. passCss/passStyle用于校验成功时修改样式</p>
+                <p>7. 老板琢磨了一会儿，觉得校验成功后也要有样式。passCss/passStyle用于在校验成功时修改样式</p>
                 <pre><code class="html">
 &lt;input data-rule="/^[A-Z]*$/只能填写大写字母|passCss(success)|passStyle({'color':'#090'})" type="text"&gt;
                 </code></pre>
                 <input data-rule="/^[A-Z]*$/只能填写大写字母|passCss(success)|passStyle({'color':'#090'})" type="text">
             </li>
             <li>
-                <p>8. 验证失败时修改提示文本的容器(failHtml)</p>
+                <p>8. 默认的失败消息会包含在一个color为#c00的span里。<br>但是老板不喜欢span，他要可以加粗文字的b，怎么办呢？于是你研究起failHtml</p>
                 <pre><code class="html">
-&lt;!--把失败消息嵌到span中再追加到input后面--&gt;
-&lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(&lt;span class='error'&gt;&lt;/span&gt;)" type="text"&gt;
+&lt;!--把失败消息嵌到自定义样式的b中--&gt;
+&lt;input data-rule="required|failHtml(&lt;b style='color:#f00'&gt;&lt;/b&gt;)" type="text"&gt;
                 </code></pre>
-                <input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(<span class='error'></span>)"
-                    type="text">
+                <input data-rule="required|failHtml(<b style='color:#f00'></b>)" type="text">
                 <pre><code class="html">
-&lt;!--添加一个&times;符号，使用"!"号忽略失败消息--&gt;
-&lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(!&lt;span style='color:#f00'&gt;&lt;/span&gt;)" type="text"&gt;
+&lt;!--后面老板又说消息太啰嗦了，他只要一个&times;图标，然后你用"!"忽略消息文本--&gt;
+&lt;input data-rule="required|failHtml(!&lt;b style='color:#f00'&gt;&times;&lt;/b&gt;)" type="text"&gt;
                 </code></pre>
-                <input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(!<span style='color:#f00'>&times;</span>)"
-                    type="text">
+                <input data-rule="required|failHtml(!<b style='color:#f00'>&times;</b>)" type="text">
                 <pre><code class="html">
-&lt;!--再使用"+"号把失败消息放到input的父容器后面--&gt;
-&lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(!&lt;span style='color:#f00'&gt;&lt;/span&gt;,+&lt;span class='error'&gt;&lt;/span&gt;)" type="text"&gt;
+&lt;!--大道至简，你觉得这样完美了，但是这样老板就不知道他的输入出了什么问题，于是他要求在图标后面加回消息，纳尼？--&gt;
+&lt;!--你用","把需求连在一起就解决了，so easy。但要注意的一点是书写顺序和显示顺序是相反的，2333--&gt;
+&lt;input data-rule="required|failHtml(&lt;b style='color:#f00'&gt;&lt;/b&gt;,!&lt;b style='color:#f00'&gt;&times;&lt;/b&gt;)" type="text"&gt;
                 </code></pre>
-                <div>
-                    <input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母|failCss(error)|failStyle({'color':'#c3f'})|failHtml(!<span style='color:#f00'>&times;</span>,+<span class='error'></span>)"
-                        type="text">
-                </div>
+                <input data-rule="required|failHtml(<b style='color:#f00'></b>,!<b style='color:#f00'>&times;</b>)" type="text">
+                <pre><code class="html">
+&lt;!--刚嘘一口气，老板的需求又来了，他要在input外面加一个虚线框，要你把消息放在框的外面--&gt;
+&lt;!--是不是想蹦起来把老板砍了？先别急，记得failCss吗？我们可以用"+"影响到input的父容器--&gt;
+&lt;input data-rule="required|failHtml(+&lt;b style='color:#f00'&gt;&lt;/b&gt;,!+&lt;b style='color:#f00'&gt;&times;&lt;/b&gt;)" type="text"&gt;
+                </code></pre>
+                <span class="ring">
+                    <input data-rule="required|failHtml(+<b style='color:#f00'></b>,!+<b style='color:#f00'>&times;</b>)" type="text">
+                </span>
+                <pre><code class="html">
+&lt;!--眼看就要下班了，你老板看你又闲着无聊，就突发灵感，他要求虚线框放到input的上面，消息放在框的里面--&gt;
+&lt;!--机智的你通过css选择器得到这个框作为消息容器，为了防止消息容器消失你又在前面加了个"*"--&gt;
+&lt;!--使用"*"可以在验证成功时不隐藏消息容器，当*!+同时出现时，必须按*!+++这个顺序--&gt;
+&lt;input data-rule="required|failHtml(*.boss-ring)" type="text"&gt;
+                </code></pre>
+                <div class="boss-ring"></div>
+                <input data-rule="required|failHtml(*.boss-ring)" type="text">
+                <pre><code class="html">
+&lt;!--下班后，当你春风得意走出公司时，老板追着你喊，红色叉怎么不见了，文字也要红色啊。。。。。。--&gt;
+                </code></pre>
             </li>
         </ul>
     </form>

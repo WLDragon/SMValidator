@@ -95,14 +95,14 @@ SMValidator.setLang = function(options) {
 
 var skins = {
     bootstrap: {
-        failStyle: {}, //覆盖默认样式的值
+        failStyle: false, //覆盖默认样式的值
         failHtml: ['!<span class="glyphicon glyphicon-remove form-control-feedback"></span>', '<small class="help-block"></small>'],
         failCss: '++has-error has-feedback',
         passHtml: '<span class="glyphicon glyphicon-ok form-control-feedback"></span>',
         passCss: '++has-success has-feedback'
     },
     semantic: {
-        failStyle: {},
+        failStyle: false,
         failHtml: ['!<i class="remove icon"></i>', '+<small class="ui red pointing label"></small>'],
         failCss: '++error',
         passHtml: '<i class="checkmark icon"></i>'

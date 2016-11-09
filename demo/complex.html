@@ -27,6 +27,11 @@
             <p id="message11" style="color:green">验证通过</p>
         </div>
         <div>
+            <p>要求内容为-100~100的数字，使用自定义消息容器，且容器不会消失</p>
+            <input id="manul1" type="text" data-rule="range(-100,100)|failHtml(*#message14)">
+            <p id="message14" style="color:red;width:200px;height:24px;border:1px solid #f00;margin-top:2px"></p>
+        </div>
+        <div>
             <p>要求长度大于5，使用自定义类名，不显示规则消息，父容器添加样式</p>
             <input type="text" data-rule="length(5,)|failCss(error,+error)|failHtml(!#message12)">
             <span id="message12" style="color:red">长度大于5，这里使用的是自定义文本，不使用规则消息</span>

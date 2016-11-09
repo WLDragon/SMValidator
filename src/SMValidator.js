@@ -87,9 +87,9 @@
         'focus',
         'manul',
         'failHtml',
+        'passHtml',
         'failStyle',
         'failCss',
-        'passHtml',
         'passStyle',
         'passCss'
     ];
@@ -208,19 +208,17 @@
                 //checkbox和radio只能使用onchange触发校验
                 item.disblur = item.disinput = true;
                 item.focus = false;
-            }else {
+            }else if(!input.style.borderImage){
                 //防止IE自动添加borderImage
-                if(!input.style.borderImage) {
-                    if(!_sm.style) {
-                        _sm.style = {};
-                    }
-                    _sm.style.borderImage = '';
+                if(!_sm.style) {
+                    _sm.style = {};
                 }
+                _sm.style.borderImage = '';
             }
 
             //用于提示消息的html，如果是html文本则新建一个Dom，如果是选择器则使用这个选择器的Dom
-            self.handleHtml(input, 'failHtml', item.failHtml);
-            self.handleHtml(input, 'passHtml', item.passHtml);
+            self.handleHtml(input, 'failHtml', item);
+            self.handleHtml(input, 'passHtml', item);
 
             //记录使用样式的对象，如果className中有+号表示应用样式的是input的父节点，一个+号往上一层
             self.handleCss(input, 'failCss', item.failCss);
@@ -281,14 +279,21 @@
         }
     }
 
-    _proto.handleHtml = function (input, prop, htmls) {
+    _proto.handleHtml = function (input, prop, item) {
+        var htmls = item[prop];
         if(!htmls) return;
+
         input._sm[prop] = [];
         if(isString(htmls)) htmls = [htmls];
         for(var i = 0; i < htmls.length; i++) {
             var htmlDom;
             var html = htmls[i];
-            var htmlItem = {}; //object format:{dom:null, quiet:false}
+            var htmlItem = {}; //object format:{dom:null, quiet:false, keep:false}
+            if(html.indexOf('*') === 0) {
+                html = html.substring(1);
+                //failHtml不使用display:'none'来隐藏，而是设置innerHTML=''
+                htmlItem.keep = true;
+            }
             if(html.indexOf('!') === 0) {
                 html = html.substring(1);
                 //failHtml不使用规则的消息，只显示html
@@ -314,8 +319,8 @@
             }
             if(htmlDom) {
                 htmlItem.dom = htmlDom;
-                htmlDom.style.display = 'none';
                 input._sm[prop].push(htmlItem);
+                if(!htmlItem.keep) htmlDom.style.display = 'none';
             }
         }
     }
@@ -469,7 +474,12 @@
         if(!items) return;
         for(var i = items.length - 1; i >= 0; i--) {
             var m = items[i];
-            m.dom.style.display = isShow ? '' : 'none';
+            if(m.keep) {
+                if(!isShow && !m.quiet) m.dom.innerHTML = '';
+            }else {
+                m.dom.style.display = isShow ? '' : 'none';
+            }
+
             if(result && !m.quiet) m.dom.innerHTML = result;
         }
     }

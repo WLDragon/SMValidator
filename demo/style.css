@@ -17,6 +17,7 @@ select,input[type="text"],input[type="password"] {
     padding: 1px;
     margin: 0;
     font-size: 14px;
+    border: 1px solid #9a9a9a;
 }
 input:focus {
     outline: #000 auto 0px;
