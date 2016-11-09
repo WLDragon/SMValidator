@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SMValidator Tutor 2</title>
+    <link rel="stylesheet" href="monokai-sublime.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="highlight.pack.js"></script>
+    <script src="../dist/SMValidator.js"></script>
+</head>
+
+<body>
+    <form>
+        <ol>
+            <li>
+                <p>把所有的规则都写在html里，无疑是自己给自己挖坑，除了不直观外还很容易拼错，所以不等老板开口，你就赶紧用js重写了一遍</p>
+                <pre><code class="html">
+&lt;input type="text" name="test1"&gt;
+                </code></pre>
+                <pre><code class="javascript">
+new SMValidator('form', {
+    required: '请输入内容',
+    failCss: 'error',
+    failStyle: {color:'#c3f', border:'1px solid #f00'},
+    passCss: 'success',
+    passStyle: {color: '#090'},
+    failHtml: ["&lt;b style='color:#f00'&gt;&lt;/b&gt;", "!&lt;b style='color:#f00'&gt;&times;&lt;/b&gt;"],
+    rules: {
+        onlyLetter: [/^[A-Z]*$/i, '请输入字母']
+    },
+    fields: {
+        test1: 'required|onlyLetter'
+    }
+});
+                </code></pre>
+                <input type="text" name="test1" style="margin-bottom:10px">
+            </li>
+            <li>
+                <div>解释一下上面的代码<br>
+                    <ul>
+                        <li>
+                            SMValidator(selector, options);<br> 第一个参数是css选择器，可以指定需要校验的input/textarea/select。如果指定是form，则校验form里所有的表单。
+                            <br> 第二个参数用于配置校验规则，校验样式和其他特性等。
+                        </li>
+                        <li>
+                            rules是自定义校验规则，可以是Array或Function。在data-rule中可以直接像使用required那样使用自定义的规则。
+                        </li>
+                        <li>
+                            fields指定表单需要用什么规则来校验，fields的属性名与input的name对应。<br> test1对应的值可以是String、Array、Function或Object
+                            <br>
+                            <ul>
+                                <li>String：可以填与html的data-rule一样的值</li>
+                                <li>Array: 一个只有两项的数组，第一项为正则表达式，第二项为校验失败时的提示消息</li>
+                                <li>Function: 函数接收一个表单的值，返回true或校验失败时的提示消息</li>
+                                <li>Object: 可以全功能设置表单的验证行为</li>
+                            </ul>
+                        </li>
+                        <li>
+                            上面的代码除了fields的设置外，对form里的所有表单有效。
+                        </li>
+                        <li>
+                            如果希望failCss等设置只对test1有效，只要移到test1里即可(除了rules)。如下所示
+                            <pre><code class="javascript">
+new SMValidator('form', {
+    fields: {
+        test1: {
+            rule: [/^[A-Z]*$/i, '请输入字母'],
+            required: '请输入内容',
+            failCss: 'error',
+            failStyle: {color:'#c3f', border:'1px solid #f00'},
+            passCss: 'success',
+            passStyle: {color: '#090'},
+            failHtml: ["&lt;b style='color:#f00'&gt;&lt;/b&gt;", "!&lt;b style='color:#f00'&gt;&times;&lt;/b&gt;"],
+        }
+    }
+});
+                            </code></pre>
+                            <b>注意：</b>test1里的rule可以是String、Array和Function，类似rules的属性<br>
+                            但是rule为String类型时只能填onlyLetter等自定义校验规则，不能填required，因为required属于特性。
+                            <br> required、failCss等特性的值可以为true或false，表示使用默认配置或禁用该特性。
+                        </li>
+                    </ul>
+                </div>
+                <input type="text" name="test2">
+            </li>
+        </ol>
+    </form>
+
+    <p>未完待继续。。。。。。</p>
+    <p>如果想了解更多内容，可查阅github上的其他文档</p>
+
+    <script>
+        hljs.initHighlightingOnLoad();
+
+        new SMValidator('form', {
+            required: '请输入内容',
+            failCss: 'error',
+            failStyle: {color:'#c3f', border:'1px solid #f00'},
+            passCss: 'success',
+            passStyle: {color: '#090'},
+            failHtml: ["<b style='color:#f00'></b>", "!<b style='color:#f00'>&times;</b>"],
+            rules: {
+                onlyLetter: [/^[A-Z]*$/i, '请输入字母']
+            },
+            fields: {
+                test1: 'required|onlyLetter',
+
+                test2: {
+                    rule: [/^[A-Z]*$/i, '请输入字母2'],
+                    required: '请输入内容2',
+                    failCss: 'error',
+                    failStyle: {color:'#c3f', border:'1px solid #f00'},
+                    passCss: 'success',
+                    passStyle: {color: '#090'},
+                    failHtml: ["<b style='color:#f00'></b>", "!<b style='color:#f00'>&times;</b>"]
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
