@@ -1,5 +1,5 @@
 /*!
- * SMValidator 1.2.4
+ * SMValidator 1.2.5
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  * Released under the MIT License.
  */(function (global, factory) {
@@ -368,7 +368,12 @@
         if(begin > 0) {
             //带有参数
             result.name = str.substring(0, begin);
-            result.params = str.substring(begin + 1, str.length - 1).split(',');
+            if(str.indexOf('{') > -1) {
+                //failStyle和passStyle只能有一个json格式的参数
+                result.params = str.substring(begin + 1, str.length - 1);
+            }else {
+                result.params = str.substring(begin + 1, str.length - 1).split(',');
+            }
         }
         return result;
     }
@@ -406,7 +411,7 @@
                     //关键属性
                     var params = result.params;
                     if(params) {
-                        item[n] = (n === 'failStyle' || n === 'passStyle') ? params[0] : params;
+                        item[n] = params;
                     }else {
                         item[n] = v;
                     }

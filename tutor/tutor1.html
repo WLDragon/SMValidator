@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SMValidator Tutor</title>
+    <title>SMValidator Tutor 1</title>
     <link rel="stylesheet" href="monokai-sublime.css">
     <link rel="stylesheet" href="style.css">
     <script src="highlight.pack.js"></script>
@@ -12,10 +12,10 @@
 </head>
 
 <body>
-    <form id="form1">
-        <ul>
+    <form>
+        <ol>
             <li>
-                <p>1. 学习SMVlidator要从一个故事开始，很久很久以前，老板叫你校验一个表单，没填内容的时候提示一下，你就写了下面几行代码</p>
+                <p>学习SMVlidator要从一个故事开始，很久很久以前，老板叫你校验一个表单，没填内容的时候提示一下，你就写了下面几行代码</p>
                 <pre><code class="html">
 &lt;!--失去焦点时校验--&gt;
 &lt;input data-rule="required" type="text"&gt;
@@ -26,14 +26,14 @@
                 <input data-rule="required" type="text">
             </li>
             <li>
-                <p>2. 但是老板看不懂英文，你就改成这样</p>
+                <p>但是老板看不懂英文，你就改成这样</p>
                 <pre><code class="html">
 &lt;input data-rule="required(请输入内容)" type="text"&gt;
                 </code></pre>
                 <input data-rule="required(请输入内容)" type="text">
             </li>
             <li>
-                <p>3. 老板要求只能输入字母</p>
+                <p>老板要求只能输入字母</p>
                 <pre><code class="html">
 &lt;input data-rule="/^[A-Z]*$/只能填写大写字母" type="text"&gt;
                 </code></pre>
@@ -45,14 +45,14 @@
                 <input data-rule="/^[A-Z]*$/i/请输入字母" type="text">
             </li>
             <li>
-                <p>4. 完成后老板来检查，不填内容没提示了。于是你用"|"把两个规则合在了一起</p>
+                <p>完成后老板来检查，不填内容没提示了。于是你用"|"把两个规则合在了一起</p>
                 <pre><code class="html">
 &lt;input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母" type="text"&gt;
                 </code></pre>
                 <input data-rule="required(请输入内容)|/^[A-Z]*$/只能填写大写字母" type="text">
             </li>
             <li>
-                <p>5. 老板有个个人喜好，他希望校验失败时input背景变成粉红色？你使用failCss来处理</p>
+                <p>老板喜欢粉红色，他希望校验失败时input背景变成粉红色？你使用failCss来处理</p>
                 <pre><code class="html">
 &lt;!--给input添加类名为error的样式--&gt;
 &lt;input data-rule="required|failCss(error)" type="text"&gt;
@@ -66,7 +66,7 @@
                 <input data-rule="required|failCss(error,+error)" type="text">
             </li>
             <li>
-                <p>6. 第二天，老板心情改了，他不要红色背景，只需要input文字变成紫色。failStyle自定义内联样式</p>
+                <p>第二天，老板心情改了，他不要红色背景，只需要input文字变成紫色。failStyle自定义内联样式</p>
                 <pre><code class="html">
 &lt;!--failStyle只接受一个JSON格式(允许单引号)参数，但不能使用"+"来影响它的父容器--&gt;
 &lt;input data-rule="/^[A-Z]*$/只能填写大写字母|failStyle({'color':'#c3f'})" type="text"&gt;
@@ -74,14 +74,14 @@
                 <input data-rule="/^[A-Z]*$/只能填写大写字母|failStyle({'color':'#c3f'})" type="text">
             </li>
             <li>
-                <p>7. 老板琢磨了一会儿，觉得校验成功后也要有样式。passCss/passStyle用于在校验成功时修改样式</p>
+                <p>老板琢磨了一会儿，觉得校验成功后也要有样式。passCss/passStyle用于在校验成功时修改样式</p>
                 <pre><code class="html">
 &lt;input data-rule="/^[A-Z]*$/只能填写大写字母|passCss(success)|passStyle({'color':'#090'})" type="text"&gt;
                 </code></pre>
                 <input data-rule="/^[A-Z]*$/只能填写大写字母|passCss(success)|passStyle({'color':'#090'})" type="text">
             </li>
             <li>
-                <p>8. 默认的失败消息会包含在一个color为#c00的span里。<br>但是老板不喜欢span，他要可以加粗文字的b，怎么办呢？于是你研究起failHtml</p>
+                <p>默认的失败消息会包含在一个color为#c00的span里。<br>但是老板不喜欢span，他要可以加粗文字的b，怎么办呢？于是你研究起failHtml</p>
                 <pre><code class="html">
 &lt;!--把失败消息嵌到自定义样式的b中--&gt;
 &lt;input data-rule="required|failHtml(&lt;b style='color:#f00'&gt;&lt;/b&gt;)" type="text"&gt;
@@ -107,7 +107,7 @@
                     <input data-rule="required|failHtml(+<b style='color:#f00'></b>,!+<b style='color:#f00'>&times;</b>)" type="text">
                 </span>
                 <pre><code class="html">
-&lt;!--眼看就要下班了，你老板看你又闲着无聊，就突发灵感，他要求虚线框放到input的上面，消息放在框的里面--&gt;
+&lt;!--眼看就要下班了，你老板看你闲着，就突发灵感，他要求虚线框放到input的上面，消息放在框的里面--&gt;
 &lt;!--机智的你通过css选择器得到这个框作为消息容器，为了防止消息容器消失你又在前面加了个"*"--&gt;
 &lt;!--使用"*"可以在验证成功时不隐藏消息容器，当*!+同时出现时，必须按*!+++这个顺序--&gt;
 &lt;input data-rule="required|failHtml(*.boss-ring)" type="text"&gt;
@@ -115,104 +115,72 @@
                 <div class="boss-ring"></div>
                 <input data-rule="required|failHtml(*.boss-ring)" type="text">
                 <pre><code class="html">
-&lt;!--下班后，当你春风得意走出公司时，老板追着你喊，红色叉怎么不见了，文字也要红色啊。。。。。。--&gt;
+&lt;!--下班后，当你得意洋洋地走出公司时，老板追着你喊：“&times;怎么不见了，文字也要红色啊。。。。。。”--&gt;
                 </code></pre>
             </li>
-        </ul>
-    </form>
-
-    <form id="form2">
-        <ul>
             <li>
-                <p>9. 看了上面的教程你可能会问我是不是SB，居然在html上写这么大坨东西。当然，上面的例子只是跟大家开个玩笑，一般我们只会在html上写required|disblur|focus等几个简单特性(下文会提到)。那么我们怎样才能不在html上实现上面的功能呢？答案是在js上，下面使用js实现与第8条一样效果的验证</p>
+                <p>第三天，虽然前一天的需求没完成，但是老板还是觉得你是个人才，于是既往不咎，新的需求开始。<br>他现在需要一个只能输入数字的表单，而且只能在失去焦点时校验</p>
                 <pre><code class="html">
-&lt;input type="text" name="test1"&gt;
+&lt;!--你心里暗想，这还不简单，把input事件禁用就可以了--&gt;
+&lt;!--number是内置规则，除此外还有email/range/length/equal--&gt;
+&lt;!--disinput禁止oninput时校验--&gt;
+&lt;input data-rule="number|disinput" type="text"&gt;
                 </code></pre>
-                <pre><code class="javascript">
-new SMValidator('#form2', {
-    required: '请输入内容',
-    failCss: 'error',
-    failStyle: {color: '#c3f'},
-    failHtml: ["!&lt;span style='color:#f00'&gt;&lt;/span&gt;", "+&lt;span class='error'&gt;&lt;/span&gt;"]
-    rules: {
-        onlyNumber: [/^[A-Z]*$/, '只能填写大写字母']
-    },
-    fields: {
-        test1: 'required|onlyNumber'
-    }
-});
-                </code></pre>
-                <input type="text" name="test1">
+                <input data-rule="number|disinput" type="text">
             </li>
             <li>
-                <div>10. 解释一下上面的代码<br>
-                    <ul>
-                        <li>
-                            SMValidator(selector, options);<br> 第一个参数是css选择器，可以指定需要校验的input/textarea/select。如果指定是form，则校验form里所有的表单。
-                            <br> 第二个参数用于配置校验规则，校验样式和其他特性等。
-                        </li>
-                        <li>
-                            rules是自定义校验规则，可以是Array或Function。在data-rule中可以直接像使用required那样使用自定义的规则。
-                        </li>
-                        <li>
-                            fields指定表单需要用什么规则来校验，fields的属性名与input的name对应。<br> test1对应的值可以是String、Array、Function或Object
-                            <br>
-                            <ul>
-                                <li>String：可以填与html的data-rule一样的值</li>
-                                <li>Array: 一个只有两项的数组，第一项为正则表达式，第二项为校验失败时的提示消息</li>
-                                <li>Function: 函数接收一个表单的值，返回true或校验失败时的提示消息</li>
-                                <li>Object: 可以全功能设置表单的验证行为</li>
-                            </ul>
-                        </li>
-                        <li>
-                            上面的代码除了fields的设置外，对#form2里的所有表单有效。
-                        </li>
-                        <li>
-                            如果希望failCss等设置只对test1有效，只要移到test1里即可(除了rules)。如下所示
-                            <pre><code class="javascript">
-new SMValidator('#form2', {
-    rules: {
-        onlyNumber: [/^[A-Z]*$/, '只能填写大写字母']
-    },
-    fields: {
-        test1: {
-            rule: 'onlyNumber',
-            required: '请输入内容',
-            failCss: 'error',
-            failStyle: {color: '#c3f'},
-            failHtml: ["!&lt;span style='color:#f00'&gt;&lt;/span&gt;", "+&lt;span class='error'&gt;&lt;/span&gt;"]
-        }
-    }
-});
-                            </code></pre>
-                            <b>注意：</b>test1里的rule可以是String、Array和Function，类似rules<br> 但是rule为String类型时只能填onlyNumber等自定义校验规则，不能填required，因为required属于特性。
-                            <br> required、failCss等特性的值可以为true或false，表示使用默认配置或禁用该特性。
-                        </li>
-                    </ul>
-                </div>
+                <p>老板看了后不满意，他觉得在输入的时候要恢复原来的样式</p>
+                <pre><code class="html">
+&lt;!--focus可以让在input获得焦点时恢复原来的样式--&gt;
+&lt;input data-rule="number|disinput|focus" type="text"&gt;
+                </code></pre>
+                <input data-rule="number|disinput|focus" type="text">
             </li>
-        </ul>
+            <li>
+                <p>老板满意地点点头，但他觉得最好是能够在失去焦点时也不要校验</p>
+                <pre><code class="html">
+&lt;!--虽然你一脸懵逼，但还是照做了--&gt;
+&lt;input data-rule="number|disinput|disblur" type="text"&gt;
+                </code></pre>
+                <input data-rule="number|disinput|disblur" type="text">
+            </li>
+            <li>
+                <p>这时老板发火了，说你忽悠他，说好的校验数字在哪里？你只好在input旁边做个按钮，点击时校验</p>
+                <pre><code class="html">
+&lt;!--设置manul后为手动校验，相当于设置了disinput和disblur--&gt;
+&lt;!--SMValidator.validate(inputs);使用js代码手动校验，inputs可以是css选择器，也可以是包含input对象的数组--&gt;
+&lt;input id="manul" data-rule="number|manul" type="text"&gt;
+&lt;a href="javascript:SMValidator.validate('#manul');"&gt;校验是否为数字&lt;/a&gt;
+                </code></pre>
+                <input id="manul" data-rule="number|manul" type="text">
+                <a href="javascript:SMValidator.validate('#manul');">校验是否为数字</a>
+            </li>
+            <li>
+                <p>又快到下班时间，老板见你还是那么悠闲，于是又提了个需求
+                    <ul>
+                        <li>要求字段必填，且中文提示</li>
+                        <li>只能输入字母，不区分大小写</li>
+                        <li>校验失败时input文字为紫色，边框红色，背景色为粉红色</li>
+                        <li>校验成功时input的文字和边框都为绿色</li>
+                        <li>失败消息文字红色加粗</li>
+                        <li>消息前面有一个&times;</li>
+                    </ul>
+                </p>
+                <pre><code class="html">
+&lt;!--于是乎你就把之前的功能都串了起来--&gt;
+&lt;input data-rule="required(请输入内容)|/^[A-Z]*$/i/请输入字母|failCss(error)|passCss(success)|passStyle({'color':'#090'})|failHtml(&lt;b style='color:#f00'&gt;&lt;/b&gt;)" type="text&gt;
+                </code></pre>
+                <input data-rule="required(请输入内容)|/^[A-Z]*$/i/请输入字母|failCss(error)|failStyle({'color':'#c3f','border':'1px solid #f00'})|passCss(success)|passStyle({'color':'#090'})|failHtml(<b style='color:#f00'></b>,!<b style='color:#f00'>&times;</b>)" type="text">
+            </li>
+            <li>
+                <p>第四天，老板叫你改改样式，你翻回昨天的代码，一看就傻了眼，这么一大串html都是什么鬼，赶紧翻开<a href="tutor2.html">教程2</a>压压惊</p>
+            </li>
+        </ol>
     </form>
-
-    <p>未完待继续。。。。。。</p>
 
     <script>
         hljs.initHighlightingOnLoad();
-
-        new SMValidator('#form1');
-
-        new SMValidator('#form2', {
-            required: '请输入内容',
-            failCss: 'error',
-            failStyle: {color: '#c3f'},
-            failHtml: ["!<span style='color:#f00'>&times;</span>", "+<span class='error'></span>"],
-            rules: {
-                onlyNumber: [/^[A-Z]*$/, '只能填写大写字母']
-            },
-            fields: {
-                test1: 'required|onlyNumber'
-            }
-        });
+        new SMValidator('form');
     </script>
 </body>
 
