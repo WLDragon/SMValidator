@@ -28,3 +28,7 @@ input {
 	border: 1px dashed #f00;
 	margin-bottom: 2px;
 }
+li {
+	font-size: 14px;
+	line-height: 20px;
+}

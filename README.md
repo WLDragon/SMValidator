@@ -1,8 +1,5 @@
 # SMValidator(small form validator)
 
-## QQ群
-[585674463](http://jq.qq.com/?_wv=1027&k=40WxN5s)(点击添加)
-
 ## Features
 - Less than 10KB
 
@@ -15,6 +12,9 @@
 - Useable RegExp on html
 
 - Support IE8+
+
+## Tutor
+- [中文版](https://wldragon.github.io/SMValidator/tutor/tutor1.html)
 
 ## Demos
 - Simplest demo
