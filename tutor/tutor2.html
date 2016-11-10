@@ -15,81 +15,84 @@
     <form>
         <ol>
             <li>
-                <p>把所有的规则都写在html里，无疑是自己给自己挖坑，除了不直观外还很容易拼错，所以不等老板开口，你就赶紧用js重写了一遍</p>
+                <p>所有东西都写在html里，无疑是自己给自己挖个深坑，不仅丑还难维护，所以你赶紧用js重写一遍</p>
                 <pre><code class="html">
+&lt;!--fields里的属性对应input的name，如果你有多个input的name都是test1，那么他们共用这个校验规则--&gt;
+&lt;!--rule可以是String、Array和Function--&gt;
+&lt;!--rule为String时，只能填校验规则，例如number/email，不能填required和failCss等，因为他们是特性，只能作为test1的属性--&gt;
+&lt;!--rule为Array时，数组的第一项是正则表达式，第二项是失败消息--&gt;
+&lt;!--rule为Function时，函数返回true或失败消息，function(val){return true || 'fail message'}--&gt;
+&lt;!--failCss/failHtml接收多个参数时以数组的形式赋值，只接收一个参数时可以是字符串--&gt;
+&lt;!--failStyle可以赋值Object字面量或者JSON格式的字符串--&gt;
 &lt;input type="text" name="test1"&gt;
+&lt;script&gt;
+    new SMValidator('form', {
+        fields: {
+            test1: {
+                rule: [/^[A-Z]*$/i, '请输入字母'],
+                required: '请输入内容',
+                failCss: 'error',
+                failStyle: {color:'#c3f', border:'1px solid #f00'},
+                passCss: 'success',
+                passStyle: {color: '#090'},
+                failHtml: ["&lt;b style='color:#f00'&gt;&lt;/b&gt;", "!&lt;b style='color:#f00'&gt;&times;&lt;/b&gt;"],
+            }
+        }
+    });
+&lt;/script&gt;
                 </code></pre>
-                <pre><code class="javascript">
-new SMValidator('form', {
-    required: '请输入内容',
-    failCss: 'error',
-    failStyle: {color:'#c3f', border:'1px solid #f00'},
-    passCss: 'success',
-    passStyle: {color: '#090'},
-    failHtml: ["&lt;b style='color:#f00'&gt;&lt;/b&gt;", "!&lt;b style='color:#f00'&gt;&times;&lt;/b&gt;"],
-    rules: {
-        onlyLetter: [/^[A-Z]*$/i, '请输入字母']
-    },
-    fields: {
-        test1: 'required|onlyLetter'
-    }
-});
-                </code></pre>
-                <input type="text" name="test1" style="margin-bottom:10px">
+                <input type="text" name="test1">
             </li>
             <li>
-                <div>解释一下上面的代码<br>
-                    <ul>
-                        <li>
-                            SMValidator(selector, options);<br> 第一个参数是css选择器，可以指定需要校验的input/textarea/select。如果指定是form，则校验form里所有的表单。
-                            <br> 第二个参数用于配置校验规则，校验样式和其他特性等。
-                        </li>
-                        <li>
-                            rules是自定义校验规则，可以是Array或Function。在data-rule中可以直接像使用required那样使用自定义的规则。
-                        </li>
-                        <li>
-                            fields指定表单需要用什么规则来校验，fields的属性名与input的name对应。<br> test1对应的值可以是String、Array、Function或Object
-                            <br>
-                            <ul>
-                                <li>String：可以填与html的data-rule一样的值</li>
-                                <li>Array: 一个只有两项的数组，第一项为正则表达式，第二项为校验失败时的提示消息</li>
-                                <li>Function: 函数接收一个表单的值，返回true或校验失败时的提示消息</li>
-                                <li>Object: 可以全功能设置表单的验证行为</li>
-                            </ul>
-                        </li>
-                        <li>
-                            上面的代码除了fields的设置外，对form里的所有表单有效。
-                        </li>
-                        <li>
-                            如果希望failCss等设置只对test1有效，只要移到test1里即可(除了rules)。如下所示
-                            <pre><code class="javascript">
-new SMValidator('form', {
-    fields: {
-        test1: {
-            rule: [/^[A-Z]*$/i, '请输入字母'],
-            required: '请输入内容',
-            failCss: 'error',
-            failStyle: {color:'#c3f', border:'1px solid #f00'},
-            passCss: 'success',
-            passStyle: {color: '#090'},
-            failHtml: ["&lt;b style='color:#f00'&gt;&lt;/b&gt;", "!&lt;b style='color:#f00'&gt;&times;&lt;/b&gt;"],
+                <p>回到老板的需求上，四个表单一个校验数字，一个校验邮件，两个校验字母，用同样的样式，怎么复用代码才好呢？</p>
+                <pre><code class="html">
+&lt;!--特性可以移到fields的同级，表示所有表单共用，这时test2只需要配置校验规则--&gt;
+&lt;!--rules是自定义校验规则，可以是Array和Function--&gt;
+&lt;!--rules为Array时与上面提到的rule一样--&gt;
+&lt;!--rules为Function时可以带多个参数function(val, param1, ...){return true || 'fail message'}--&gt;
+&lt;!--test2除了Object外还可以赋值String、Array、Function--&gt;
+&lt;!--test2为String时可赋与html的data-rule一样值--&gt;
+&lt;!--test2为Array/Function时与Object类型里的rule一致--&gt;
+&lt;!--另外特性都可以赋值为false，例如，如果test2的值为Object，且Object的failCss属性为false，则test2在校验失败时也不使用失败样式--&gt;
+&lt;!--特性还可以使用SMValidator.config({...});来设置，表示所有SMValidator实例都使用这些特性--&gt;
+&lt;input type="text" name="test2"&gt;
+&lt;input type="text" name="test3"&gt;
+&lt;input type="text" name="test4"&gt;
+&lt;input type="text" name="test4"&gt;
+&lt;script&gt;
+    new SMValidator('form', {
+        required: '请输入内容',
+        failCss: 'error',
+        failStyle: {color:'#c3f', border:'1px solid #f00'},
+        passCss: 'success',
+        passStyle: {color: '#090'},
+        failHtml: ["&lt;b style='color:#f00'&gt;&lt;/b&gt;", "!&lt;b style='color:#f00'&gt;&times;&lt;/b&gt;"],
+        rules: {
+            onlyLetter: [/^[A-Z]*$/i, '请输入字母']
+        },
+        fields: {
+            test2: 'required|number',
+            test3: 'required|email',
+            test4: 'required|onlyLetter'
         }
-    }
-});
-                            </code></pre>
-                            <b>注意：</b>test1里的rule可以是String、Array和Function，类似rules的属性<br>
-                            但是rule为String类型时只能填onlyLetter等自定义校验规则，不能填required，因为required属于特性。
-                            <br> required、failCss等特性的值可以为true或false，表示使用默认配置或禁用该特性。
-                        </li>
-                    </ul>
-                </div>
-                <input type="text" name="test2">
+    });
+&lt;/script&gt;
+                </code></pre>
+                <p>数字：<input type="text" name="test2"></p>
+                <p>邮件：<input type="text" name="test3"></p>
+                <p>字母：<input type="text" name="test4"></p>
+                <p>字母：<input type="text" name="test4"></p>
+            </li>
+            <li>
+                <p>
+                    SMValidator目前全部特性有以下这些：<br>
+                    <b>required,disinput,disblur,focus,manul,failHtml,passHtml,failStyle,failCss,passStyle,passCss,async,short</b>
+                </p>
+                <p>除了async和short，其他特性在教程1都介绍过。要注意的是required和async比较特别，他们是特性和规则的合体</p>
+                <p>完成这些需求后，你想起老板不懂英文，但是内置规则的提示都是英文，怎么办好呢？老板已经往这边走了过来 <a href="tutor3.html">教程3</a></p>
             </li>
         </ol>
     </form>
-
-    <p>未完待继续。。。。。。</p>
-    <p>如果想了解更多内容，可查阅github上的其他文档</p>
 
     <script>
         hljs.initHighlightingOnLoad();
@@ -105,17 +108,18 @@ new SMValidator('form', {
                 onlyLetter: [/^[A-Z]*$/i, '请输入字母']
             },
             fields: {
-                test1: 'required|onlyLetter',
-
-                test2: {
-                    rule: [/^[A-Z]*$/i, '请输入字母2'],
-                    required: '请输入内容2',
+                test1: {
+                    rule: [/^[A-Z]*$/i, '请输入字母'],
+                    required: '请输入内容',
                     failCss: 'error',
                     failStyle: {color:'#c3f', border:'1px solid #f00'},
                     passCss: 'success',
                     passStyle: {color: '#090'},
                     failHtml: ["<b style='color:#f00'></b>", "!<b style='color:#f00'>&times;</b>"]
-                }
+                },
+                test2: 'required|number',
+                test3: 'required|email',
+                test4: 'required|onlyLetter'
             }
         });
     </script>
