@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SMValidator Tutor 3</title>
+    <link rel="stylesheet" href="monokai-sublime.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="highlight.pack.js"></script>
+    <script src="../dist/SMValidator.js"></script>
+</head>
+
+<body>
+    <form>
+        <ol>
+            <li>
+                <p>千均一发之际，你手一哆嗦，加了几行代码就把问题解决了</p>
+                <pre><code class="javascript">
+//内置规则不同于required特性，不能像required(...)这样自定义消息
+//其他内置规则的使用方法和国际化请看源码的config.js文件和complex demo
+SMValidator.setLang({
+    number: '请输入数字',
+    email: '请输入正确的邮箱格式'
+});
+                </code></pre>
+                <p>数字：<input type="text" name="test2"></p>
+                <p>邮件：<input type="text" name="test3"></p>
+            </li>
+            <li>
+                <p>
+                    老板走到你跟前表扬一下，年轻人不错嘛，来来来，这还有一个表单，需要服务端校验，服务端说失败你才显示失败的样式
+                    <br>在老板转身离开的时候你有没有想过跟上去给他一棒的冲动？但这是你的饭碗，没办法，继续吧少年~~
+                </p>
+                <pre><code class="html">
+&lt;input type="text" name="test5"&gt;
+&lt;script&gt;
+    //async表示这是异步校验，校验结果手动设置
+    new SMValidator('form', {
+        fields: {
+            test5: {
+                required: true,
+                async: '请等待服务端验证'
+            }
+        }
+    });
+    //forceFlag 强制给表单设置校验结果，1-通过 2-失败
+    //asyncMessage 校验失败的原因
+    //还记得教程1的manul吗？用的也是SMValidator.validate()
+    //模拟50%的机率校验失败
+    SMValidator.validate('[name="test5"]', {forceFlag: 2, asyncMessage: '服务端验证失败'});
+&lt;/script&gt;
+                </code></pre>
+                <input type="text" name="test5">
+                <button type="button" onclick="onAsyncRequest()">发送校验请求</button>
+            </li>
+            <li>
+                <p>后面老板不按规矩操作，什么都不填直接提交表单，居然把空值也提交了，这个当然还是叫你去处理</p>
+                未完待续。。。。。。
+            </li>
+        </ol>
+    </form>
+
+    <script>
+        hljs.initHighlightingOnLoad();
+
+        SMValidator.setLang({
+            number: '请输入数字',
+            email: '请输入正确的邮箱格式'
+        });
+
+        new SMValidator('form', {
+            required: '请输入内容',
+            failCss: 'error',
+            failStyle: {color:'#c3f', border:'1px solid #f00'},
+            passCss: 'success',
+            passStyle: {color: '#090'},
+            failHtml: ["<b style='color:#f00'></b>", "!<b style='color:#f00'>&times;</b>"],
+            fields: {
+                test2: 'required|number',
+                test3: 'required|email',
+                test5: {
+                    required: true,
+                    async: '请等待服务端验证'
+                }
+            }
+        });
+
+        function onAsyncRequest() {
+            //模拟服务端检验过程
+            var result = Math.random() < .5;
+            //模拟服务端返回结果后进行处理
+            if(result) {
+                SMValidator.validate('[name="test5"]', {forceFlag: 1});
+            }else {
+                SMValidator.validate('[name="test5"]', {forceFlag: 2, asyncMessage: '服务端验证失败'});
+            }
+        }
+    </script>
+</body>
+
+</html>
