@@ -51,7 +51,7 @@
 ## Notice
 - checkbox invalid in IE8
 
-- `select tag` only validate on blur in IE9~11, because it's not support oninput
+- `<select>` only validate on blur in IE9~11, because it's not support oninput
 
 ## About dist
 - `SMValidator.js` source with config

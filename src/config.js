@@ -28,8 +28,12 @@ SMValidator.config({
         border: '1px solid #c00'
     },
     rules: {
-        number: [/^-?\d+(\.{1}\d+)?$/, lang.number],
-        email: [/^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i, lang.email],
+        number: function(val) {
+            return /^-?\d+(\.{1}\d+)?$/.test(val) || lang.number;
+        },
+        email: function(val) {
+            return /^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i.test(val) || lang.email;
+        },
         range: function(val, a, b) {
             val = val * 1;
             //数值范围
