@@ -29,8 +29,8 @@ SMValidator.setLang({
             </li>
             <li>
                 <p>
-                    老板走到你跟前表扬一下，年轻人不错嘛，来来来，这还有一个表单，需要服务端校验，服务端说失败你才显示失败的样式
-                    <br>在老板转身离开的时候你有没有想过跟上去给他一棒的冲动？但这是你的饭碗，没办法，继续吧少年~~
+                    老板走到你跟前表扬一下，年轻人不错嘛，来来来，这还有一个表单，需要服务端校验，服务端返回失败时你才显示失败的样式
+                    <br>在老板转身离开的时候你有没有想跟上去给他一棒的冲动？但这是你的饭碗，没办法，继续吧少年~~
                 </p>
                 <pre><code class="html">
 &lt;input type="text" name="test5"&gt;
@@ -55,8 +55,19 @@ SMValidator.setLang({
                 <button type="button" onclick="onAsyncRequest()">发送校验请求</button>
             </li>
             <li>
-                <p>后面老板不按规矩操作，什么都不填直接提交表单，居然把空值也提交了，这个当然还是叫你去处理</p>
-                未完待续。。。。。。
+                <p>后来老板不按规矩操作，什么都不填直接提交表单，居然把空值也提交了，这个当然还是叫你去处理</p>
+                <pre><code class="javascript">
+//设置submit属性可以拦截表单的提交行为，在所有表单检验成功后手动提交
+new SMValidator('form', {
+    submit: function(valid, form) {
+        if(valid) form.submit();
+    }
+});
+                </code></pre>
+                <button type="submit">提交表单</button>
+            </li>
+            <li>
+                <p>到这里你可能会想，校验表单的功能该有的都有了，可以完事了吧。但是老板的需求你是永远捉摸不透的，且看 <b><a href="tutor4.html">教程4</a></b></p>
             </li>
         </ol>
     </form>
@@ -83,6 +94,9 @@ SMValidator.setLang({
                     required: true,
                     async: '请等待服务端验证'
                 }
+            },
+            submit: function(valid, form) {
+                if(valid) form.submit();
             }
         });
 

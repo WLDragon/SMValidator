@@ -71,7 +71,7 @@
 &lt;!--failStyle只接受一个JSON格式(允许单引号)参数，但不能使用"+"来影响它的父容器--&gt;
 &lt;input data-rule="/^[A-Z]*$/只能填写大写字母|failStyle({'color':'#c3f'})" type="text"&gt;
                 </code></pre>
-                <input data-rule="/^[A-Z]*$/只能填写大写字母|failStyle({'color':'#c3f'})" type="text">
+                <input data-rule="/^[A-Z]*$/只能填写大写字母|failStyle({'color':'#c3f'})" type="text" placeholder="输入数字试试">
             </li>
             <li>
                 <p>老板琢磨了一会儿，觉得校验成功后也要有样式。passCss/passStyle用于在校验成功时修改样式</p>
@@ -173,7 +173,7 @@
                 <input data-rule="required(请输入内容)|/^[A-Z]*$/i/请输入字母|failCss(error)|failStyle({'color':'#c3f','border':'1px solid #f00'})|passCss(success)|passStyle({'color':'#090'})|failHtml(<b style='color:#f00'></b>,!<b style='color:#f00'>&times;</b>)" type="text">
             </li>
             <li>
-                <p>第四天，老板给你四个表单，一个校验数字，一个校验邮件，两个校验字母，要求用一样的样式。<br>你翻开昨天的代码，一看就傻了眼，这一大串html都是什么鬼，赶紧翻开 <a href="tutor2.html">教程2</a> 压压惊</p>
+                <p>第四天，老板给你四个表单，一个校验数字，一个校验邮件，两个校验字母，要求用一样的样式。<br>你翻开昨天的代码，一看就傻了眼，这一大串html都是什么鬼，赶紧翻开 <b><a href="tutor2.html">教程2</a></b> 压压惊</p>
             </li>
         </ol>
     </form>

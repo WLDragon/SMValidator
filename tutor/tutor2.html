@@ -19,7 +19,7 @@
                 <pre><code class="html">
 &lt;!--fields里的属性对应input的name，如果你有多个input的name都是test1，那么他们共用这个校验规则--&gt;
 &lt;!--rule可以是String、Array和Function--&gt;
-&lt;!--rule为String时，只能填校验规则，例如number/email，不能填required和failCss等，因为他们是特性，只能作为test1的属性--&gt;
+&lt;!--rule为String时，只能填校验规则名，例如number/email，不能填required和failCss等，因为他们是特性，只能作为test1的属性--&gt;
 &lt;!--rule为Array时，数组的第一项是正则表达式，第二项是失败消息--&gt;
 &lt;!--rule为Function时，函数返回true或失败消息，function(val){return true || 'fail message'}--&gt;
 &lt;!--failCss/failHtml接收多个参数时以数组的形式赋值，只接收一个参数时可以是字符串--&gt;
@@ -89,7 +89,7 @@
                     <b>required,disinput,disblur,focus,manul,failHtml,passHtml,failStyle,failCss,passStyle,passCss,async,short</b>
                 </p>
                 <p>除了async和short，其他特性在教程1都介绍过。要注意的是required和async比较特别，他们是特性和规则的合体</p>
-                <p>完成这些需求后，你想起老板不懂英文，但是内置规则的提示都是英文，怎么办好呢？老板已经往这边走了过来 <a href="tutor3.html">教程3</a></p>
+                <p>完成这些需求后，你想起老板不懂英文，但是内置规则的提示都是英文，怎么办好呢？老板已经往这边走了过来 <b><a href="tutor3.html">教程3</a></b></p>
             </li>
         </ol>
     </form>

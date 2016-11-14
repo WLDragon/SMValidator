@@ -375,7 +375,7 @@
     }
 
     /**
-     * 解析规则字符串，使用'|'分割
+     * 解析规则字符串，使用'|'或'&'分割
      */
     _proto.parseString = function(str) {
         var item = {rules: []};
@@ -439,7 +439,9 @@
             }else if(isString(item.rule)) {
                 var r = item.rule;
                 delete item.rule;
-                if(r.indexOf('&') > -1) item.token = '&';
+                if(r.indexOf('&') > -1) {
+                    item.token = '&';
+                }
                 var a = r.split(item.token);
                 item.rules = [];
                 for(var i = a.length - 1; i >= 0; i--) {

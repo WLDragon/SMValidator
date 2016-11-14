@@ -29,9 +29,11 @@ SMValidator.config({
     },
     rules: {
         number: function(val) {
+            //正负数整数或小数
             return /^-?\d+(\.{1}\d+)?$/.test(val) || lang.number;
         },
         email: function(val) {
+            //邮箱格式
             return /^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i.test(val) || lang.email;
         },
         range: function(val, a, b) {
