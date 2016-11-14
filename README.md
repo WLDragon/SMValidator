@@ -1,4 +1,4 @@
-# SMValidator(small form validator)
+# SMValidator(strong muscle validator)
 
 ## Features
 - Less than 10KB
@@ -16,7 +16,7 @@
 ## Tutor And Documents
 - [中文版教程](https://wldragon.github.io/SMValidator/tutor/tutor1.html)
 
-[Quick Start](https://github.com/WLDragon/SMValidator/wiki/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
+- [Quick Start](https://github.com/WLDragon/SMValidator/wiki/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
 
 ## Demos
 - Simplest demo
