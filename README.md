@@ -13,8 +13,10 @@
 
 - Support IE8+
 
-## Tutor
-- [中文版](https://wldragon.github.io/SMValidator/tutor/tutor1.html)
+## Tutor And Documents
+- [中文版教程](https://wldragon.github.io/SMValidator/tutor/tutor1.html)
+
+[Quick Start](https://github.com/WLDragon/SMValidator/wiki/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
 
 ## Demos
 - Simplest demo
@@ -45,9 +47,6 @@
 
 - Use bower ```bower install SMValidator```
 
-## Documents
-[Quick Start](https://github.com/WLDragon/SMValidator/wiki/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
-
 ## Notice
 - checkbox invalid in IE8
 
@@ -61,7 +60,7 @@
 - `SMValidator.pure.min.js` without config, set rule and style by yourself
 
 ## TODO
-1. 英文文档
+1. 英文教程
 
 2. 添加vue插件版本
 
