@@ -1,7 +1,7 @@
 # SMValidator(strong muscle validator)
 
 ## Features
-- Less than 10KB
+- Light weight
 
 - No dependencies
 
