@@ -379,7 +379,7 @@
     }
 
     /**
-     * 解析规则字符串，使用'|'分割
+     * 解析规则字符串，使用'|'或'&'分割
      */
     _proto.parseString = function(str) {
         var item = {rules: []};
@@ -443,7 +443,9 @@
             }else if(isString(item.rule)) {
                 var r = item.rule;
                 delete item.rule;
-                if(r.indexOf('&') > -1) item.token = '&';
+                if(r.indexOf('&') > -1) {
+                    item.token = '&';
+                }
                 var a = r.split(item.token);
                 item.rules = [];
                 for(var i = a.length - 1; i >= 0; i--) {
@@ -713,6 +715,7 @@ function replace(str, loaners) {
 
 var lang = {
     number: 'only number',
+    names: 'wrong name format',
     email: 'wrong email format',
     range_equal: 'value must be equal to {0}',
     range_scope: 'value must be greater than {0} and less than {1}',
@@ -735,9 +738,15 @@ SMValidator.config({
     },
     rules: {
         number: function(val) {
+            //正负数整数或小数
             return /^-?\d+(\.{1}\d+)?$/.test(val) || lang.number;
         },
+        names: function(val){
+            // validate names
+            return /^(\w+[\-']?\w+\s?)+$/i.test(val) || lang.names;
+        },
         email: function(val) {
+            //邮箱格式
             return /^[\w\+\-]+(\.[\w\+\-]+)*@[a-z\d\-]+(\.[a-z\d\-]+)*\.([a-z]{2,4})$/i.test(val) || lang.email;
         },
         range: function(val, a, b) {
@@ -826,6 +835,7 @@ var skins = {
 SMValidator.setSkin = function(skin) {
     SMValidator.config(skins[skin]);
 }
+
 
     return SMValidator;
 }));

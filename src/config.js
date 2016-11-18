@@ -7,6 +7,7 @@ function replace(str, loaners) {
 
 var lang = {
     number: 'only number',
+    names: 'wrong name format',
     email: 'wrong email format',
     range_equal: 'value must be equal to {0}',
     range_scope: 'value must be greater than {0} and less than {1}',
@@ -31,6 +32,10 @@ SMValidator.config({
         number: function(val) {
             //正负数整数或小数
             return /^-?\d+(\.{1}\d+)?$/.test(val) || lang.number;
+        },
+        names: function(val){
+            // validate names
+            return /^(\w+[\-']?\w+\s?)+$/i.test(val) || lang.names;
         },
         email: function(val) {
             //邮箱格式
