@@ -16,6 +16,8 @@
 ## Tutor And Documents
 - [中文版教程](https://wldragon.github.io/SMValidator/tutor/tutor1.html)
 
+- [English Tutor](https://wldragon.github.io/SMValidator/tutor/tutor-en1.html)
+
 - [快速开始](https://github.com/WLDragon/SMValidator/wiki/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
 
 ## Preview
@@ -93,9 +95,7 @@ new SMValidator('form', {
 - `SMValidator.pure.min.js` without config, set rule and style by yourself
 
 ## TODO
-1. 英文教程
-
-2. 添加vue插件版本
+1. 添加vue插件版本
 
 ## Reference
 some inspirations comes from: [nice-validator](https://github.com/niceue/nice-validator)
