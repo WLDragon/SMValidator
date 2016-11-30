@@ -94,8 +94,5 @@ new SMValidator('form', {
 
 - `SMValidator.pure.min.js` without config, set rule and style by yourself
 
-## TODO
-1. 添加vue插件版本
-
 ## Reference
 some inspirations comes from: [nice-validator](https://github.com/niceue/nice-validator)
