@@ -13,7 +13,7 @@ var lang = {
     range_scope: 'value must be greater than {0} and less than {1}',
     range_greater: 'value must be greater than {0}',
     range_less: 'value must be less than {0}',
-    renge_no_number: 'value must be number',
+    range_no_number: 'value must be number',
     error_param: 'error param',
     length_equal: 'length must be equal to {0}',
     length_scope: 'length must be greater than {0} and less than {1}',
@@ -68,7 +68,7 @@ SMValidator.config({
                     return lang.error_param;
                 }
             }else {
-                return lang.renge_no_number;
+                return lang.range_no_number;
             }
         },
         length: function(val, a, b) {
