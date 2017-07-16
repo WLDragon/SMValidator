@@ -1,5 +1,5 @@
 /*!
- * SMValidator 1.2.6
+ * SMValidator 1.2.7
  * Copyright (c) 2016 WLDragon(cwloog@qq.com)
  * Released under the MIT License.
  */(function (global, factory) {
@@ -520,7 +520,8 @@
         var item = sm.rule;
         var result = true;
         var results = [];
-        var flag = 1; //0初始状态 1通过 2失败
+        /**0初始状态 1通过 2失败 */
+        var flag = 1;
         var value = '';
         var isBreak = item.token === '|';
         if(isCheckBoxOrRadio(type) && input.form) {
@@ -638,7 +639,7 @@
             isLocate = false;
         }
 
-        return result;
+        return flag !== 2;
     }
 
     /**全局配置 */
@@ -689,7 +690,7 @@
             var input = ins[i];
             if(input._sm) {
                 count++;
-                if(validate(input, options) === true) {
+                if(validate(input, options)) {
                     passCount++;
                 }else if(short) {
                     return false;

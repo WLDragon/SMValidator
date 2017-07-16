@@ -103,9 +103,10 @@
             <input name="field4" type="text">
         </div>
         <div>
-            <p>手动验证，长度为4，自定义类名，自定义样式，自定义消息容器</p>
+            <p>手动验证，长度为4，必须数字，自定义类名，自定义样式，自定义消息容器</p>
             <input name="field5" id="manul2" type="text">
             <a href="javascript:;" onclick="onManul()">点击验证</a>
+            <span style="color:#f00" id="manul2-result"></span>
             <p name="message2" style="color:#39f">要求长度为4</p>
         </div>
         <div>
@@ -190,7 +191,7 @@
                         color: '#39f',
                         border: '1px solid #39f'
                     },
-                    rule: 'length(3,5)',
+                    rule: 'length(3,5)&number',
                     manul: true
                 },
                 field6: {
@@ -228,7 +229,8 @@
         });
 
         function onManul() {
-            SMValidator.validate('#manul2');
+            var r = SMValidator.validate('#manul2');
+            document.querySelector('#manul2-result').innerText = r;
         }
 
         function async6(result) {
