@@ -82,6 +82,9 @@ new SMValidator('form', {
 
 - ```bower install SMValidator```
 
+## Build
+- ```npm run build```
+
 ## Notice
 - checkbox invalid in IE8
 
